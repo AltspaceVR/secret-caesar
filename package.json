@@ -1,0 +1,23 @@
+{
+  "name": "secret-hitler",
+  "version": "1.0.0",
+  "description": "The new board game, adapted for VR.",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "author": "Steven Vergenz",
+  "license": "CC-BY-NC-SA-4.0",
+  "devDependencies": {
+    "babel-preset-es2015": "^6.18.0",
+    "gulp": "^3.9.1",
+    "gulp-babel": "^6.1.2"
+  },
+  "dependencies": {
+    "express": "^4.14.0"
+  },
+  "scripts": {
+	"start": "src/app.js",
+	"build": "gulp"
+  }
+}
