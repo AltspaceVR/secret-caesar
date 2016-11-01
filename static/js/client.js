@@ -9,9 +9,11 @@ var SecretHitler = function () {
 		_classCallCheck(this, SecretHitler);
 
 		this.assets = {
-			models: {},
+			models: {
+				board: 'model/table.dae'
+			},
 			textures: {
-				board: 'img/board-small.png'
+				board: 'img/board-large-baked.png'
 			}
 		};
 	}
@@ -19,9 +21,17 @@ var SecretHitler = function () {
 	_createClass(SecretHitler, [{
 		key: 'initialize',
 		value: function initialize(env, root, assets) {
+			// set root to the tabletop (1m from floor)
+			window.root = root;
+			var halfHeight = env.innerHeight / (2 * env.pixelsPerMeter);
+			root.position.setY(-halfHeight);
+
 			// create the table
+			var table = assets.models.board;
 			var mat = new THREE.MeshBasicMaterial({ map: assets.textures.board });
-			var table = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), mat);
+			table.children[0].material = mat;
+			table.rotation.set(-Math.PI / 2, 0, 0);
+			table.position.set(0, 1, 0);
 			root.add(table);
 		}
 	}]);

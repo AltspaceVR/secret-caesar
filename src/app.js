@@ -1,4 +1,6 @@
-'use strict';
+/***************************************
+* Main app - loads all main routes
+***************************************/
 
 const express = require('express');
 const app = express();

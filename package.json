@@ -17,7 +17,7 @@
     "express": "^4.14.0"
   },
   "scripts": {
-	"start": "src/app.js",
+	"start": "nodejs src/app.js",
 	"build": "gulp"
   }
 }
