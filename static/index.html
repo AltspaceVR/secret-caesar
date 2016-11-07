@@ -3,16 +3,15 @@
 	<head>
 		<title>Secret Hitler!</title>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r74/three.js"></script>
-		<script src="https://cdn.rawgit.com/mrdoob/three.js/master/examples/js/loaders/GLTFLoader.js"></script>
 		<script src="https://cdn.rawgit.com/mrdoob/three.js/master/examples/js/loaders/ColladaLoader.js"></script>
 		<script src="https://sdk.altvr.com/libs/altspace.js/0.19.2/altspace.min.js"></script>
-		<script src="https://rawgit.com/stevenvergenz/altspace-diorama/master/dist/diorama.min.js"></script>
-		<script src='js/client.js'></script>
+		<script src="https://rawgit.com/stevenvergenz/altspace-diorama/master/dist/diorama.js"></script>
+		<script src='js/secrethitler.js'></script>
 	</head>
 	<body>
 		<script>
 			var d = new Diorama();
-			d.start(new SecretHitler());
+			d.start(SecretHitler);
 		</script>
 	</body>
 </html>
