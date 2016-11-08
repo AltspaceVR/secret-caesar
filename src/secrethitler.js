@@ -20,13 +20,19 @@ export default //SecretHitler
 		let mat = new THREE.MeshBasicMaterial({ map: assets.textures.board_large });
 		table.children[0].material = mat;
 		table.rotation.set(-Math.PI/2, 0, 0);
-		table.position.set(0, 1, 0);
+		table.position.set(0, 0.75, 0);
 		root.add(table);
 
 		// create test card
 		let c = new Cards.HitlerRoleCard();
 		c.translateY(1.3);
 		root.add(c);
+
+		let hat = assets.models.tophat;
+		hat.position.set(0.5, 1.3, 0);
+		hat.rotation.set(0, 0, 0);
+		hat.scale.set(.01, .01, .01);
+		root.add(hat);
 	},
 
 }

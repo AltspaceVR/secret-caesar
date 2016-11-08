@@ -3,7 +3,8 @@
 export default { 
 	manifest: {
 		models: {
-			board: 'model/table.dae'
+			board: 'model/table.dae',
+			tophat: 'model/tophat.dae'
 		},
 		textures: {
 			board_large: 'img/board-large-baked.png',
