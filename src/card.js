@@ -75,6 +75,8 @@ function getUVs(type)
 		break;
 	case Types.BLANK:
 	default:
+		dims = {side: true, left: 0.022, right: .022+0.247, top: 0.021, bottom: .021+0.3543};
+		break;
 	}
 
 	console.log(dims);
@@ -113,49 +115,49 @@ class Card extends THREE.Object3D
 
 class LiberalPolicyCard extends Card {
 	constructor(secret = false){
-		super(Types.POLICY_LIBERAL, true, secret);
+		super(Types.POLICY_LIBERAL, false, secret);
 	}
 }
 
 class FascistPolicyCard extends Card {
 	constructor(secret = false){
-		super(Types.POLICY_FASCIST, true, secret);
+		super(Types.POLICY_FASCIST, false, secret);
 	}
 }
 
 class LiberalRoleCard extends Card {
 	constructor(secret = false){
-		super(Types.ROLE_LIBERAL, true, secret);
+		super(Types.ROLE_LIBERAL, false, secret);
 	}
 }
 
 class FascistRoleCard extends Card {
 	constructor(secret = false){
-		super(Types.ROLE_FASCIST, true, secret);
+		super(Types.ROLE_FASCIST, false, secret);
 	}
 }
 
 class HitlerRoleCard extends Card {
 	constructor(secret = false){
-		super(Types.ROLE_HITLER, true, secret);
+		super(Types.ROLE_HITLER, false, secret);
 	}
 }
 
 class LiberalPartyCard extends Card {
 	constructor(secret = false){
-		super(Types.PARTY_LIBERAL, true, secret);
+		super(Types.PARTY_LIBERAL, false, secret);
 	}
 }
 
 class FascistPartyCard extends Card {
 	constructor(secret = false){
-		super(Types.PARTY_FASCIST, true, secret);
+		super(Types.PARTY_FASCIST, false, secret);
 	}
 }
 
 class JaCard extends Card {
 	constructor(){
-		super(Types.JA, true, false);
+		super(Types.JA, false, false);
 		this.children[0].rotateZ(-Math.PI/2);
 		this.children[1].rotateZ(-Math.PI/2);
 	}
@@ -163,7 +165,7 @@ class JaCard extends Card {
 
 class NeinCard extends Card {
 	constructor(){
-		super(Types.NEIN, true, false);
+		super(Types.NEIN, false, false);
 		this.children[0].rotateZ(-Math.PI/2);
 		this.children[1].rotateZ(-Math.PI/2);
 	}

@@ -24,7 +24,7 @@ export default //SecretHitler
 		root.add(table);
 
 		// create test card
-		let c = new Cards.NeinCard();
+		let c = new Cards.HitlerRoleCard();
 		c.translateY(1.3);
 		root.add(c);
 	},
