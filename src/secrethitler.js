@@ -30,7 +30,7 @@ export default //SecretHitler
 
 		let hat = assets.models.tophat;
 		hat.position.set(0.5, 1.3, 0);
-		hat.scale.set(.01, .01, .01);
+		hat.rotation.set(-Math.PI/2, 0, 0);
 		root.add(hat);
 		
 		let hat2 = assets.models.visorcap;
