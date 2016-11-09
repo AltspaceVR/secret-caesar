@@ -30,9 +30,13 @@ export default //SecretHitler
 
 		let hat = assets.models.tophat;
 		hat.position.set(0.5, 1.3, 0);
-		hat.rotation.set(0, 0, 0);
 		hat.scale.set(.01, .01, .01);
 		root.add(hat);
+		
+		let hat2 = assets.models.visorcap;
+		hat2.position.set(-0.5, 1.3, 0);
+		hat2.rotation.set(-Math.PI/2, 0, 0);
+		root.add(hat2);
 	},
 
 }

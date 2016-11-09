@@ -4,7 +4,8 @@ export default {
 	manifest: {
 		models: {
 			board: 'model/table.dae',
-			tophat: 'model/tophat.dae'
+			tophat: 'model/tophat.dae',
+			visorcap: 'model/visor_cap.dae'
 		},
 		textures: {
 			board_large: 'img/board-large-baked.png',
