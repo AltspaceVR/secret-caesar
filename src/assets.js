@@ -14,5 +14,6 @@ export default {
 			cards: 'img/cards.png'
 		}
 	},
-	cache: {}
+	cache: {},
+	root: null
 }

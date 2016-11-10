@@ -1,8 +1,9 @@
 'use strict';
 
 import AssetManager from './assets';
+import Animate from './animate';
 
-	// enum constants
+// enum constants
 let Types = Object.freeze({
 	POLICY_LIBERAL: 0,
 	POLICY_FASCIST: 1,
@@ -79,7 +80,6 @@ function getUVs(type)
 		break;
 	}
 
-	console.log(dims);
 	return dimsToUV(dims);
 }
 
@@ -117,12 +117,45 @@ class LiberalPolicyCard extends Card {
 	constructor(secret = false){
 		super(Types.POLICY_LIBERAL, false, secret);
 	}
+	goToPosition(spot = 0)
+	{
+		spot = Math.max(0, Math.min(4, spot));
+		let s = LiberalPolicyCard.spots;
+		Animate.start(this, {parent: AssetManager.root, pos: s['pos_'+spot], quat: s.quat, scale: s.scale});
+	}
+}
+
+LiberalPolicyCard.spots = {
+	pos_0: new THREE.Vector3(0.533, 0.76, -0.336),
+	pos_1: new THREE.Vector3(0.263, 0.76, -0.336),
+	pos_2: new THREE.Vector3(-.007, 0.76, -0.336),
+	pos_3: new THREE.Vector3(-.279, 0.76, -0.336),
+	pos_4: new THREE.Vector3(-.552, 0.76, -0.336),
+	quat: new THREE.Quaternion(0, 0.7071067811865475, 0.7071067811865475, 0),
+	scale: new THREE.Vector3(0.7, 0.7, 0.7)
 }
 
 class FascistPolicyCard extends Card {
 	constructor(secret = false){
 		super(Types.POLICY_FASCIST, false, secret);
 	}
+	goToPosition(spot = 0)
+	{
+		spot = Math.max(0, Math.min(5, spot));
+		let s = FascistPolicyCard.spots;
+		Animate.start(this, {parent: AssetManager.root, pos: s['pos_'+spot], quat: s.quat, scale: s.scale});
+	}
+}
+
+FascistPolicyCard.spots = {
+	pos_0: new THREE.Vector3(-.687, 0.76, 0.341),
+	pos_1: new THREE.Vector3(-.417, 0.76, 0.341),
+	pos_2: new THREE.Vector3(-.146, 0.76, 0.341),
+	pos_3: new THREE.Vector3(0.127, 0.76, 0.341),
+	pos_4: new THREE.Vector3(0.400, 0.76, 0.341),
+	pos_5: new THREE.Vector3(0.673, 0.76, 0.341),
+	quat: new THREE.Quaternion(-0.7071067811865475, 0, 0, 0.7071067811865475),
+	scale: new THREE.Vector3(0.7, 0.7, 0.7)
 }
 
 class LiberalRoleCard extends Card {

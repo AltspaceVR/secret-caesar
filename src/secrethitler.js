@@ -6,14 +6,12 @@ import AssetManager from './assets';
 export default //SecretHitler
 {
 	assets: AssetManager.manifest,
+	verticalAlign: 'bottom',
 	initialize: (env, root, assets) => {
-
-		// set root to the tabletop (1m from floor)
-		let halfHeight = env.innerHeight/(2*env.pixelsPerMeter);
-		root.position.setY(-halfHeight);
 
 		// populate the shared asset cache
 		AssetManager.cache = assets;
+		AssetManager.root = root;
 
 		// create the table
 		let table = assets.models.board;
@@ -24,7 +22,7 @@ export default //SecretHitler
 		root.add(table);
 
 		// create test card
-		let c = new Cards.HitlerRoleCard();
+		let c = new Cards.FascistPolicyCard();
 		c.translateY(1.3);
 		root.add(c);
 
@@ -37,7 +35,6 @@ export default //SecretHitler
 		hat2.position.set(-0.5, 1.3, 0);
 		hat2.rotation.set(-Math.PI/2, 0, 0);
 		root.add(hat2);
-	},
-
+	}
 }
 
