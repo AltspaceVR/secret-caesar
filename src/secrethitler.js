@@ -2,6 +2,7 @@
 
 import * as Cards from './card';
 import AssetManager from './assets';
+import { getGameId } from './utils';
 
 class SecretHitler extends THREE.Object3D
 {
@@ -16,6 +17,8 @@ class SecretHitler extends THREE.Object3D
 	{
 		// populate the shared asset cache
 		AssetManager.cache = assets;
+
+		this.env = env;
 
 		// create the table
 		let table = assets.models.board;
@@ -42,6 +45,8 @@ class SecretHitler extends THREE.Object3D
 		this.add(hat2);
 
 		// connect to server
+		this.socket = io.connect('/', {query: 'gameId='+getGameId()});
+		this.socket.on('idle', (data) => console.log(data));
 	}
 
 	// pass along client events to the server

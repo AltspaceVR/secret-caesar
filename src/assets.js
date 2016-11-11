@@ -3,17 +3,16 @@
 export default { 
 	manifest: {
 		models: {
-			board: 'model/table.dae',
-			tophat: 'model/tophat.dae',
-			visorcap: 'model/visor_cap.dae'
+			board: 'static/model/table.dae',
+			tophat: 'static/model/tophat.dae',
+			visorcap: 'static/model/visor_cap.dae'
 		},
 		textures: {
-			board_large: 'img/board-large-baked.png',
-			board_med: 'img/board-medium-baked.png',
-			board_small: 'img/board-small-baked.png',
-			cards: 'img/cards.png'
+			board_large: 'static/img/board-large-baked.png',
+			board_med: 'static/img/board-medium-baked.png',
+			board_small: 'static/img/board-small-baked.png',
+			cards: 'static/img/cards.png'
 		}
 	},
-	cache: {},
-	root: null
+	cache: {}
 }
