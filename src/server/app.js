@@ -13,16 +13,15 @@ const app = express.Router();
 einst.use(config.basePath, app);
 
 // serve static files
-app.use('/static', express.static( libpath.join(__dirname,'..','static') ) );
+app.use('/static', express.static( libpath.join(__dirname,'..','..','static') ) );
 
 // serve files that are *not* game state
 app.get('/socket.io.js', (req,res,next) => {
-	console.log('requested socket io client');
-	res.sendFile( libpath.join(__dirname, '..','node_modules','socket.io-client','socket.io.js') );
+	res.sendFile( libpath.join(__dirname, '..','..','node_modules','socket.io-client','socket.io.js') );
 });
 
 app.get('/', (req,res,next) => {
-	res.sendFile( libpath.join(__dirname, '..','static','index.html') );
+	res.sendFile( libpath.join(__dirname, '..','..','static','index.html') );
 });
 
 // generic 404
