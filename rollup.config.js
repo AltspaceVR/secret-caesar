@@ -1,7 +1,7 @@
 import buble from 'rollup-plugin-buble';
 
 export default {
-	entry: 'src/secrethitler.js',
+	entry: 'src/client/secrethitler.js',
 	dest: 'static/js/secrethitler.js',
 	format: 'iife',
 	moduleName: 'SecretHitler',

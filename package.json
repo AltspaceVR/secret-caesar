@@ -4,8 +4,10 @@
   "description": "The new board game, adapted for VR.",
   "main": "index.js",
   "scripts": {
-    "start": "nodejs src/app.js",
-    "build": "rollup -w -c"
+    "start": "node src/server/app.js",
+	"build": "rollup -c",
+	"start-dev": "nodemon -w src/server/ src/server/app.js",
+    "build-dev": "rollup -w -c"
   },
   "author": "Steven Vergenz",
   "license": "CC-BY-NC-SA-4.0",
