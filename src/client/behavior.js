@@ -29,6 +29,7 @@ class BSync extends Behavior
 
 		// listen for update events
 		this.hook = this._s.on(eventName, this.updateFromServer.bind(this));
+		this.eventName = eventName;
 		this.owner = '';
 	}
 
@@ -46,7 +47,11 @@ class BSync extends Behavior
 
 	update(dT)
 	{
-		
+		if(PM.localUser && PM.localUser.skeleton && PM.localUser.userId === this.owner)
+		{
+			let j = PM.localUser.skeleton.getJoint('Head');
+			this._s.emit(this.eventName, [...j.position.toArray(), ...j.quaternion.toArray()]);
+		}
 	}
 
 }
