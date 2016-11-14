@@ -33,7 +33,8 @@ class SecretHitler extends THREE.Object3D
 		this.presidentHat = new PresidentHat();
 		this.presidentHat.position.set(0.5, 1.3, 0);
 		this.add(this.presidentHat);
-		
+	
+		// create chancellor hat
 		this.chancellorHat = new ChancellorHat();
 		this.chancellorHat.position.set(-0.5, 1.3, 0);
 		this.add(this.chancellorHat);

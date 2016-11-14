@@ -1,6 +1,6 @@
 'use strict';
 
-import Behavior from './behavior';
+import { Behavior } from './behavior';
 
 class Animate extends Behavior
 {
