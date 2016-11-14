@@ -3,7 +3,7 @@
 export default { 
 	manifest: {
 		models: {
-			board: 'static/model/table.dae',
+			table: 'static/model/table.dae',
 			tophat: 'static/model/tophat.dae',
 			visorcap: 'static/model/visor_cap.dae'
 		},

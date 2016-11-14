@@ -1,6 +1,6 @@
 'use strict';
 
-import AssetManager from './assets';
+import AssetManager from './assetmanager';
 import Animate from './animate';
 
 // enum constants
