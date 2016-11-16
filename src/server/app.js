@@ -6,7 +6,8 @@
 const express = require('express');
 const libpath = require('path');
 const config = require('./config');
-const go = require('../gameobjects');
+const GameState = require('../gameobjects.cjs').GameState;
+const DB = require('./db');
 
 // configure base path
 const einst = express();
@@ -42,7 +43,13 @@ const io = require('socket.io')(server, {serveClient: false});
 io.on('connection', socket =>
 {
 	// check room id
-	socket.roomId = socket.handshake.query.roomId;
+	socket.gameId = socket.handshake.query.gameId;
+	
+	let game = new GameState(socket.gameId);
+	console.log(game.id);
+	DB.saveGame(game)
+	.then(obj => { console.log('success', obj); })
+	.catch(err => { console.log('error', err); });
 
 	socket.emit('idle', 'we got this far!');
 });

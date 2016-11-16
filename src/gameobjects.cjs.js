@@ -1,5 +1,7 @@
 'use strict';
 
+Object.defineProperty(exports, '__esModule', { value: true });
+
 class GameState
 {
 	constructor(id)
@@ -8,6 +10,7 @@ class GameState
 
 		this.state = 'idle';
 
+		this.players = {}; // indexed by userId
 		this.turnOrder = []; // array of userIds
 		this.president = 0; // userId
 		this.chancellor = 0; // userId
@@ -16,10 +19,8 @@ class GameState
 
 		this.liberalPolicies = 0;
 		this.fascistPolicies = 0;
-		this.deckFascist = 11;
-		this.deckLiberal = 6;
-		this.discardFascist = 0;
-		this.discardLiberal = 0;
+		this.deckState = {fascist: 11, liberal: 6};
+		this.discardState = {fascist: 0, liberal: 0};
 		this.specialElection = false;
 		this.failedVotes = 0;
 	}
@@ -68,5 +69,5 @@ class Player
 	}
 }
 
-export { GameState, Player };
-
+exports.GameState = GameState;
+exports.Player = Player;

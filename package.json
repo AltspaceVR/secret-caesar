@@ -5,9 +5,10 @@
   "main": "index.js",
   "scripts": {
     "start": "node src/server/app.js",
-	"build": "rollup -c",
-	"start-dev": "nodemon -w src/server/ src/server/app.js",
-    "build-dev": "rollup -w -c"
+    "start-dev": "nodemon -w src/server/ src/server/app.js",
+    "build": "rollup -c",
+    "build-dev": "rollup -w -c",
+    "build-common": "rollup -c rollup.common.js"
   },
   "author": "Steven Vergenz",
   "license": "CC-BY-NC-SA-4.0",
@@ -18,7 +19,9 @@
     "rollup-watch": "^2.5.0"
   },
   "dependencies": {
+    "bluebird": "^3.4.6",
     "express": "^4.14.0",
+    "redis": "^2.6.3",
     "socket.io": "^1.5.1"
   }
 }
