@@ -1,7 +1,7 @@
 'use strict';
 
 import SH from './secrethitler';
-import { Player } from '../gameobjects';
+import { Player } from './gameobjects';
 
 export default class PlayerManager
 {

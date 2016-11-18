@@ -13,6 +13,8 @@ class SecretHitler extends THREE.Object3D
 		super();
 		this.assets = AssetManager.manifest;
 		this.verticalAlign = 'bottom';
+		this.needsSkeleton = true;
+
 		this.state = 'uninitialized';
 	}
 
