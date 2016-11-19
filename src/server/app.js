@@ -7,6 +7,7 @@ const express = require('express');
 const libpath = require('path');
 const config = require('./config');
 const DB = require('./db');
+const ObjectSync = require('./objectsync');
 
 // configure base path
 const einst = express();
@@ -48,11 +49,17 @@ io.on('connection', socket =>
 	if(!socket.gameId)
 		return;
 
+	// add to observers channel
+	socket.join(socket.gameId);
+
+	// hook up various listeners
+	socket.on('objectsync', ObjectSync.pushToClients);
+
+	// send the catchup signal
 	let game = new DB.GameState(socket.gameId);
 	game.load().then(() => {
-		console.log('success');
+		console.log('new client connected to game', game.get('id'));
+		socket.emit('helo', game.serialize());
 	});
-
-	socket.emit('idle', 'we got this far!');
 });
 

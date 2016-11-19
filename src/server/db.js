@@ -7,28 +7,12 @@ bluebird.promisifyAll(redis.Multi.prototype);
 
 let client = redis.createClient();
 
-class GameState
+class GameObject
 {
-	constructor(id)
+	constructor(type, id)
 	{
-		this._cache = {
-			id: id,
-			state: 'idle',
-			turnOrder: '', // string of dash-delineated userIds
-			president: 0, // userId
-			chancellor: 0, // userId
-			lastPresident: 0, // userId
-			lastChancellor: 0, // userId
-
-			liberalPolicies: 0,
-			fascistPolicies: 0,
-			deckFascist: 11,
-			deckLiberal: 6,
-			discardFascist: 0,
-			discardLiberal: 0,
-			specialElection: false,
-			failedVotes: 0
-		};
+		this.type = type;
+		this._cache = {};
 		this._delta = {};
 	}
 
@@ -38,10 +22,10 @@ class GameState
 		return new Promise((resolve,reject) =>
 		{
 			let keys = Object.keys(self._cache);
-			client.hmgetAsync('game:'+self.get('id'), keys)
+			client.hmgetAsync(self.type+':'+self.get('id'), keys)
 			.then(result => {
-				console.log(result);
-				keys.forEach((k,i) => { self._cache[k] = result[i]; });
+				console.log('load', result);
+				keys.forEach((k,i) => { if(result[i]) self._cache[k] = result[i]; });
 				self._delta = {};
 				resolve();
 			})
@@ -59,12 +43,12 @@ class GameState
 		return new Promise((resolve,reject) =>
 		{
 			client.multi()
-			.hmset('game:'+self.get('id'), self._delta)
-			.expire('game:'+self.id, 60*60*24)
+			.hmset(self.type+':'+self.get('id'), self._delta)
+			.expire(self.type+':'+self.id, 60*60*24)
 			.execAsync()
 			.then(result => {
-				console.log(result);
-				Object.apply(self._cache, self._delta);
+				console.log('save', result);
+				Object.assign(self._cache, self._delta);
 				self._delta = {};
 				resolve();
 			})
@@ -75,6 +59,11 @@ class GameState
 		});
 	}
 
+	discard()
+	{
+		self._delta = {};
+	}
+
 	get(field){
 		return this._delta[field] || this._cache[field] || null;
 	}
@@ -82,7 +71,60 @@ class GameState
 	set(field, val){
 		this._delta[field] = val;
 	}
+
+	serialize()
+	{
+		let safe = {};
+		Object.assign(safe, this._cache, this._delta);
+		return safe;
+	}
 }
 
+class GameState extends GameObject
+{
+	constructor(id)
+	{
+		super('game', id);
+
+		this._cache = {
+			id: id,
+			state: 'idle',
+			turnOrder: '', // CSV of userIds
+			president: 0, // userId
+			chancellor: 0, // userId
+			lastPresident: 0, // userId
+			lastChancellor: 0, // userId
+
+			liberalPolicies: 0,
+			fascistPolicies: 0,
+			deckFascist: 11,
+			deckLiberal: 6,
+			discardFascist: 0,
+			discardLiberal: 0,
+			specialElection: false,
+			failedVotes: 0
+		};
+	}
+}
+
+class Player extends GameObject
+{
+	constructor(id)
+	{
+		super('player', id);
+
+		this._cache = {
+			id: id,
+			displayName: displayName,
+			isModerator: false,
+			role: 'unassigned', // one of 'unassigned', 'hitler', 'fascist', 'liberal'
+			state: 'normal' // one of 'normal', 'investigated', 'dead'
+		};
+	}
+}
+
+exports.SocketForPlayer = {};
+
 exports.GameState = GameState;
+exports.Player = Player;
 

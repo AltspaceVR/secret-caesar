@@ -2,7 +2,7 @@
 
 let trueConfig = {};
 try {
-	config = require('../config.js');
+	trueConfig = require('../../config.js');
 }
 catch(e){
 	console.warn('config.js not found, loading defaults');
@@ -10,7 +10,8 @@ catch(e){
 
 const defaultConfig = {
 	port: 3000,
-	basePath: '/'
+	basePath: '/',
+	objectSyncInterval: 100
 }
 
 
