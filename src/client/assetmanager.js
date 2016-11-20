@@ -4,6 +4,7 @@ export default {
 	manifest: {
 		models: {
 			table: 'static/model/table.dae',
+			nameplate: 'static/model/nameplate.dae',
 			tophat: 'static/model/tophat.dae',
 			visorcap: 'static/model/visor_cap.dae'
 		},

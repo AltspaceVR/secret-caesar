@@ -5,6 +5,7 @@ import { PresidentHat, ChancellorHat } from './hats';
 import GameTable from './table';
 import AssetManager from './assetmanager';
 import { getGameId } from './utils';
+import Nameplate from './nameplate';
 
 class SecretHitler extends THREE.Object3D
 {
@@ -15,7 +16,7 @@ class SecretHitler extends THREE.Object3D
 		this.verticalAlign = 'bottom';
 		this.needsSkeleton = true;
 
-		this.state = 'uninitialized';
+		this.game = {};
 	}
 
 	initialize(env, root, assets)
@@ -26,8 +27,6 @@ class SecretHitler extends THREE.Object3D
 
 		// connect to server
 		this.socket = io.connect('/', {query: 'gameId='+getGameId()});
-
-		this.game = {};
 
 		// create the table
 		this.gameTable = new GameTable();
@@ -46,6 +45,13 @@ class SecretHitler extends THREE.Object3D
 		// create hats
 		this.presidentHat = new PresidentHat();
 		this.chancellorHat = new ChancellorHat();
+
+		// create positions
+		for(let i=0; i<10; i++){
+			let seat = new Nameplate(i);
+			seat.updateText('Player '+i);
+			this.add(seat);
+		}
 
 		this.socket.on('update', this.updateFromServer.bind(this));
 	}
