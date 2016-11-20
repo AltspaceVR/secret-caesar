@@ -59,7 +59,7 @@ io.on('connection', socket =>
 	let game = new DB.GameState(socket.gameId);
 	game.load().then(() => {
 		console.log('new client connected to game', game.get('id'));
-		socket.emit('helo', game.serialize());
+		socket.emit('update', game.serialize());
 	});
 });
 

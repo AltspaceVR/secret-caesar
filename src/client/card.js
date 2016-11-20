@@ -2,6 +2,8 @@
 
 import AssetManager from './assetmanager';
 import Animate from './animate';
+import SH from './secrethitler';
+
 
 // enum constants
 let Types = Object.freeze({
@@ -14,7 +16,8 @@ let Types = Object.freeze({
 	PARTY_FASCIST: 6,
 	JA: 7,
 	NEIN: 8,
-	BLANK: 9
+	BLANK: 9,
+	CREDITS: 10
 });
 
 function dimsToUV({side, left, right, top, bottom})
@@ -74,6 +77,9 @@ function getUVs(type)
 	case Types.NEIN:
 		dims = {left: 0.006, right: 0.243, top: 0.642, bottom: 0.302};
 		break;
+	case Types.CREDITS:
+		dims = {side: true, left: 0.015, right: 0.276, top: 0.397, bottom: 0.765};
+		break;
 	case Types.BLANK:
 	default:
 		dims = {side: true, left: 0.022, right: .022+0.247, top: 0.021, bottom: .021+0.3543};
@@ -111,6 +117,25 @@ class Card extends THREE.Object3D
 		this.add(front, back);
 	}
 
+}
+
+class BlankCard extends Card {
+	constructor(){ super(); }
+}
+
+class CreditsCard extends Card {
+	constructor(){
+		super(Types.CREDITS);
+		let self = this;
+
+		SH.addEventListener('idle', () => {
+			self.children.forEach(o => { o.visible = true; });
+		});
+
+		SH.addEventListener('waitingforplayers', () => {
+			self.children.forEach(o => { o.visible = false; });
+		});
+	}
 }
 
 class LiberalPolicyCard extends Card {
@@ -206,7 +231,7 @@ class NeinCard extends Card {
 
 
 export {
-	Card, Types,
+	Card, Types, BlankCard, CreditsCard,
 	LiberalPolicyCard, FascistPolicyCard, LiberalRoleCard, FascistRoleCard,
 	HitlerRoleCard, LiberalPartyCard, FascistPartyCard, JaCard, NeinCard
 };

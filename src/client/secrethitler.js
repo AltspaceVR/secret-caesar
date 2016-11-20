@@ -27,26 +27,34 @@ class SecretHitler extends THREE.Object3D
 		// connect to server
 		this.socket = io.connect('/', {query: 'gameId='+getGameId()});
 
+		this.game = {};
+
 		// create the table
 		this.gameTable = new GameTable();
 		this.add(this.gameTable);
 
-		// create president hat
-		this.presidentHat = new PresidentHat();
-		this.presidentHat.position.set(0.5, 1.3, 0);
-		this.add(this.presidentHat);
-	
-		// create chancellor hat
-		this.chancellorHat = new ChancellorHat();
-		this.chancellorHat.position.set(-0.5, 1.3, 0);
-		this.add(this.chancellorHat);
+		// create idle display
+		this.idleRoot = new THREE.Object3D();
+		this.idleRoot.position.set(0, 1.3, 0);
+		this.idleRoot.addBehavior(new altspace.utilities.behaviors.Spin({speed: 0.0002}));
+		this.add(this.idleRoot);
 
-		// create test card
-		let c = new Cards.HitlerRoleCard();
-		c.translateY(1.3);
-		this.add(c);
+		// create idle slideshow
+		let credits = new Cards.CreditsCard();
+		this.idleRoot.add(credits);
+
+		// create hats
+		this.presidentHat = new PresidentHat();
+		this.chancellorHat = new ChancellorHat();
+
+		this.socket.on('update', this.updateFromServer.bind(this));
 	}
 
+	updateFromServer(game)
+	{
+		Object.assign(this.game, game);
+		this.dispatchEvent({type: game.state, bubbles: false});
+	}
 }
 
 export default new SecretHitler();

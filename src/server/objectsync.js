@@ -22,7 +22,7 @@ setInterval(() =>
 	keys.forEach(g => {
 		io.sockets.to(g).emit('objectsync', updates[g]);
 		delete updates[g];
-	}));
+	});
 
 }, config.objectSyncInterval);
 
