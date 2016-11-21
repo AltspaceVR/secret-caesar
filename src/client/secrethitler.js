@@ -49,7 +49,7 @@ class SecretHitler extends THREE.Object3D
 		// create positions
 		for(let i=0; i<10; i++){
 			let seat = new Nameplate(i);
-			seat.updateText('Player '+i);
+			seat.updateText('Seat '+i);
 			this.add(seat);
 		}
 

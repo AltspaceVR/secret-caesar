@@ -16,12 +16,13 @@ export default class GameTable extends THREE.Object3D
 		];
 
 		// add table asset
-		this.tableModel = AM.cache.models.table.children[0];
-		this.tableModel.rotation.set(-Math.PI/2, 0, 0);
-		this.add(this.tableModel);
+		this.model = AM.cache.models.table.children[0];
+		this.model.rotation.set(-Math.PI/2, 0, 0);
+		this.model.scale.setScalar(1.25);
+		this.add(this.model);
 
 		// set the default material
-		this.tableModel.material.map = this.textures[0];
+		this.model.material.map = this.textures[0];
 
 		// position table
 		this.position.set(0, 0.75, 0);

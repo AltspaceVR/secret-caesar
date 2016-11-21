@@ -10,22 +10,41 @@ export default class Nameplate extends THREE.Object3D
 		super();
 
 		this.seatNum = seatNum;
-		this.model = AM.cache.models.nameplate.clone();
-		this.model.rotation.set(-Math.PI/2, 0, Math.PI/2);
+		this.model = AM.cache.models.nameplate.children[0].clone();
+		this.model.rotation.set(-Math.PI/2, 0, 0);
+		this.model.scale.setScalar(1.25);
 		this.add(this.model);
 
 		// generate material
 		this.bmp = document.createElement('canvas');
 		this.bmp.width = Nameplate.textureSize;
 		this.bmp.height = Nameplate.textureSize / 2;
-		this.model.children[0].material = new THREE.MeshBasicMaterial({
+		this.model.material = new THREE.MeshBasicMaterial({
 			map: new THREE.CanvasTexture(this.bmp)
 		});
 
 		// place placard
-		let x = -0.8 + 0.4*( seatNum % 5 );
-		let z = -0.67 + 1.34* Math.floor(seatNum/5);
-		this.position.set(x, 0.765, z);
+		let x, y = 0.769, z;
+		switch(seatNum){
+		case 0: case 1: case 2:
+			this.model.rotateZ(Math.PI/2);
+			x = -0.833 + 0.833*seatNum;
+			this.position.set(x, y, -0.83);
+			break;
+		case 3: case 4:
+			z = -0.437 + 0.874*(seatNum-3);
+			this.position.set(1.21, y, z);
+			break;
+		case 5: case 6: case 7:
+			this.model.rotateZ(Math.PI/2);
+			x = 0.833 - 0.833*(seatNum-5);
+			this.position.set(x, y, 0.83);
+			break;
+		case 8: case 9:
+			z = 0.437 - 0.874*(seatNum-8);
+			this.position.set(-1.21, y, z);
+			break;
+		}
 	}
 
 	updateText(text)
