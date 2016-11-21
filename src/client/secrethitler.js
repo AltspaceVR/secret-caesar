@@ -34,7 +34,7 @@ class SecretHitler extends THREE.Object3D
 
 		// create idle display
 		this.idleRoot = new THREE.Object3D();
-		this.idleRoot.position.set(0, 1.3, 0);
+		this.idleRoot.position.set(0, 1.5, 0);
 		this.idleRoot.addBehavior(new altspace.utilities.behaviors.Spin({speed: 0.0002}));
 		this.add(this.idleRoot);
 
@@ -47,11 +47,13 @@ class SecretHitler extends THREE.Object3D
 		this.chancellorHat = new ChancellorHat();
 
 		// create positions
+		this.seats = [];
 		for(let i=0; i<10; i++){
 			let seat = new Nameplate(i);
 			seat.updateText('Seat '+i);
-			this.add(seat);
+			this.seats.push(seat);
 		}
+		this.add(...this.seats);
 
 		this.socket.on('update', this.updateFromServer.bind(this));
 	}
