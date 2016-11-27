@@ -45,19 +45,41 @@ export default class Nameplate extends THREE.Object3D
 			this.position.set(-1.21, y, z);
 			break;
 		}
+
+		// hook up listeners
+		SH.addEventListener('idle', this.onIdle.bind(this));
 	}
 
 	updateText(text)
 	{
+		console.log('drawing', text);
 		// set up canvas
 		let g = this.bmp.getContext('2d');
 		let fontStack = '"Helvetica Neue", Helvetica, Arial, Sans-Serif';
-		g.fillStyle = '#222'; // neutral brown
+		g.fillStyle = '#222';
 		g.fillRect(0, 0, Nameplate.textureSize, Nameplate.textureSize/2);
 		g.font = `bold ${0.9*Nameplate.textureSize/6}px ${fontStack}`;
 		g.textAlign = 'center';
 		g.fillStyle = 'white';
 		g.fillText(text, Nameplate.textureSize/2, (0.42 - 0.12)*(Nameplate.textureSize/2));
+	}
+
+	onIdle()
+	{
+		// check for player
+		this.playerId = Object.keys(SH.players).find((e => SH.players[e].seatNum === this.seatNum).bind(this));
+		if(this.playerId)
+		{
+			console.log('updating');
+			this.updateText(SH.players[this.playerId].displayName);
+		}
+		else
+		{
+			console.log('setting up');
+			this.updateText('<Click to join>');
+			this.model.addEventListener('cursorenter', (() => { this.model.material.color = 0x7c00ff; }).bind(this));
+			this.model.addEventListener('cursorleave', (() => { this.model.material.color = 0xffffff; }).bind(this));
+		}
 	}
 }
 

@@ -17,6 +17,7 @@ class SecretHitler extends THREE.Object3D
 		this.needsSkeleton = true;
 
 		this.game = {};
+		this.players = {};
 	}
 
 	initialize(env, root, assets)
@@ -50,7 +51,6 @@ class SecretHitler extends THREE.Object3D
 		this.seats = [];
 		for(let i=0; i<10; i++){
 			let seat = new Nameplate(i);
-			seat.updateText('Seat '+i);
 			this.seats.push(seat);
 		}
 		this.add(...this.seats);
@@ -58,9 +58,12 @@ class SecretHitler extends THREE.Object3D
 		this.socket.on('update', this.updateFromServer.bind(this));
 	}
 
-	updateFromServer(game)
+	updateFromServer(game, players)
 	{
+		console.log(game.state);
+		this.dispatchEvent({type: game.state+'_end'});
 		Object.assign(this.game, game);
+		Object.assign(this.players, players);
 		this.dispatchEvent({type: game.state, bubbles: false});
 	}
 }
