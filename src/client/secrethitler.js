@@ -16,8 +16,32 @@ class SecretHitler extends THREE.Object3D
 		this.verticalAlign = 'bottom';
 		this.needsSkeleton = true;
 
-		this.game = {};
-		this.players = {};
+		// polyfill getUser function
+		if(!altspace.inClient){
+			altspace.getUser = () => {
+				let id = Math.floor(Math.random() * 10000000);
+				altspace._localUser = {
+					userId: id,
+					displayName: 'Guest'+id,
+					isModerator: false
+				};
+				console.log('Masquerading as', altspace._localUser);
+				return Promise.resolve(altspace._localUser);
+			};
+		}
+
+		// get local user
+		altspace.getUser().then((user =>
+		{
+			this.localUser = {
+				id: user.userId,
+				displayName: user.displayName,
+				isModerator: user.isModerator
+			};
+		}).bind(this));
+
+		this.game = null;
+		this.players = null;
 	}
 
 	initialize(env, root, assets)
@@ -60,11 +84,19 @@ class SecretHitler extends THREE.Object3D
 
 	updateFromServer(game, players)
 	{
-		console.log(game.state);
-		this.dispatchEvent({type: game.state+'_end'});
-		Object.assign(this.game, game);
-		Object.assign(this.players, players);
-		this.dispatchEvent({type: game.state, bubbles: false});
+		console.log(game, players);
+
+		if(!this.game && !this.players){
+			this.game = game;
+			this.players = players;
+			this.dispatchEvent({type: 'init', bubbles: false});
+		}
+		else {
+			this.dispatchEvent({type: this.game.state+'_end'});
+			Object.assign(this.game, game);
+			Object.assign(this.players, players);
+			this.dispatchEvent({type: this.game.state, bubbles: false});
+		}
 	}
 }
 

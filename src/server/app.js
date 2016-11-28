@@ -8,6 +8,7 @@ const libpath = require('path');
 const config = require('./config');
 const DB = require('./db');
 const ObjectSync = require('./objectsync');
+const Players = require('./players');
 
 // configure base path
 const einst = express();
@@ -54,12 +55,13 @@ io.on('connection', socket =>
 
 	// hook up various listeners
 	socket.on('objectsync', ObjectSync.pushToClients);
+	socket.on('requestJoin', Players.requestJoin);
 
 	// send the catchup signal
 	let game = new DB.GameState(socket.gameId);
-	game.load().then(() => {
+	game.load().then(() => game.getPlayers()).then(() => {
 		console.log('new client connected to game', game.get('id'));
-		socket.emit('update', game.serialize());
+		socket.emit('update', game.serialize(), game.serializePlayers());
 	});
 });
 

@@ -24,14 +24,13 @@ class GameObject
 			let keys = Object.keys(self._cache);
 			client.hmgetAsync(self.type+':'+self.get('id'), keys)
 			.then(result => {
-				console.log('load', result);
 				keys.forEach((k,i) => { if(result[i]) self._cache[k] = result[i]; });
 				self._delta = {};
-				resolve();
+				resolve(this);
 			})
 			.catch(err => {
 				console.error(err);
-				reject();
+				reject(err);
 			});
 
 		});
@@ -49,12 +48,12 @@ class GameObject
 			.then(result => {
 				console.log('save', result);
 				Object.assign(self._cache, self._delta);
+				resolve(self._delta);
 				self._delta = {};
-				resolve();
 			})
 			.catch(err => {
 				console.error(err);
-				reject();
+				reject(err);
 			});
 		});
 	}
@@ -90,6 +89,7 @@ class GameState extends GameObject
 			id: id,
 			state: 'idle',
 			turnOrder: '', // CSV of userIds
+			pendingJoinRequest: '', // CSV of userIds
 			president: 0, // userId
 			chancellor: 0, // userId
 			lastPresident: 0, // userId
@@ -104,6 +104,33 @@ class GameState extends GameObject
 			specialElection: false,
 			failedVotes: 0
 		};
+
+		this.players = {};
+	}
+
+	getPlayers()
+	{
+		let ids = this.get('turnOrder') ? this.get('turnOrder').split(',') : [];
+		ids.forEach((e => {
+			this.players[e] = new Player(e);
+		}).bind(this));
+		
+		return Promise.all( ids.map((e => this.players[e].load()).bind(this)) );
+	}
+
+	serializePlayers()
+	{
+		let c = {};
+		for(let i in this.players){
+			c[i] = this.players[i].serialize();
+		}
+		return c;
+	}
+}
+
+class PlayerCollection
+{
+	serialize(){
 	}
 }
 
@@ -115,8 +142,9 @@ class Player extends GameObject
 
 		this._cache = {
 			id: id,
-			displayName: displayName,
+			displayName: '',
 			isModerator: false,
+			seatNum: null,
 			role: 'unassigned', // one of 'unassigned', 'hitler', 'fascist', 'liberal'
 			state: 'normal' // one of 'normal', 'investigated', 'dead'
 		};

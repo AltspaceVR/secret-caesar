@@ -10,6 +10,9 @@ export default class Nameplate extends THREE.Object3D
 		super();
 
 		this.seatNum = seatNum;
+		this.owner = null; // userId
+
+		// add 3d model
 		this.model = AM.cache.models.nameplate.children[0].clone();
 		this.model.rotation.set(-Math.PI/2, 0, 0);
 		this.model.scale.setScalar(1.25);
@@ -46,39 +49,61 @@ export default class Nameplate extends THREE.Object3D
 			break;
 		}
 
+		// create listener proxies
+		this._requestJoin = this.requestJoin.bind(this);
+		this.hoverBehavior = new altspace.utilities.behaviors.HoverColor({color: new THREE.Color(0xffa8a8)});
+
 		// hook up listeners
-		SH.addEventListener('idle', this.onIdle.bind(this));
+		SH.addEventListener('init', this.updateOwnership.bind(this));
+		SH.addEventListener('idle', this.updateOwnership.bind(this));
 	}
 
 	updateText(text)
 	{
-		console.log('drawing', text);
+		let fontSize = 7/32 * Nameplate.textureSize * 0.65;
+
 		// set up canvas
 		let g = this.bmp.getContext('2d');
 		let fontStack = '"Helvetica Neue", Helvetica, Arial, Sans-Serif';
 		g.fillStyle = '#222';
 		g.fillRect(0, 0, Nameplate.textureSize, Nameplate.textureSize/2);
-		g.font = `bold ${0.9*Nameplate.textureSize/6}px ${fontStack}`;
+		g.font = `bold ${fontSize}px ${fontStack}`;
 		g.textAlign = 'center';
 		g.fillStyle = 'white';
 		g.fillText(text, Nameplate.textureSize/2, (0.42 - 0.12)*(Nameplate.textureSize/2));
+
+		this.model.material.map.needsUpdate = true;
 	}
 
-	onIdle()
+	requestJoin()
+	{
+		console.log('Requesting to join at seat', this.seatNum);
+		SH.socket.emit('requestJoin', Object.assign({seatNum: this.seatNum}, SH.localUser));
+	}
+
+	updateOwnership()
 	{
 		// check for player
-		this.playerId = Object.keys(SH.players).find((e => SH.players[e].seatNum === this.seatNum).bind(this));
-		if(this.playerId)
+		let owner = Object.keys(SH.players).find((e => SH.players[e].seatNum == this.seatNum).bind(this));
+
+		// player joined
+		if(owner && !this.owner)
 		{
-			console.log('updating');
-			this.updateText(SH.players[this.playerId].displayName);
+			this.owner = owner;
+			this.updateText(SH.players[this.owner].displayName);
+
+			this.model.__behaviorList = []; // TODO: ugh
+			this.model.removeBehavior(this._hoverBehavior);
+			this.model.removeEventListener('cursorup', this._requestJoin);
 		}
-		else
+
+		// player left
+		else if(!owner && (this.owner || this.owner === null))
 		{
-			console.log('setting up');
-			this.updateText('<Click to join>');
-			this.model.addEventListener('cursorenter', (() => { this.model.material.color = 0x7c00ff; }).bind(this));
-			this.model.addEventListener('cursorleave', (() => { this.model.material.color = 0xffffff; }).bind(this));
+			this.owner = 0;
+			this.updateText('<Join>');
+			this.model.addBehavior(this.hoverBehavior);
+			this.model.addEventListener('cursorup', this._requestJoin);
 		}
 	}
 }
