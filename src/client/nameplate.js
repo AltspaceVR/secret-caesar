@@ -51,7 +51,7 @@ export default class Nameplate extends THREE.Object3D
 
 		// create listener proxies
 		this._requestJoin = this.requestJoin.bind(this);
-		this.hoverBehavior = new altspace.utilities.behaviors.HoverColor({color: new THREE.Color(0xffa8a8)});
+		this._hoverBehavior = new altspace.utilities.behaviors.HoverColor({color: new THREE.Color(0xffa8a8)});
 
 		// hook up listeners
 		SH.addEventListener('init', this.updateOwnership.bind(this));
@@ -92,7 +92,7 @@ export default class Nameplate extends THREE.Object3D
 			this.owner = owner;
 			this.updateText(SH.players[this.owner].displayName);
 
-			this.model.__behaviorList = []; // TODO: ugh
+			this.model.__behaviorList = this.model.__behaviorList || []; // TODO: ugh
 			this.model.removeBehavior(this._hoverBehavior);
 			this.model.removeEventListener('cursorup', this._requestJoin);
 		}
@@ -102,7 +102,7 @@ export default class Nameplate extends THREE.Object3D
 		{
 			this.owner = 0;
 			this.updateText('<Join>');
-			this.model.addBehavior(this.hoverBehavior);
+			this.model.addBehavior(this._hoverBehavior);
 			this.model.addEventListener('cursorup', this._requestJoin);
 		}
 	}

@@ -92,9 +92,9 @@ class SecretHitler extends THREE.Object3D
 			this.dispatchEvent({type: 'init', bubbles: false});
 		}
 		else {
-			this.dispatchEvent({type: this.game.state+'_end'});
 			Object.assign(this.game, game);
 			Object.assign(this.players, players);
+			this.dispatchEvent({type: this.game.state+'_end', bubbles: false});
 			this.dispatchEvent({type: this.game.state, bubbles: false});
 		}
 	}
