@@ -34,7 +34,7 @@ class SecretHitler extends THREE.Object3D
 		altspace.getUser().then((user =>
 		{
 			this.localUser = {
-				id: user.userId,
+				id: user.userId.toString(),
 				displayName: user.displayName,
 				isModerator: user.isModerator
 			};
@@ -56,6 +56,14 @@ class SecretHitler extends THREE.Object3D
 		// create the table
 		this.gameTable = new GameTable();
 		this.add(this.gameTable);
+
+		this.resetButton = new THREE.Mesh(
+			new THREE.BoxGeometry(.25,.25,.25),
+			new THREE.MeshBasicMaterial({map: assets.textures.reset})
+		);
+		this.resetButton.position.set(0, -0.18, 0);
+		this.resetButton.addEventListener('cursorup', this.reset.bind(this));
+		this.gameTable.add(this.resetButton);
 
 		// create idle display
 		this.idleRoot = new THREE.Object3D();
@@ -97,6 +105,14 @@ class SecretHitler extends THREE.Object3D
 			this.dispatchEvent({type: this.game.state+'_end', bubbles: false});
 			this.dispatchEvent({type: this.game.state, bubbles: false});
 		}
+	}
+
+	reset()
+	{
+		console.log('requesting reset', this);
+		this.game = null;
+		this.players = null;
+		this.socket.emit('reset');
 	}
 }
 

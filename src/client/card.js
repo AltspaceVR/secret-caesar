@@ -129,15 +129,15 @@ class CreditsCard extends Card {
 		let self = this;
 
 		function setVisibility(){
-			if(SH.game.state === 'idle')
+			if(SH.game.state === 'setup')
 				self.children.forEach(o => { o.visible = true; });
 			else
 				self.children.forEach(o => { o.visible = false; });
 		}
 
 		SH.addEventListener('init', setVisibility);
-		SH.addEventListener('idle', setVisibility);
-		SH.addEventListener('idle_end', setVisibility);
+		SH.addEventListener('setup', setVisibility);
+		SH.addEventListener('setup_end', setVisibility);
 	}
 }
 

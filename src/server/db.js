@@ -43,7 +43,7 @@ class GameObject
 		{
 			client.multi()
 			.hmset(self.type+':'+self.get('id'), self._delta)
-			.expire(self.type+':'+self.id, 60*60*24)
+			.expire(self.type+':'+self.get('id'), 60*60*24)
 			.execAsync()
 			.then(result => {
 				console.log('save', result);
@@ -77,6 +77,26 @@ class GameObject
 		Object.assign(safe, this._cache, this._delta);
 		return safe;
 	}
+
+	destroy()
+	{
+		let self = this;
+		return new Promise((resolve,reject) =>
+		{
+			console.log('attempting reset');
+			client.delAsync(self.type+':'+self.get('id'))
+			.then(result => {
+				console.log('reset successful');
+				self._delta = Object.assign({}, self._cache, self._delta);
+				self._cache = {};
+				resolve();
+			})
+			.catch(err => {
+				console.error(err);
+				reject(err);
+			});
+		});
+	}
 }
 
 class GameState extends GameObject
@@ -86,8 +106,8 @@ class GameState extends GameObject
 		super('game', id);
 
 		this._cache = {
-			id: id,
-			state: 'idle',
+			id,
+			state: 'setup',
 			turnOrder: '', // CSV of userIds
 			pendingJoinRequest: '', // CSV of userIds
 			president: 0, // userId
@@ -114,23 +134,17 @@ class GameState extends GameObject
 		ids.forEach((e => {
 			this.players[e] = new Player(e);
 		}).bind(this));
-		
+
 		return Promise.all( ids.map((e => this.players[e].load()).bind(this)) );
 	}
 
-	serializePlayers()
+	serializePlayers(hideSecrets = true)
 	{
 		let c = {};
 		for(let i in this.players){
-			c[i] = this.players[i].serialize();
+			c[i] = this.players[i].serialize(hideSecrets);
 		}
 		return c;
-	}
-}
-
-class PlayerCollection
-{
-	serialize(){
 	}
 }
 
@@ -141,12 +155,40 @@ class Player extends GameObject
 		super('player', id);
 
 		this._cache = {
-			id: id,
+			id,
 			displayName: '',
 			isModerator: false,
 			seatNum: null,
 			role: 'unassigned', // one of 'unassigned', 'hitler', 'fascist', 'liberal'
 			state: 'normal' // one of 'normal', 'investigated', 'dead'
+		};
+	}
+
+	serialize(hideSecrets = true){
+		let safe = super.serialize();
+		if(hideSecrets) delete safe.role;
+		return safe;
+	}
+}
+
+class Vote extends GameObject
+{
+	constructor(id)
+	{
+		super('vote', id);
+
+		this._cache = {
+			id,
+			type: 'elect', // one of 'elect', 'join', 'kick', 'reset'
+			target1: 0, // userId of president/joiner/kicker
+			target2: 0, // userId of chancellor
+			data: '', // display name of join requester
+
+			needs: 0, // number of yea votes needed to pass
+			yesCount: 0,
+			noCount: 0,
+			participants: '', // CSV of userIds of users that have voted
+			nonvoters: '' // CSV of userIds that are not allowed to vote
 		};
 	}
 }
@@ -155,4 +197,3 @@ exports.SocketForPlayer = {};
 
 exports.GameState = GameState;
 exports.Player = Player;
-

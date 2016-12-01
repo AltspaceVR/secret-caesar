@@ -20,7 +20,7 @@ function requestJoin(user)
 		let playerIn = ids.includes(user.id);
 		let pending = game.get('pendingJoinRequests') ? game.get('pendingJoinRequests').split(',') : [];
 
-		if( user.seatNum !== null && game.get('state') === 'idle' && !seatTaken && !playerIn )
+		if( user.seatNum !== null && game.get('state') === 'setup' && !seatTaken && !playerIn )
 		{
 			// let all players join up to minimum count, then require approval
 			if(ids.length < 5 || pending.includes(user.id))
