@@ -6,7 +6,8 @@ export default {
 			table: 'static/model/table.dae',
 			nameplate: 'static/model/nameplate.dae',
 			tophat: 'static/model/tophat.dae',
-			visorcap: 'static/model/visor_cap.dae'
+			visorcap: 'static/model/visor_cap.dae',
+			dummy: 'static/model/dummy.dae'
 		},
 		textures: {
 			board_large: 'static/img/board-large-baked.png',

@@ -97,23 +97,21 @@ class Card extends THREE.Object3D
 		super();
 
 		// create the card faces
-		let front = new THREE.Mesh(
-			new THREE.PlaneGeometry(.3575, .5),
+		let cardGeo = new THREE.PlaneGeometry(.715, 1);
+		let front = new THREE.Mesh(cardGeo,
 			new THREE.MeshBasicMaterial({map: AssetManager.cache.textures.cards})
 		);
-		let back = new THREE.Mesh(
-			new THREE.PlaneGeometry(.3575, .5),
+		let back = new THREE.Mesh(cardGeo,
 			new THREE.MeshBasicMaterial({map: AssetManager.cache.textures.cards})
 		);
-		back.position.set(0.005, 0, 0);
+		back.position.set(0.001, 0, 0);
+		front.position.set(-0.001, 0, 0);
 		back.rotateY(Math.PI);
 
 		// set the faces to the correct part of the texture
 		front.geometry.faceVertexUvs = [getUVs(type)];
 		back.geometry.faceVertexUvs = [getUVs( doubleSided ? type : Types.BLANK )];
-
-		window.test = front;
-
+		this.scale.setScalar(0.7);
 		this.add(front, back);
 	}
 

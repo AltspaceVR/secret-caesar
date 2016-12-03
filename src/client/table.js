@@ -25,6 +25,6 @@ export default class GameTable extends THREE.Object3D
 		this.model.material.map = this.textures[0];
 
 		// position table
-		this.position.set(0, 0.75, 0);
+		this.position.set(0, 1.0, 0);
 	}
 };

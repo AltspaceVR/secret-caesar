@@ -27,7 +27,7 @@ export default class Nameplate extends THREE.Object3D
 		});
 
 		// place placard
-		let x, y = 0.769, z;
+		let x, y = 0.018, z;
 		switch(seatNum){
 		case 0: case 1: case 2:
 			this.model.rotateZ(Math.PI/2);
@@ -87,12 +87,10 @@ export default class Nameplate extends THREE.Object3D
 	{
 		// check for player
 		let owner = Object.keys(SH.players).find((e => SH.players[e].seatNum == this.seatNum).bind(this));
-		console.log(owner, this.owner);
 
 		// player joined
 		if(owner && !this.owner)
 		{
-			console.log('owner found');
 			this.owner = owner;
 			this.updateText(SH.players[this.owner].displayName);
 
@@ -104,7 +102,6 @@ export default class Nameplate extends THREE.Object3D
 		// player left
 		else if(!owner && (this.owner || this.owner === null))
 		{
-			console.log('owner lost');
 			this.owner = 0;
 			this.updateText('<Join>');
 			this.model.addBehavior(this._hoverBehavior);

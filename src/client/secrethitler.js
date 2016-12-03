@@ -54,8 +54,8 @@ class SecretHitler extends THREE.Object3D
 		this.socket = io.connect('/', {query: 'gameId='+getGameId()});
 
 		// create the table
-		this.gameTable = new GameTable();
-		this.add(this.gameTable);
+		this.table = new GameTable();
+		this.add(this.table);
 
 		this.resetButton = new THREE.Mesh(
 			new THREE.BoxGeometry(.25,.25,.25),
@@ -63,11 +63,11 @@ class SecretHitler extends THREE.Object3D
 		);
 		this.resetButton.position.set(0, -0.18, 0);
 		this.resetButton.addEventListener('cursorup', this.reset.bind(this));
-		this.gameTable.add(this.resetButton);
+		this.table.add(this.resetButton);
 
 		// create idle display
 		this.idleRoot = new THREE.Object3D();
-		this.idleRoot.position.set(0, 1.5, 0);
+		this.idleRoot.position.set(0, 1.85, 0);
 		this.idleRoot.addBehavior(new altspace.utilities.behaviors.Spin({speed: 0.0002}));
 		this.add(this.idleRoot);
 
@@ -85,7 +85,12 @@ class SecretHitler extends THREE.Object3D
 			let seat = new Nameplate(i);
 			this.seats.push(seat);
 		}
-		this.add(...this.seats);
+		this.table.add(...this.seats);
+
+		// add avatar for scale
+		assets.models.dummy.position.set(0, 0, 1.2);
+		assets.models.dummy.rotation.set(0, Math.PI, 0);
+		this.add(assets.models.dummy);
 
 		this.socket.on('update', this.updateFromServer.bind(this));
 	}
