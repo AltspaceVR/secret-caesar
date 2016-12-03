@@ -23,6 +23,7 @@
     "bluebird": "^3.4.6",
     "express": "^4.14.0",
     "mustache": "^2.3.0",
+    "path-to-regexp": "^1.7.0",
     "redis": "^2.6.3",
     "socket.io": "^1.5.1"
   }

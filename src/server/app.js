@@ -4,32 +4,34 @@
 'use strict';
 
 // constants
-const express = require('express');
-const libpath = require('path');
-const mustache = require('mustache');
-const fs = require('fs');
-const config = require('./config');
-const DB = require('./db');
-const ObjectSync = require('./objectsync');
-const Players = require('./players');
-const Game = require('./game');
+const express = require('express'),
+	libpath = require('path'),
+	mustache = require('mustache'),
+	fs = require('fs'),
+	path_to_regexp = require('path-to-regexp'),
+
+	config = require('./config'),
+	DB = require('./db'),
+	ObjectSync = require('./objectsync'),
+	Players = require('./players'),
+	Game = require('./game');
 
 // configure base path
-const einst = express();
-const app = express.Router();
-einst.use(config.basePath, app);
+const app = express();
 
 // serve static files
-app.use('/static', express.static( libpath.join(__dirname,'..','..','static') ) );
-
-// serve files that are *not* game state
-app.get('/socket.io/:file', (req,res,next) => {
-	console.log('Fetching static file', req.params.file);
-	res.sendFile( libpath.join(__dirname, '..','..','node_modules','socket.io-client','dist',req.params.file) );
+app.get(config.basePath+'/static/socket.io/:file', (req,res,next) => {
+	res.sendFile( libpath.join(__dirname, '..','..','node_modules',
+		'socket.io-client','dist',req.params.file)
+	);
 });
 
+app.use(config.basePath+'/static', express.static(
+	libpath.join(__dirname,'..','..','static')
+) );
+
 let indexCache = '';
-app.get('/', (req,res,next) => {
+app.get(config.basePath+'/', (req,res,next) => {
 	if(!indexCache)
 	{
 		// load template
@@ -54,7 +56,7 @@ app.use((req,res,next) => {
 });
 
 // start server
-let server = einst.listen(config.port, () => {
+let server = app.listen(config.port, () => {
 	console.log(`Listening at :${config.port}${config.basePath}`);
 });
 
