@@ -13,6 +13,7 @@
   "author": "Steven Vergenz",
   "license": "CC-BY-NC-SA-4.0",
   "devDependencies": {
+    "nodemon": "^1.11.0",
     "rollup": "^0.36.3",
     "rollup-plugin-babel": "^2.6.1",
     "rollup-plugin-buble": "^0.14.0",
@@ -21,6 +22,7 @@
   "dependencies": {
     "bluebird": "^3.4.6",
     "express": "^4.14.0",
+    "mustache": "^2.3.0",
     "redis": "^2.6.3",
     "socket.io": "^1.5.1"
   }

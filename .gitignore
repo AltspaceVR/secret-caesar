@@ -2,3 +2,4 @@ node_modules/
 *.swp
 *.blend1
 *.blend2
+config.js

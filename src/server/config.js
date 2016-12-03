@@ -1,6 +1,7 @@
 'use strict';
 
-let trueConfig = {};
+let trueConfig = null;
+
 try {
 	trueConfig = require('../../config.js');
 }
@@ -10,11 +11,14 @@ catch(e){
 
 const defaultConfig = {
 	port: 3000,
-	basePath: '/',
-	objectSyncInterval: 100
+	basePath: '',
+	objectSyncInterval: 100,
+	redis: {
+		host: '127.0.0.1',
+		port: 6379
+	}
 }
 
-
 module.exports = Object.assign({}, defaultConfig, trueConfig);
-
-
+if(trueConfig && trueConfig.redis)
+	module.exports.redis = Object.assign({}, defaultConfig.redis, trueConfig.redis);

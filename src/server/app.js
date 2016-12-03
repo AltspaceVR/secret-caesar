@@ -1,10 +1,13 @@
 /***************************************
 * Main app - loads all main routes
 ***************************************/
+'use strict';
 
 // constants
 const express = require('express');
 const libpath = require('path');
+const mustache = require('mustache');
+const fs = require('fs');
 const config = require('./config');
 const DB = require('./db');
 const ObjectSync = require('./objectsync');
@@ -20,12 +23,29 @@ einst.use(config.basePath, app);
 app.use('/static', express.static( libpath.join(__dirname,'..','..','static') ) );
 
 // serve files that are *not* game state
-app.get('/socket.io.js', (req,res,next) => {
-	res.sendFile( libpath.join(__dirname, '..','..','node_modules','socket.io-client','socket.io.js') );
+app.get('/socket.io/:file', (req,res,next) => {
+	console.log('Fetching static file', req.params.file);
+	res.sendFile( libpath.join(__dirname, '..','..','node_modules','socket.io-client','dist',req.params.file) );
 });
 
+let indexCache = '';
 app.get('/', (req,res,next) => {
-	res.sendFile( libpath.join(__dirname, '..','..','static','index.html') );
+	if(!indexCache)
+	{
+		// load template
+		fs.readFile(
+			libpath.join(__dirname,'..','client','index.mustache'),
+			{encoding: 'utf8'},
+			(err,data) => {
+				if(err) return res.status(500).send(err);
+				else {
+					indexCache = mustache.render(data, config);
+					res.send(indexCache);
+				}
+		});
+	}
+	else
+		res.send(indexCache);
 });
 
 // generic 404
@@ -35,7 +55,7 @@ app.use((req,res,next) => {
 
 // start server
 let server = einst.listen(config.port, () => {
-	console.log('Listening on port', config.port);
+	console.log(`Listening at :${config.port}${config.basePath}`);
 });
 
 

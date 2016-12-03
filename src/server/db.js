@@ -2,10 +2,12 @@
 
 const redis = require('redis');
 const bluebird = require('bluebird');
+const config = require('./config');
+
 bluebird.promisifyAll(redis.RedisClient.prototype);
 bluebird.promisifyAll(redis.Multi.prototype);
 
-let client = redis.createClient();
+let client = redis.createClient(config.redis);
 
 class GameObject
 {
