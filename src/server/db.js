@@ -14,8 +14,9 @@ class GameObject
 	constructor(type, id)
 	{
 		this.type = type;
-		this._cache = {};
-		this._delta = {};
+		this.properties = ['id'];
+		this.cache = {};
+		this.delta = {id};
 	}
 
 	load()
@@ -23,18 +24,19 @@ class GameObject
 		let self = this;
 		return new Promise((resolve,reject) =>
 		{
-			let keys = Object.keys(self._cache);
-			client.hmgetAsync(self.type+':'+self.get('id'), keys)
+			client.hmgetAsync(self.type+':'+self.get('id'), self.properties)
 			.then(result => {
-				keys.forEach((k,i) => { if(result[i]) self._cache[k] = result[i]; });
-				self._delta = {};
+				self.properties.forEach((k,i) => {
+					if(result[i] !== null) self.cache[k] = result[i];
+				});
+				if(Object.keys(self.cache).length > 0)
+					self.delta = {};
 				resolve(this);
 			})
 			.catch(err => {
 				console.error(err);
 				reject(err);
 			});
-
 		});
 	}
 
@@ -44,14 +46,14 @@ class GameObject
 		return new Promise((resolve,reject) =>
 		{
 			client.multi()
-			.hmset(self.type+':'+self.get('id'), self._delta)
+			.hmset(self.type+':'+self.get('id'), self.delta)
 			.expire(self.type+':'+self.get('id'), 60*60*24)
 			.execAsync()
 			.then(result => {
 				console.log('save', result);
-				Object.assign(self._cache, self._delta);
-				resolve(self._delta);
-				self._delta = {};
+				Object.assign(self.cache, self.delta);
+				resolve(self.delta);
+				self.delta = {};
 			})
 			.catch(err => {
 				console.error(err);
@@ -62,21 +64,25 @@ class GameObject
 
 	discard()
 	{
-		self._delta = {};
+		self.delta = {};
 	}
 
 	get(field){
-		return this._delta[field] || this._cache[field] || null;
+		if(this.delta[field] !== undefined)
+			return this.delta[field];
+		else if(this.cache[field] !== undefined)
+			return this.cache[field];
+		else return null;
 	}
 
 	set(field, val){
-		this._delta[field] = val;
+		this.delta[field] = val;
 	}
 
 	serialize()
 	{
 		let safe = {};
-		Object.assign(safe, this._cache, this._delta);
+		Object.assign(safe, this.cache, this.delta);
 		return safe;
 	}
 
@@ -89,8 +95,8 @@ class GameObject
 			client.delAsync(self.type+':'+self.get('id'))
 			.then(result => {
 				console.log('reset successful');
-				self._delta = Object.assign({}, self._cache, self._delta);
-				self._cache = {};
+				self.delta = Object.assign({}, self.cache, self.delta);
+				self.cache = {};
 				resolve();
 			})
 			.catch(err => {
@@ -106,9 +112,7 @@ class GameState extends GameObject
 	constructor(id)
 	{
 		super('game', id);
-
-		this._cache = {
-			id,
+		let defaults = {
 			state: 'setup',
 			turnOrder: '', // CSV of userIds
 			pendingJoinRequest: '', // CSV of userIds
@@ -127,6 +131,8 @@ class GameState extends GameObject
 			failedVotes: 0
 		};
 
+		this.properties.push(...Object.keys(defaults));
+		Object.assign(this.delta, defaults);
 		this.players = {};
 	}
 
@@ -156,14 +162,16 @@ class Player extends GameObject
 	{
 		super('player', id);
 
-		this._cache = {
-			id,
+		let defaults = {
 			displayName: '',
 			isModerator: false,
 			seatNum: null,
 			role: 'unassigned', // one of 'unassigned', 'hitler', 'fascist', 'liberal'
 			state: 'normal' // one of 'normal', 'investigated', 'dead'
 		};
+
+		this.properties.push(...Object.keys(defaults));
+		Object.assign(this.delta, defaults);
 	}
 
 	serialize(hideSecrets = true){
@@ -179,8 +187,7 @@ class Vote extends GameObject
 	{
 		super('vote', id);
 
-		this._cache = {
-			id,
+		let defaults = {
 			type: 'elect', // one of 'elect', 'join', 'kick', 'reset'
 			target1: 0, // userId of president/joiner/kicker
 			target2: 0, // userId of chancellor
@@ -192,6 +199,9 @@ class Vote extends GameObject
 			participants: '', // CSV of userIds of users that have voted
 			nonvoters: '' // CSV of userIds that are not allowed to vote
 		};
+
+		this.properties.push(...Object.keys(defaults));
+		Object.assign(this.delta, defaults);
 	}
 }
 

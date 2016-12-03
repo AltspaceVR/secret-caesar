@@ -77,7 +77,6 @@ io.on('connection', socket =>
 	socket.join(socket.gameId);
 
 	// hook up various listeners
-	console.log(Game);
 	socket.on('objectsync', ObjectSync.pushToClients);
 	socket.on('requestJoin', Players.requestJoin);
 	socket.on('reset', Game.reset);
