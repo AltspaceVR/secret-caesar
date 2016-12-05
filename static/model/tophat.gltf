@@ -1,0 +1,296 @@
+{
+    "accessors": {
+        "accessor_21": {
+            "bufferView": "bufferView_56",
+            "byteOffset": 50826,
+            "byteStride": 2,
+            "componentType": 5123,
+            "count": 2490,
+            "max": [
+                1244
+            ],
+            "min": [
+                0
+            ],
+            "type": "SCALAR"
+        },
+        "accessor_23": {
+            "bufferView": "bufferView_57",
+            "byteOffset": 609912,
+            "byteStride": 12,
+            "componentType": 5126,
+            "count": 2490,
+            "max": [
+                11.1637,
+                14.7846,
+                14.4852
+            ],
+            "min": [
+                -11.1637,
+                0,
+                -14.4852
+            ],
+            "type": "VEC3"
+        },
+        "accessor_25": {
+            "bufferView": "bufferView_57",
+            "byteOffset": 639792,
+            "byteStride": 12,
+            "componentType": 5126,
+            "count": 2490,
+            "max": [
+                0.749717,
+                1,
+                0.806378
+            ],
+            "min": [
+                -0.750159,
+                -0.735828,
+                -0.806378
+            ],
+            "type": "VEC3"
+        },
+        "accessor_48": {
+            "bufferView": "bufferView_56",
+            "byteOffset": 0,
+            "byteStride": 2,
+            "componentType": 5123,
+            "count": 25413,
+            "max": [
+                12706
+            ],
+            "min": [
+                0
+            ],
+            "type": "SCALAR"
+        },
+        "accessor_50": {
+            "bufferView": "bufferView_57",
+            "byteOffset": 0,
+            "byteStride": 12,
+            "componentType": 5126,
+            "count": 25413,
+            "max": [
+                0.163611,
+                0.0628667,
+                0.00799996
+            ],
+            "min": [
+                -0.164083,
+                -0.014627,
+                -0.00799996
+            ],
+            "type": "VEC3"
+        },
+        "accessor_52": {
+            "bufferView": "bufferView_57",
+            "byteOffset": 304956,
+            "byteStride": 12,
+            "componentType": 5126,
+            "count": 25413,
+            "max": [
+                1,
+                0.999997,
+                1
+            ],
+            "min": [
+                -1,
+                -1,
+                -1
+            ],
+            "type": "VEC3"
+        }
+    },
+    "animations": {},
+    "asset": {
+        "generator": "collada2gltf@f8f6279915175e9d2cc525531660ac439c114fac",
+        "premultipliedAlpha": true,
+        "profile": {
+            "api": "WebGL",
+            "version": "1.0.2"
+        },
+        "version": "1.0.1"
+    },
+    "bufferViews": {
+        "bufferView_56": {
+            "buffer": "tophat",
+            "byteLength": 55808,
+            "byteOffset": 0,
+            "target": 34963
+        },
+        "bufferView_57": {
+            "buffer": "tophat",
+            "byteLength": 669672,
+            "byteOffset": 55808,
+            "target": 34962
+        }
+    },
+    "buffers": {
+        "tophat": {
+            "byteLength": 725480,
+            "type": "arraybuffer",
+            "uri": "tophat.bin"
+        }
+    },
+    "extensionsUsed": [
+        "KHR_materials_common"
+    ],
+    "images": {
+        "lightmap": {
+            "name": "lightmap",
+            "uri": "../img/president.png"
+        },
+        "tophat_jpg": {
+            "name": "tophat_jpg",
+            "uri": "../img/tophat.jpg"
+        }
+    },
+    "materials": {
+        "Material-effect": {
+            "extensions": {
+                "KHR_materials_common": {
+                    "doubleSided": false,
+                    "jointCount": 0,
+                    "technique": "CONSTANT",
+                    "transparent": false,
+                    "values": {}
+                }
+            },
+            "name": "Material"
+        },
+        "blinn1SG_001-effect": {
+            "extensions": {
+                "KHR_materials_common": {
+                    "doubleSided": false,
+                    "jointCount": 0,
+                    "technique": "CONSTANT",
+                    "transparent": false,
+                    "values": {}
+                }
+            },
+            "name": "blinn1SG_001"
+        }
+    },
+    "meshes": {
+        "Mesh-mesh": {
+            "name": "Mesh",
+            "primitives": [
+                {
+                    "attributes": {
+                        "NORMAL": "accessor_52",
+                        "POSITION": "accessor_50"
+                    },
+                    "indices": "accessor_48",
+                    "material": "Material-effect",
+                    "mode": 4
+                }
+            ]
+        },
+        "tophat_001-mesh": {
+            "name": "tophat.001",
+            "primitives": [
+                {
+                    "attributes": {
+                        "NORMAL": "accessor_25",
+                        "POSITION": "accessor_23"
+                    },
+                    "indices": "accessor_21",
+                    "material": "blinn1SG_001-effect",
+                    "mode": 4
+                }
+            ]
+        }
+    },
+    "nodes": {
+        "hat": {
+            "children": [],
+            "matrix": [
+                0.01,
+                0,
+                0,
+                0,
+                0,
+                7.54979e-10,
+                0.01,
+                0,
+                0,
+                -0.01,
+                7.54979e-10,
+                0,
+                0,
+                0,
+                0.0632586,
+                1
+            ],
+            "meshes": [
+                "tophat_001-mesh"
+            ],
+            "name": "hat"
+        },
+        "node_3": {
+            "children": [
+                "president_hat"
+            ],
+            "matrix": [
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                -1,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                1
+            ],
+            "name": "Y_UP_Transform"
+        },
+        "president_hat": {
+            "children": [
+                "hat",
+                "text"
+            ],
+            "name": "president_hat"
+        },
+        "text": {
+            "children": [],
+            "matrix": [
+                1,
+                0,
+                0,
+                0,
+                0,
+                7.54979e-08,
+                1,
+                0,
+                0,
+                -1,
+                7.54979e-08,
+                0,
+                0,
+                -0.0594901,
+                0.278596,
+                1
+            ],
+            "meshes": [
+                "Mesh-mesh"
+            ],
+            "name": "text"
+        }
+    },
+    "scene": "defaultScene",
+    "scenes": {
+        "defaultScene": {
+            "nodes": [
+                "node_3"
+            ]
+        }
+    },
+    "skins": {}
+}

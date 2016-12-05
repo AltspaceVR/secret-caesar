@@ -1,0 +1,296 @@
+{
+    "accessors": {
+        "accessor_21": {
+            "bufferView": "bufferView_56",
+            "byteOffset": 3600,
+            "byteStride": 2,
+            "componentType": 5123,
+            "count": 27900,
+            "max": [
+                13949
+            ],
+            "min": [
+                0
+            ],
+            "type": "SCALAR"
+        },
+        "accessor_23": {
+            "bufferView": "bufferView_57",
+            "byteOffset": 43200,
+            "byteStride": 12,
+            "componentType": 5126,
+            "count": 27900,
+            "max": [
+                0.179996,
+                0.0638042,
+                0.00599998
+            ],
+            "min": [
+                -0.178738,
+                -0.0149907,
+                -0.00599998
+            ],
+            "type": "VEC3"
+        },
+        "accessor_25": {
+            "bufferView": "bufferView_57",
+            "byteOffset": 378000,
+            "byteStride": 12,
+            "componentType": 5126,
+            "count": 27900,
+            "max": [
+                1,
+                1,
+                1
+            ],
+            "min": [
+                -0.99999,
+                -1,
+                -1
+            ],
+            "type": "VEC3"
+        },
+        "accessor_48": {
+            "bufferView": "bufferView_56",
+            "byteOffset": 0,
+            "byteStride": 2,
+            "componentType": 5123,
+            "count": 1800,
+            "max": [
+                899
+            ],
+            "min": [
+                0
+            ],
+            "type": "SCALAR"
+        },
+        "accessor_50": {
+            "bufferView": "bufferView_57",
+            "byteOffset": 0,
+            "byteStride": 12,
+            "componentType": 5126,
+            "count": 1800,
+            "max": [
+                0.15,
+                0.147905,
+                0.037386
+            ],
+            "min": [
+                -0.15,
+                -0.146647,
+                -0.111302
+            ],
+            "type": "VEC3"
+        },
+        "accessor_52": {
+            "bufferView": "bufferView_57",
+            "byteOffset": 21600,
+            "byteStride": 12,
+            "componentType": 5126,
+            "count": 1800,
+            "max": [
+                1,
+                0.995185,
+                0.977647
+            ],
+            "min": [
+                -1,
+                -0.995185,
+                -0.999786
+            ],
+            "type": "VEC3"
+        }
+    },
+    "animations": {},
+    "asset": {
+        "generator": "collada2gltf@f8f6279915175e9d2cc525531660ac439c114fac",
+        "premultipliedAlpha": true,
+        "profile": {
+            "api": "WebGL",
+            "version": "1.0.2"
+        },
+        "version": "1.0.1"
+    },
+    "bufferViews": {
+        "bufferView_56": {
+            "buffer": "visor_cap",
+            "byteLength": 59400,
+            "byteOffset": 0,
+            "target": 34963
+        },
+        "bufferView_57": {
+            "buffer": "visor_cap",
+            "byteLength": 712800,
+            "byteOffset": 59400,
+            "target": 34962
+        }
+    },
+    "buffers": {
+        "visor_cap": {
+            "byteLength": 772200,
+            "type": "arraybuffer",
+            "uri": "visor_cap.bin"
+        }
+    },
+    "extensionsUsed": [
+        "KHR_materials_common"
+    ],
+    "images": {
+        "Untitled": {
+            "name": "Untitled",
+            "uri": "../img/chancellor.png"
+        },
+        "visor_hat_png": {
+            "name": "visor_hat_png",
+            "uri": "../img/visor_hat.png"
+        }
+    },
+    "materials": {
+        "Material-effect": {
+            "extensions": {
+                "KHR_materials_common": {
+                    "doubleSided": false,
+                    "jointCount": 0,
+                    "technique": "CONSTANT",
+                    "transparent": false,
+                    "values": {}
+                }
+            },
+            "name": "Material"
+        },
+        "Material_001-effect": {
+            "extensions": {
+                "KHR_materials_common": {
+                    "doubleSided": false,
+                    "jointCount": 0,
+                    "technique": "CONSTANT",
+                    "transparent": false,
+                    "values": {}
+                }
+            },
+            "name": "Material_001"
+        }
+    },
+    "meshes": {
+        "Circle-mesh": {
+            "name": "Circle",
+            "primitives": [
+                {
+                    "attributes": {
+                        "NORMAL": "accessor_52",
+                        "POSITION": "accessor_50"
+                    },
+                    "indices": "accessor_48",
+                    "material": "Material_001-effect",
+                    "mode": 4
+                }
+            ]
+        },
+        "Mesh-mesh": {
+            "name": "Mesh",
+            "primitives": [
+                {
+                    "attributes": {
+                        "NORMAL": "accessor_25",
+                        "POSITION": "accessor_23"
+                    },
+                    "indices": "accessor_21",
+                    "material": "Material-effect",
+                    "mode": 4
+                }
+            ]
+        }
+    },
+    "nodes": {
+        "chancellor_hat": {
+            "children": [
+                "text",
+                "hat"
+            ],
+            "name": "chancellor_hat"
+        },
+        "hat": {
+            "children": [],
+            "matrix": [
+                1,
+                0,
+                0,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0.114272,
+                1
+            ],
+            "meshes": [
+                "Circle-mesh"
+            ],
+            "name": "hat"
+        },
+        "node_3": {
+            "children": [
+                "chancellor_hat"
+            ],
+            "matrix": [
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                -1,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                1
+            ],
+            "name": "Y_UP_Transform"
+        },
+        "text": {
+            "children": [],
+            "matrix": [
+                1,
+                0,
+                0,
+                0,
+                0,
+                7.54979e-08,
+                1,
+                0,
+                0,
+                -1,
+                7.54979e-08,
+                0,
+                0,
+                -0.0858799,
+                0.2368,
+                1
+            ],
+            "meshes": [
+                "Mesh-mesh"
+            ],
+            "name": "text"
+        }
+    },
+    "scene": "defaultScene",
+    "scenes": {
+        "defaultScene": {
+            "nodes": [
+                "node_3"
+            ]
+        }
+    },
+    "skins": {}
+}
