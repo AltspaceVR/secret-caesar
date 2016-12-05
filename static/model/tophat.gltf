@@ -16,7 +16,7 @@
         },
         "accessor_23": {
             "bufferView": "bufferView_57",
-            "byteOffset": 609912,
+            "byteOffset": 813216,
             "byteStride": 12,
             "componentType": 5126,
             "count": 2490,
@@ -34,7 +34,7 @@
         },
         "accessor_25": {
             "bufferView": "bufferView_57",
-            "byteOffset": 639792,
+            "byteOffset": 843096,
             "byteStride": 12,
             "componentType": 5126,
             "count": 2490,
@@ -49,6 +49,22 @@
                 -0.806378
             ],
             "type": "VEC3"
+        },
+        "accessor_27": {
+            "bufferView": "bufferView_57",
+            "byteOffset": 872976,
+            "byteStride": 8,
+            "componentType": 5126,
+            "count": 2490,
+            "max": [
+                0.952448,
+                0.993319
+            ],
+            "min": [
+                0.00994897,
+                0.006522
+            ],
+            "type": "VEC2"
         },
         "accessor_48": {
             "bufferView": "bufferView_56",
@@ -99,6 +115,22 @@
                 -1
             ],
             "type": "VEC3"
+        },
+        "accessor_54": {
+            "bufferView": "bufferView_57",
+            "byteOffset": 609912,
+            "byteStride": 8,
+            "componentType": 5126,
+            "count": 25413,
+            "max": [
+                0.998999,
+                0.998999
+            ],
+            "min": [
+                0.001001,
+                0.001001
+            ],
+            "type": "VEC2"
         }
     },
     "animations": {},
@@ -120,14 +152,14 @@
         },
         "bufferView_57": {
             "buffer": "tophat",
-            "byteLength": 669672,
+            "byteLength": 892896,
             "byteOffset": 55808,
             "target": 34962
         }
     },
     "buffers": {
         "tophat": {
-            "byteLength": 725480,
+            "byteLength": 948704,
             "type": "arraybuffer",
             "uri": "tophat.bin"
         }
@@ -153,7 +185,9 @@
                     "jointCount": 0,
                     "technique": "CONSTANT",
                     "transparent": false,
-                    "values": {}
+                    "values": {
+                        "diffuse": "texture_lightmap"
+                    }
                 }
             },
             "name": "Material"
@@ -165,7 +199,9 @@
                     "jointCount": 0,
                     "technique": "CONSTANT",
                     "transparent": false,
-                    "values": {}
+                    "values": {
+                        "diffuse": "texture_tophat_jpg"
+                    }
                 }
             },
             "name": "blinn1SG_001"
@@ -178,7 +214,8 @@
                 {
                     "attributes": {
                         "NORMAL": "accessor_52",
-                        "POSITION": "accessor_50"
+                        "POSITION": "accessor_50",
+                        "TEXCOORD_0": "accessor_54"
                     },
                     "indices": "accessor_48",
                     "material": "Material-effect",
@@ -192,7 +229,8 @@
                 {
                     "attributes": {
                         "NORMAL": "accessor_25",
-                        "POSITION": "accessor_23"
+                        "POSITION": "accessor_23",
+                        "TEXCOORD_0": "accessor_27"
                     },
                     "indices": "accessor_21",
                     "material": "blinn1SG_001-effect",
@@ -284,6 +322,14 @@
             "name": "text"
         }
     },
+    "samplers": {
+        "sampler_0": {
+            "magFilter": 9729,
+            "minFilter": 9729,
+            "wrapS": 10497,
+            "wrapT": 10497
+        }
+    },
     "scene": "defaultScene",
     "scenes": {
         "defaultScene": {
@@ -292,5 +338,23 @@
             ]
         }
     },
-    "skins": {}
+    "skins": {},
+    "textures": {
+        "texture_lightmap": {
+            "format": 6408,
+            "internalFormat": 6408,
+            "sampler": "sampler_0",
+            "source": "lightmap",
+            "target": 3553,
+            "type": 5121
+        },
+        "texture_tophat_jpg": {
+            "format": 6408,
+            "internalFormat": 6408,
+            "sampler": "sampler_0",
+            "source": "tophat_jpg",
+            "target": 3553,
+            "type": 5121
+        }
+    }
 }

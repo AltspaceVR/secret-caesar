@@ -89,7 +89,7 @@ class SecretHitler extends THREE.Object3D
 
 		// add avatar for scale
 		assets.models.dummy.position.set(0, 0, 1.2);
-		assets.models.dummy.rotation.set(0, Math.PI, 0);
+		assets.models.dummy.rotateZ(Math.PI);
 		this.add(assets.models.dummy);
 
 		this.socket.on('update', this.updateFromServer.bind(this));

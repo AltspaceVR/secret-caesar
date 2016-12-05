@@ -16,7 +16,7 @@
         },
         "accessor_23": {
             "bufferView": "bufferView_57",
-            "byteOffset": 192096,
+            "byteOffset": 256128,
             "byteStride": 12,
             "componentType": 5126,
             "count": 4752,
@@ -34,7 +34,7 @@
         },
         "accessor_25": {
             "bufferView": "bufferView_57",
-            "byteOffset": 249120,
+            "byteOffset": 313152,
             "byteStride": 12,
             "componentType": 5126,
             "count": 4752,
@@ -49,6 +49,22 @@
                 -0.989712
             ],
             "type": "VEC3"
+        },
+        "accessor_27": {
+            "bufferView": "bufferView_57",
+            "byteOffset": 370176,
+            "byteStride": 8,
+            "componentType": 5126,
+            "count": 4752,
+            "max": [
+                0.991966,
+                0.960454
+            ],
+            "min": [
+                0.22635,
+                0.018083
+            ],
+            "type": "VEC2"
         },
         "accessor_48": {
             "bufferView": "bufferView_56",
@@ -99,6 +115,22 @@
                 -0.999986
             ],
             "type": "VEC3"
+        },
+        "accessor_54": {
+            "bufferView": "bufferView_57",
+            "byteOffset": 192096,
+            "byteStride": 8,
+            "componentType": 5126,
+            "count": 8004,
+            "max": [
+                0.881739,
+                0.997352
+            ],
+            "min": [
+                0.00634098,
+                0.00576019
+            ],
+            "type": "VEC2"
         }
     },
     "animations": {},
@@ -120,14 +152,14 @@
         },
         "bufferView_57": {
             "buffer": "dummy",
-            "byteLength": 306144,
+            "byteLength": 408192,
             "byteOffset": 25512,
             "target": 34962
         }
     },
     "buffers": {
         "dummy": {
-            "byteLength": 331656,
+            "byteLength": 433704,
             "type": "arraybuffer",
             "uri": "dummy.bin"
         }
@@ -149,7 +181,9 @@
                     "jointCount": 0,
                     "technique": "CONSTANT",
                     "transparent": false,
-                    "values": {}
+                    "values": {
+                        "diffuse": "texture_file1"
+                    }
                 }
             },
             "name": "Shadeless"
@@ -162,7 +196,8 @@
                 {
                     "attributes": {
                         "NORMAL": "accessor_52",
-                        "POSITION": "accessor_50"
+                        "POSITION": "accessor_50",
+                        "TEXCOORD_0": "accessor_54"
                     },
                     "indices": "accessor_48",
                     "material": "Shadeless-effect",
@@ -176,7 +211,8 @@
                 {
                     "attributes": {
                         "NORMAL": "accessor_25",
-                        "POSITION": "accessor_23"
+                        "POSITION": "accessor_23",
+                        "TEXCOORD_0": "accessor_27"
                     },
                     "indices": "accessor_21",
                     "material": "Shadeless-effect",
@@ -250,6 +286,14 @@
             "name": "Y_UP_Transform"
         }
     },
+    "samplers": {
+        "sampler_0": {
+            "magFilter": 9729,
+            "minFilter": 9729,
+            "wrapS": 10497,
+            "wrapT": 10497
+        }
+    },
     "scene": "defaultScene",
     "scenes": {
         "defaultScene": {
@@ -258,5 +302,15 @@
             ]
         }
     },
-    "skins": {}
+    "skins": {},
+    "textures": {
+        "texture_file1": {
+            "format": 6408,
+            "internalFormat": 6408,
+            "sampler": "sampler_0",
+            "source": "file1",
+            "target": 3553,
+            "type": 5121
+        }
+    }
 }

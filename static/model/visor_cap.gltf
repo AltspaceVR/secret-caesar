@@ -16,7 +16,7 @@
         },
         "accessor_23": {
             "bufferView": "bufferView_57",
-            "byteOffset": 43200,
+            "byteOffset": 57600,
             "byteStride": 12,
             "componentType": 5126,
             "count": 27900,
@@ -34,7 +34,7 @@
         },
         "accessor_25": {
             "bufferView": "bufferView_57",
-            "byteOffset": 378000,
+            "byteOffset": 392400,
             "byteStride": 12,
             "componentType": 5126,
             "count": 27900,
@@ -49,6 +49,22 @@
                 -1
             ],
             "type": "VEC3"
+        },
+        "accessor_27": {
+            "bufferView": "bufferView_57",
+            "byteOffset": 727200,
+            "byteStride": 8,
+            "componentType": 5126,
+            "count": 27900,
+            "max": [
+                0.998999,
+                0.998999
+            ],
+            "min": [
+                0.001001,
+                0.001001
+            ],
+            "type": "VEC2"
         },
         "accessor_48": {
             "bufferView": "bufferView_56",
@@ -99,6 +115,22 @@
                 -0.999786
             ],
             "type": "VEC3"
+        },
+        "accessor_54": {
+            "bufferView": "bufferView_57",
+            "byteOffset": 43200,
+            "byteStride": 8,
+            "componentType": 5126,
+            "count": 1800,
+            "max": [
+                0.987635,
+                0.985457
+            ],
+            "min": [
+                0.0101856,
+                0.0184972
+            ],
+            "type": "VEC2"
         }
     },
     "animations": {},
@@ -120,14 +152,14 @@
         },
         "bufferView_57": {
             "buffer": "visor_cap",
-            "byteLength": 712800,
+            "byteLength": 950400,
             "byteOffset": 59400,
             "target": 34962
         }
     },
     "buffers": {
         "visor_cap": {
-            "byteLength": 772200,
+            "byteLength": 1009800,
             "type": "arraybuffer",
             "uri": "visor_cap.bin"
         }
@@ -153,7 +185,9 @@
                     "jointCount": 0,
                     "technique": "CONSTANT",
                     "transparent": false,
-                    "values": {}
+                    "values": {
+                        "diffuse": "texture_Untitled"
+                    }
                 }
             },
             "name": "Material"
@@ -165,7 +199,9 @@
                     "jointCount": 0,
                     "technique": "CONSTANT",
                     "transparent": false,
-                    "values": {}
+                    "values": {
+                        "diffuse": "texture_visor_hat_png"
+                    }
                 }
             },
             "name": "Material_001"
@@ -178,7 +214,8 @@
                 {
                     "attributes": {
                         "NORMAL": "accessor_52",
-                        "POSITION": "accessor_50"
+                        "POSITION": "accessor_50",
+                        "TEXCOORD_0": "accessor_54"
                     },
                     "indices": "accessor_48",
                     "material": "Material_001-effect",
@@ -192,7 +229,8 @@
                 {
                     "attributes": {
                         "NORMAL": "accessor_25",
-                        "POSITION": "accessor_23"
+                        "POSITION": "accessor_23",
+                        "TEXCOORD_0": "accessor_27"
                     },
                     "indices": "accessor_21",
                     "material": "Material-effect",
@@ -284,6 +322,14 @@
             "name": "text"
         }
     },
+    "samplers": {
+        "sampler_0": {
+            "magFilter": 9729,
+            "minFilter": 9729,
+            "wrapS": 10497,
+            "wrapT": 10497
+        }
+    },
     "scene": "defaultScene",
     "scenes": {
         "defaultScene": {
@@ -292,5 +338,23 @@
             ]
         }
     },
-    "skins": {}
+    "skins": {},
+    "textures": {
+        "texture_Untitled": {
+            "format": 6408,
+            "internalFormat": 6408,
+            "sampler": "sampler_0",
+            "source": "Untitled",
+            "target": 3553,
+            "type": 5121
+        },
+        "texture_visor_hat_png": {
+            "format": 6408,
+            "internalFormat": 6408,
+            "sampler": "sampler_0",
+            "source": "visor_hat_png",
+            "target": 3553,
+            "type": 5121
+        }
+    }
 }
