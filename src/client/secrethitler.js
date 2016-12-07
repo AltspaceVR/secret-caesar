@@ -126,7 +126,8 @@ class SecretHitler extends THREE.Object3D
 		this.players = newPlayerInfo;
 	}
 
-	reset(){
+	reset(e){
+		console.log('requesting reset', e);
 		this.socket.emit('reset');
 	}
 }
