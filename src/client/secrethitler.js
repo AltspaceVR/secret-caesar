@@ -19,7 +19,12 @@ class SecretHitler extends THREE.Object3D
 		// polyfill getUser function
 		if(!altspace.inClient){
 			altspace.getUser = () => {
-				let id = Math.floor(Math.random() * 10000000);
+				let id, re = /[?&]userId=(\d+)/.exec(window.location.search);
+				if(re)
+					id = re[1];
+				else
+					id = Math.floor(Math.random() * 10000000);
+
 				altspace._localUser = {
 					userId: id,
 					displayName: 'Guest'+id,
@@ -40,8 +45,9 @@ class SecretHitler extends THREE.Object3D
 			};
 		}).bind(this));
 
-		this.game = null;
-		this.players = null;
+		this.game = {};
+		this.players = {};
+		this.votes = {};
 	}
 
 	initialize(env, root, assets)
@@ -99,24 +105,28 @@ class SecretHitler extends THREE.Object3D
 	{
 		console.log(game, players);
 
-		if(!this.game && !this.players){
-			this.game = game;
-			this.players = players;
-			this.dispatchEvent({type: 'init', bubbles: false});
+		let newGameInfo = Object.assign({}, this.game, game);
+		let newPlayerInfo = Object.assign({}, this.players, players);
+		//let newVoteInfo = Object.assign({}, this.votes, votes);
+
+		let needPlayerInfo = ['turnOrder','pendingJoinRequest'];
+		for(let field in game)
+		{
+			this.dispatchEvent({
+				type: 'update_'+field,
+				bubbles: false,
+				data: {
+					game: newGameInfo,
+					players: needPlayerInfo.includes(field) ? newPlayerInfo : undefined
+				}
+			});
 		}
-		else {
-			Object.assign(this.game, game);
-			Object.assign(this.players, players);
-			this.dispatchEvent({type: this.game.state+'_end', bubbles: false});
-			this.dispatchEvent({type: this.game.state, bubbles: false});
-		}
+
+		this.game = newGameInfo;
+		this.players = newPlayerInfo;
 	}
 
-	reset()
-	{
-		console.log('requesting reset', this);
-		this.game = null;
-		this.players = null;
+	reset(){
 		this.socket.emit('reset');
 	}
 }

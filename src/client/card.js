@@ -126,16 +126,14 @@ class CreditsCard extends Card {
 		super(Types.CREDITS);
 		let self = this;
 
-		function setVisibility(){
-			if(SH.game.state === 'setup')
+		function setVisibility({data: {game: {state}}}){
+			if(state === 'setup')
 				self.children.forEach(o => { o.visible = true; });
 			else
 				self.children.forEach(o => { o.visible = false; });
 		}
 
-		SH.addEventListener('init', setVisibility);
-		SH.addEventListener('setup', setVisibility);
-		SH.addEventListener('setup_end', setVisibility);
+		SH.addEventListener('update_state', setVisibility);
 	}
 }
 

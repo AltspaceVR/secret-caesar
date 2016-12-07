@@ -2,6 +2,7 @@
 
 import SH from './secrethitler';
 import AM from './assetmanager';
+import { parseCSV } from './utils';
 
 export default class Nameplate extends THREE.Object3D
 {
@@ -10,7 +11,7 @@ export default class Nameplate extends THREE.Object3D
 		super();
 
 		this.seatNum = seatNum;
-		this.owner = null; // userId
+		this.owner = 0; // userId
 
 		// add 3d model
 		this.model = AM.cache.models.nameplate.children[0].clone();
@@ -50,14 +51,14 @@ export default class Nameplate extends THREE.Object3D
 		}
 
 		// create listener proxies
-		this._requestJoin = this.requestJoin.bind(this);
 		this._hoverBehavior = new altspace.utilities.behaviors.HoverColor({
 			color: new THREE.Color(0xffa8a8)
 		});
+		this.model.addBehavior(this._hoverBehavior);
+		this.model.addEventListener('cursorup', this.click.bind(this));
 
 		// hook up listeners
-		SH.addEventListener('init', this.updateOwnership.bind(this));
-		SH.addEventListener('setup', this.updateOwnership.bind(this));
+		SH.addEventListener('update_turnOrder', this.updateOwnership.bind(this));
 	}
 
 	updateText(text)
@@ -77,37 +78,44 @@ export default class Nameplate extends THREE.Object3D
 		this.model.material.map.needsUpdate = true;
 	}
 
+	updateOwnership({data: {game, players}})
+	{
+		let ids = parseCSV(game.turnOrder);
+		
+		if( !this.owner )
+		{
+			// check if a player has joined at this seat
+			for(let i in ids){
+				if(players[ids[i]].seatNum == this.seatNum){
+					this.owner = ids[i];
+					this.updateText(players[ids[i]].displayName);
+					return;
+				}
+			}
+		}
+
+		if( !ids.includes(this.owner) )
+		{
+			this.owner = 0;
+			if(game.state === 'setup'){
+				this.updateText('<Join>');
+			}
+		}
+	}
+
+	click(e)
+	{
+		if(!this.owner && SH.game.state === 'setup')
+			this.requestJoin();
+	}
+
 	requestJoin()
 	{
 		console.log('Requesting to join at seat', this.seatNum);
 		SH.socket.emit('requestJoin', Object.assign({seatNum: this.seatNum}, SH.localUser));
 	}
 
-	updateOwnership()
-	{
-		// check for player
-		let owner = Object.keys(SH.players).find((e => SH.players[e].seatNum == this.seatNum).bind(this));
 
-		// player joined
-		if(owner && !this.owner)
-		{
-			this.owner = owner;
-			this.updateText(SH.players[this.owner].displayName);
-
-			this.model.__behaviorList = this.model.__behaviorList || []; // TODO: ugh
-			this.model.removeBehavior(this._hoverBehavior);
-			this.model.removeEventListener('cursorup', this._requestJoin);
-		}
-
-		// player left
-		else if(!owner && (this.owner || this.owner === null))
-		{
-			this.owner = 0;
-			this.updateText('<Join>');
-			this.model.addBehavior(this._hoverBehavior);
-			this.model.addEventListener('cursorup', this._requestJoin);
-		}
-	}
 }
 
 Nameplate.textureSize = 512;

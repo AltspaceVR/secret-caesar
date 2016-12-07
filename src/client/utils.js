@@ -18,4 +18,8 @@ function getGameId()
 	}
 }
 
-export { getGameId };
+function parseCSV(str){
+	if(!str) return [];
+	else return str.split(',');
+}
+export { getGameId, parseCSV };
