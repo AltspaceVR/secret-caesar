@@ -39,9 +39,12 @@ function requestJoin(user)
 
 				return Promise.all([game.save(), p.save()]);
 			}
-			else {
+			else if(ids.length < 10){
 				// TODO: resolve approval mechanic
 				return Promise.resolve([]);
+			}
+			else {
+				return Promise.reject('Player join failed: room is full');
 			}
 		}
 		else

@@ -1,6 +1,8 @@
 'use strict';
 
 import AM from './assetmanager';
+import SH from './secrethitler';
+import { parseCSV } from './utils';
 
 export default class GameTable extends THREE.Object3D
 {
@@ -26,5 +28,18 @@ export default class GameTable extends THREE.Object3D
 
 		// position table
 		this.position.set(0, 1.0, 0);
+
+		SH.addEventListener('update_turnOrder', this.changeMode.bind(this));
+	}
+
+	changeMode({data: {game: {turnOrder}}})
+	{
+		let ids = parseCSV(turnOrder);
+		if(ids.length < 7)
+			this.model.material.map = this.textures[0];
+		else if(ids.length < 9)
+			this.model.material.map = this.textures[1];
+		else
+			this.model.material.map = this.textures[2];
 	}
 };

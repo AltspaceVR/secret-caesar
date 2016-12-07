@@ -6,6 +6,7 @@ import GameTable from './table';
 import AssetManager from './assetmanager';
 import { getGameId } from './utils';
 import Nameplate from './nameplate';
+import Seat from './seat';
 
 class SecretHitler extends THREE.Object3D
 {
@@ -88,13 +89,13 @@ class SecretHitler extends THREE.Object3D
 		// create positions
 		this.seats = [];
 		for(let i=0; i<10; i++){
-			let seat = new Nameplate(i);
-			this.seats.push(seat);
+			this.seats.push( new Seat(i) );
 		}
+
 		this.table.add(...this.seats);
 
 		// add avatar for scale
-		assets.models.dummy.position.set(0, 0, 1.2);
+		assets.models.dummy.position.set(0, 0, 1.1);
 		assets.models.dummy.rotateZ(Math.PI);
 		this.add(assets.models.dummy);
 
