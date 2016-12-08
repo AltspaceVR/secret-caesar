@@ -32,14 +32,16 @@ export default class GameTable extends THREE.Object3D
 		SH.addEventListener('update_turnOrder', this.changeMode.bind(this));
 	}
 
-	changeMode({data: {game: {turnOrder}}})
+	changeMode({data: {game: {state, turnOrder}}})
 	{
-		let ids = parseCSV(turnOrder);
-		if(ids.length < 7)
-			this.model.material.map = this.textures[0];
-		else if(ids.length < 9)
-			this.model.material.map = this.textures[1];
-		else
-			this.model.material.map = this.textures[2];
+		if(state === 'setup'){
+			let ids = parseCSV(turnOrder);
+			if(ids.length < 7)
+				this.model.material.map = this.textures[0];
+			else if(ids.length < 9)
+				this.model.material.map = this.textures[1];
+			else
+				this.model.material.map = this.textures[2];
+		}
 	}
 };

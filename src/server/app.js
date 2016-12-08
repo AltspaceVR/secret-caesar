@@ -79,6 +79,7 @@ io.on('connection', socket =>
 	// hook up various listeners
 	socket.on('objectsync', ObjectSync.pushToClients);
 	socket.on('requestJoin', Players.requestJoin);
+	socket.on('leave', Players.leave);
 	socket.on('reset', Game.reset);
 
 	// send the catchup signal

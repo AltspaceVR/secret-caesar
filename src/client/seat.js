@@ -14,9 +14,6 @@ export default class Seat extends THREE.Object3D
         this.seatNum = seatNum;
         this.owner = 0;
 
-        // nameplates at x=[-.437, +.437], y=1.02?, z=[-.833,0,+.833]
-        //this.add(new THREE.Mesh(new THREE.SphereGeometry(0.1)));
-
         // position seat
         let x, y=0.65, z;
         switch(seatNum){
@@ -46,7 +43,8 @@ export default class Seat extends THREE.Object3D
         this.add(this.nameplate);
 
         this.ballot = new Ballot(this);
-        this.ballot.position.set(0, -0.1, 0.25);
+        this.ballot.position.set(0, -0.3, 0.25);
+        //this.ballot.rotateY(0.1);
         this.add(this.ballot);
 
 		SH.addEventListener('update_turnOrder', this.updateOwnership.bind(this));

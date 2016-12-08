@@ -165,7 +165,7 @@ class Player extends GameObject
 		let defaults = {
 			displayName: '',
 			isModerator: false,
-			seatNum: null,
+			seatNum: '',
 			role: 'unassigned', // one of 'unassigned', 'hitler', 'fascist', 'liberal'
 			state: 'normal' // one of 'normal', 'investigated', 'dead'
 		};

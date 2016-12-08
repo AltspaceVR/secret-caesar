@@ -64,4 +64,49 @@ function requestJoin(user)
 	});
 }
 
+function leave(id)
+{
+	let socket = this;
+	let game = new DB.GameState(socket.gameId);
+	let player = new DB.Player(id);
+
+	// fetch game and player records from db
+	Promise.all([game.load(), player.load()]).then(() =>
+	{
+		// parse ids
+		let ids = game.get('turnOrder');
+		if(!ids) ids = [];
+		else ids = ids.split(',');
+
+		// check if player is in game
+		let i = ids.indexOf(id);
+		if(i > -1)
+		{
+			// if so, remove from game
+			ids.splice(i, 1);
+			player.set('seatNum', '');
+			game.set('turnOrder', ids.join(','));
+
+			return Promise.all([game.save(), player.save()]);
+		}
+		else {
+			return Promise.resolve([null,null]);
+		}
+	})
+	.then(([gd, pd]) => {
+		if(gd && pd){
+			console.log('User', id, 'has left game', socket.gameId);
+			socket.server.to(socket.gameId).emit('update', gd, {id: null});
+		}
+		else {
+			console.warn('Non-player user', id, 'has attempted to leave game', socket.gameId);
+		}
+	})
+	.catch(errs => {
+		console.error(errs[0]);
+		console.error(errs[1]);
+	});
+}
+
 exports.requestJoin = requestJoin;
+exports.leave = leave;

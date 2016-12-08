@@ -57,15 +57,26 @@ export default class Nameplate extends THREE.Object3D
 	{
 		if(!this.seat.owner && SH.game.state === 'setup')
 			this.requestJoin();
+		else if(this.seat.owner === SH.localUser.id)
+			this.requestLeave();
 	}
 
 	requestJoin()
 	{
-		console.log('Requesting to join at seat', this.seatNum);
+		console.log('Requesting to join at seat', this.seat.seatNum);
 		SH.socket.emit('requestJoin', Object.assign({seatNum: this.seat.seatNum}, SH.localUser));
 	}
 
-
+	requestLeave()
+	{
+		console.log('Prompting user to confirm leave action');
+		this.seat.ballot.askQuestion('Are you sure you\nwant to leave?')
+			.then(answer => {
+				if(answer){
+					SH.socket.emit('leave', SH.localUser.id);
+				}
+			});
+	}
 }
 
-Nameplate.textureSize = 512;
+Nameplate.textureSize = 256;

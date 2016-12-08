@@ -92,18 +92,16 @@ function getUVs(type)
 
 class Card extends THREE.Object3D
 {
-	constructor(type = Types.BLANK, doubleSided = true, secret = false)
+	constructor(type = Types.BLANK, doubleSided = true)
 	{
 		super();
 
 		// create the card faces
-		let cardGeo = new THREE.PlaneGeometry(.715, 1);
-		let front = new THREE.Mesh(cardGeo,
-			new THREE.MeshBasicMaterial({map: AssetManager.cache.textures.cards})
-		);
-		let back = new THREE.Mesh(cardGeo,
-			new THREE.MeshBasicMaterial({map: AssetManager.cache.textures.cards})
-		);
+		let frontGeo = new THREE.PlaneGeometry(.715, 1);
+		let backGeo = frontGeo.clone();
+		let cardMat = new THREE.MeshBasicMaterial({map: AssetManager.cache.textures.cards});
+		let front = new THREE.Mesh(frontGeo, cardMat);
+		let back = new THREE.Mesh(backGeo, cardMat);
 		back.position.set(0.001, 0, 0);
 		front.position.set(-0.001, 0, 0);
 		back.rotateY(Math.PI);
@@ -115,6 +113,13 @@ class Card extends THREE.Object3D
 		this.add(front, back);
 	}
 
+	hide(){
+		this.children.forEach(o => { o.visible = false; });
+	}
+
+	show(){
+		this.children.forEach(o => { o.visible = true; });
+	}
 }
 
 class BlankCard extends Card {
@@ -138,8 +143,8 @@ class CreditsCard extends Card {
 }
 
 class LiberalPolicyCard extends Card {
-	constructor(secret = false){
-		super(Types.POLICY_LIBERAL, false, secret);
+	constructor(){
+		super(Types.POLICY_LIBERAL, false);
 	}
 	goToPosition(spot = 0)
 	{
@@ -160,8 +165,8 @@ LiberalPolicyCard.spots = {
 }
 
 class FascistPolicyCard extends Card {
-	constructor(secret = false){
-		super(Types.POLICY_FASCIST, false, secret);
+	constructor(){
+		super(Types.POLICY_FASCIST, false);
 	}
 	goToPosition(spot = 0)
 	{
@@ -183,38 +188,38 @@ FascistPolicyCard.spots = {
 }
 
 class LiberalRoleCard extends Card {
-	constructor(secret = false){
-		super(Types.ROLE_LIBERAL, false, secret);
+	constructor(){
+		super(Types.ROLE_LIBERAL, false);
 	}
 }
 
 class FascistRoleCard extends Card {
-	constructor(secret = false){
-		super(Types.ROLE_FASCIST, false, secret);
+	constructor(){
+		super(Types.ROLE_FASCIST, false);
 	}
 }
 
 class HitlerRoleCard extends Card {
-	constructor(secret = false){
-		super(Types.ROLE_HITLER, false, secret);
+	constructor(){
+		super(Types.ROLE_HITLER, false);
 	}
 }
 
 class LiberalPartyCard extends Card {
-	constructor(secret = false){
-		super(Types.PARTY_LIBERAL, false, secret);
+	constructor(){
+		super(Types.PARTY_LIBERAL, false);
 	}
 }
 
 class FascistPartyCard extends Card {
-	constructor(secret = false){
-		super(Types.PARTY_FASCIST, false, secret);
+	constructor(){
+		super(Types.PARTY_FASCIST, false);
 	}
 }
 
 class JaCard extends Card {
 	constructor(){
-		super(Types.JA, false, false);
+		super(Types.JA, false);
 		this.children[0].rotateZ(-Math.PI/2);
 		this.children[1].rotateZ(-Math.PI/2);
 	}
@@ -222,7 +227,7 @@ class JaCard extends Card {
 
 class NeinCard extends Card {
 	constructor(){
-		super(Types.NEIN, false, false);
+		super(Types.NEIN, false);
 		this.children[0].rotateZ(-Math.PI/2);
 		this.children[1].rotateZ(-Math.PI/2);
 	}
