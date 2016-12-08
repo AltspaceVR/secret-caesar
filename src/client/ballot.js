@@ -10,6 +10,7 @@ export default class Ballot extends THREE.Object3D
     {
         super();
         this.seat = seat;
+        this.questions = [];
 
         this.jaCard = new JaCard();
         this.neinCard = new NeinCard();
@@ -41,29 +42,55 @@ export default class Ballot extends THREE.Object3D
     {
         let self = this;
 
-        return new Promise((resolve, reject) =>
+        let newQ = new Promise((resolve, reject) =>
         {
-            self.question.material.map = generateQuestion(qText, this.question.material.map);
-            self.jaCard.addEventListener('cursorup', respond(true));
-            self.neinCard.addEventListener('cursorup', respond(false));
-
-            self.question.visible = true;
-            self.jaCard.show();
-            self.neinCard.show();
-
-            function respond(answer){
-                function handler(){
-                    self.jaCard.hide();
-                    self.neinCard.hide();
-                    self.question.visible = false;
-                    self.jaCard.removeEventListener('cursorup', handler);
-                    self.neinCard.removeEventListener('cursorup', handler);
-                    resolve(answer);
-                }
-
-                return handler;
+            // check for previous questions
+            let prereq;
+            if(self.questions.length > 0){
+                // only run when earlier questions are answered
+                prereq = self.questions[self.questions.length];
+            }
+            else {
+                prereq = Promise.resolve();
             }
 
+            prereq.then(() => {
+                // hook up q/a cards
+                self.question.material.map = generateQuestion(qText, this.question.material.map);
+                self.jaCard.addEventListener('cursorup', respond(true));
+                self.neinCard.addEventListener('cursorup', respond(false));
+
+                // show the ballot
+                self.question.visible = true;
+                self.jaCard.show();
+                self.neinCard.show();
+
+                function respond(answer){
+                    function handler()
+                    {
+                        // make sure only the owner of the ballot is answering
+                        if(self.seat.owner !== SH.localUser.id) return;
+
+                        // hide the question and return the answer
+                        self.jaCard.hide();
+                        self.neinCard.hide();
+                        self.question.visible = false;
+                        self.jaCard.removeEventListener('cursorup', handler);
+                        self.neinCard.removeEventListener('cursorup', handler);
+                        resolve(answer);
+                    }
+
+                    return handler;
+                }
+            });
         });
+
+        // add question to queue, remove when done
+        self.questions.push(newQ);
+        newQ.then(() => {
+            self.questions.splice( self.questions.indexOf(newQ), 1 );
+        });
+
+        return newQ;
     }
 }
