@@ -115,7 +115,7 @@ class GameState extends GameObject
 		let defaults = {
 			state: 'setup',
 			turnOrder: '', // CSV of userIds
-			pendingJoinRequest: '', // CSV of userIds
+			votesInProgress: '', // CSV of voteIds
 			president: 0, // userId
 			chancellor: 0, // userId
 			lastPresident: 0, // userId
@@ -134,9 +134,10 @@ class GameState extends GameObject
 		this.properties.push(...Object.keys(defaults));
 		Object.assign(this.delta, defaults);
 		this.players = {};
+		this.votes = {};
 	}
 
-	getPlayers()
+	loadPlayers()
 	{
 		let ids = this.get('turnOrder') ? this.get('turnOrder').split(',') : [];
 		ids.forEach((e => {
@@ -151,6 +152,25 @@ class GameState extends GameObject
 		let c = {};
 		for(let i in this.players){
 			c[i] = this.players[i].serialize(hideSecrets);
+		}
+		return c;
+	}
+
+	loadVotes()
+	{
+		let ids = this.get('votesInProgress') ? this.get('votesInProgress').split(',') : [];
+		ids.forEach((e => {
+			this.votes[e] = new Vote(e);
+		}).bind(this));
+
+		return Promise.all( ids.map((e => this.votes[e].load()).bind(this)) );
+	}
+
+	serializeVotes()
+	{
+		let c = {};
+		for(let i in this.votes){
+			c[i] = this.votes[i].serialize();
 		}
 		return c;
 	}
@@ -196,8 +216,9 @@ class Vote extends GameObject
 			needs: 0, // number of yea votes needed to pass
 			yesCount: 0,
 			noCount: 0,
-			participants: '', // CSV of userIds of users that have voted
-			nonvoters: '' // CSV of userIds that are not allowed to vote
+			yesVoters: '', // CSV of userIds that voted yes
+			noVoters: '', // CSV of userIds that voted no
+			nonVoters: '' // CSV of userIds that are not allowed to vote
 		};
 
 		this.properties.push(...Object.keys(defaults));
@@ -209,3 +230,4 @@ exports.SocketForPlayer = {};
 
 exports.GameState = GameState;
 exports.Player = Player;
+exports.Vote = Vote;

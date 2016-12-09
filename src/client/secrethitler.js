@@ -102,29 +102,31 @@ class SecretHitler extends THREE.Object3D
 		this.socket.on('update', this.updateFromServer.bind(this));
 	}
 
-	updateFromServer(game, players)
+	updateFromServer(gd, pd, vd)
 	{
-		console.log(game, players);
+		console.log(gd, pd, vd);
 
-		let newGameInfo = Object.assign({}, this.game, game);
-		let newPlayerInfo = Object.assign({}, this.players, players);
-		//let newVoteInfo = Object.assign({}, this.votes, votes);
+		let game = Object.assign({}, this.game, gd);
+		let players = Object.assign({}, this.players, pd);
+		let votes = Object.assign({}, this.votes, vd);
 
 		let needPlayerInfo = ['turnOrder','pendingJoinRequest'];
-		for(let field in game)
+		for(let field in gd)
 		{
 			this.dispatchEvent({
 				type: 'update_'+field,
 				bubbles: false,
 				data: {
-					game: newGameInfo,
-					players: needPlayerInfo.includes(field) ? newPlayerInfo : undefined
+					game: game,
+					players: needPlayerInfo.includes(field) ? players : undefined,
+					votes: field === 'votesInProgress' ? votes : undefined
 				}
 			});
 		}
 
-		this.game = newGameInfo;
-		this.players = newPlayerInfo;
+		this.game = game;
+		this.players = players;
+		this.votes = votes;
 	}
 
 	reset(e){

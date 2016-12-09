@@ -10,7 +10,7 @@ function requestJoin(user)
 	console.log(`User ${user.displayName} is requesting to join`);
 
 	// load game state from db
-	game.load().then(() => game.getPlayers()).then(() => {
+	game.load().then(() => game.loadPlayers()).then(() => {
 
 		// evaluate the join conditions
 		let ids = game.get('turnOrder') ? game.get('turnOrder').split(',') : [];
@@ -18,42 +18,59 @@ function requestJoin(user)
 			(v,e) => v || game.players[e].get('seatNum') == user.seatNum, false
 		);
 		let playerIn = ids.includes(user.id);
-		let pending = game.get('pendingJoinRequests') ? game.get('pendingJoinRequests').split(',') : [];
 
+		// make sure preconditions are met
 		if( user.seatNum !== null && game.get('state') === 'setup' && !seatTaken && !playerIn )
 		{
-			// let all players join up to minimum count, then require approval
-			if(ids.length < 5 || pending.includes(user.id))
-			{
-				// create new player structure
-				let p = new DB.Player(user.id);
-				game.players[user.id] = p;
-				for(let i in user){
-					p.set(i, user[i]);
-				}
+			// create player db entry
+			let p = new DB.Player(user.id);
+			game.players[user.id] = p;
+			for(let i in user){
+				p.set(i, user[i]);
+			}
 
-				// add player to game roster
+			// let all players join up to minimum count
+			if(ids.length < 1)
+			{
 				ids.push(user.id);
 				ids.sort((a,b) => game.players[b].get('seatNum') - game.players[a].get('seatNum'));
 				game.set('turnOrder', ids.join(','));
-
 				return Promise.all([game.save(), p.save()]);
 			}
-			else if(ids.length < 10){
-				// TODO: resolve approval mechanic
-				return Promise.resolve([]);
+			// after minimum count, require vote to approve
+			else if(ids.length < 10)
+			{
+				// create new vote
+				let vote = new DB.Vote(Math.floor( Math.random() * 100000000 ));
+				vote.set('type', 'join');
+				vote.set('target1', user.id);
+				vote.set('data', user.displayName);
+				vote.set('needs', 1);
+
+				// add to game
+				let vips = game.get('votesInProgress');
+				if(!vips) vips = [];
+				else vips = vips.split(',');
+				vips.push(vote.get('id'));
+				game.set('votesInProgress', vips.join(','));
+
+				return Promise.all([game.save(), p.save(), vote.save()]);
 			}
 			else {
 				return Promise.reject('Player join failed: room is full');
 			}
 		}
 		else
-			return Promise.reject('Player join failed');
+			return Promise.reject('Player join preconditions failed');
 	})
-	.then(([gd, p]) => {
-		if(gd || p){
+	.then(([gd, p, v]) => {
+		if(gd && gd.turnOrder){
 			console.log('posting update with new player');
 			socket.server.to(socket.gameId).emit('update', gd, {[p.id]: p});
+		}
+		else if(gd && gd.votesInProgress){
+			console.log('Putting new join to a vote');
+			socket.server.to(socket.gameId).emit('update', gd, {}, {[v.id]: v});
 		}
 		else {
 			console.log('Nothing happens');
@@ -84,12 +101,12 @@ function leave(id)
 		{
 			// if so, remove from game
 			ids.splice(i, 1);
-			player.set('seatNum', '');
 			game.set('turnOrder', ids.join(','));
 
-			return Promise.all([game.save(), player.save()]);
+			return Promise.all([game.save(), player.destroy()]);
 		}
 		else {
+			// otherwise, make no changes
 			return Promise.resolve([null,null]);
 		}
 	})

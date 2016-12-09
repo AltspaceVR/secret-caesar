@@ -84,8 +84,10 @@ io.on('connection', socket =>
 
 	// send the catchup signal
 	let game = new DB.GameState(socket.gameId);
-	game.load().then(() => game.getPlayers()).then(() => {
+	game.load()
+	.then(() => Promise.all([game.loadPlayers(), game.loadVotes()]) )
+	.then(() => {
 		console.log('new client connected to game', game.get('id'));
-		socket.emit('update', game.serialize(), game.serializePlayers());
+		socket.emit('update', game.serialize(), game.serializePlayers(), game.serializeVotes());
 	});
 });
