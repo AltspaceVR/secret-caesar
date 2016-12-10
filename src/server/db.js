@@ -91,10 +91,8 @@ class GameObject
 		let self = this;
 		return new Promise((resolve,reject) =>
 		{
-			console.log('attempting reset');
 			client.delAsync(self.type+':'+self.get('id'))
 			.then(result => {
-				console.log('reset successful');
 				self.delta = Object.assign({}, self.cache, self.delta);
 				self.cache = {};
 				resolve();
@@ -213,7 +211,8 @@ class Vote extends GameObject
 			target2: 0, // userId of chancellor
 			data: '', // display name of join requester
 
-			needs: 0, // number of yea votes needed to pass
+			toPass: 1, // number of yea votes needed to pass
+			requires: 1, // number of total votes before evaluation
 			yesCount: 0,
 			noCount: 0,
 			yesVoters: '', // CSV of userIds that voted yes

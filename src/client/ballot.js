@@ -2,7 +2,7 @@
 
 import SH from './secrethitler';
 import { JaCard, NeinCard } from './card';
-import {generateQuestion} from './utils';
+import { generateQuestion, parseCSV } from './utils';
 
 export default class Ballot extends THREE.Object3D
 {
@@ -35,10 +35,41 @@ export default class Ballot extends THREE.Object3D
 
     update({data: {game, players, votes}})
     {
+        let self = this;
+        if(!self.seat.owner) return;
 
+        let vips = parseCSV(game.votesInProgress);
+        vips.forEach(vId =>
+        {
+            let asked = !!self.questions.find(e => e.voteId == vId);
+            if(!asked)
+            {
+                let questionText;
+                if(votes[vId].type === 'elect'){
+                    questionText = players[votes[vId].target1].displayName
+                        + '\nfor president and\n'
+                        + players[votes[vId].target2].displayName
+                        + '\nfor chancellor?';
+                }
+                else if(votes[vId].type === 'join'){
+                    questionText = votes[vId].data + '\nto join?';
+                }
+                else if(votes[vId].type === 'kick'){
+                    questionText = 'Kick\n'
+                        + players[votes[vId].target1].displayName
+                        + '?';
+                }
+
+                self.askQuestion(questionText, vId)
+                .then(answer => {
+                    SH.socket.emit('vote', vId, SH.localUser.id, answer);
+                })
+                .catch(() => console.log('Vote scrubbed:', vId));
+            }
+        });
     }
 
-    askQuestion(qText)
+    askQuestion(qText, id)
     {
         let self = this;
 
@@ -48,13 +79,21 @@ export default class Ballot extends THREE.Object3D
             let prereq;
             if(self.questions.length > 0){
                 // only run when earlier questions are answered
-                prereq = self.questions[self.questions.length];
+                prereq = self.questions[self.questions.length-1];
             }
             else {
                 prereq = Promise.resolve();
             }
 
             prereq.then(() => {
+
+                // make sure the answer is still relevant
+                let latestVotes = parseCSV(SH.game.votesInProgress);
+                if(!latestVotes.includes(id)){
+                    reject();
+                    return;
+                }
+
                 // hook up q/a cards
                 self.question.material.map = generateQuestion(qText, this.question.material.map);
                 self.jaCard.addEventListener('cursorup', respond(true));
@@ -77,7 +116,13 @@ export default class Ballot extends THREE.Object3D
                         self.question.visible = false;
                         self.jaCard.removeEventListener('cursorup', handler);
                         self.neinCard.removeEventListener('cursorup', handler);
-                        resolve(answer);
+
+                        // make sure the answer still matters
+                        let latestVotes = parseCSV(SH.game.votesInProgress);
+                        if(!latestVotes.includes(id))
+                            reject();
+                        else
+                            resolve(answer);
                     }
 
                     return handler;
@@ -87,9 +132,9 @@ export default class Ballot extends THREE.Object3D
 
         // add question to queue, remove when done
         self.questions.push(newQ);
-        newQ.then(() => {
-            self.questions.splice( self.questions.indexOf(newQ), 1 );
-        });
+        newQ.voteId = id;
+        let splice = () => self.questions.splice( self.questions.indexOf(newQ), 1 );
+        newQ.then(splice).catch(splice);
 
         return newQ;
     }

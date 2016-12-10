@@ -1,6 +1,7 @@
 'use strict';
 
-const DB = require('./db');
+const DB = require('./db'),
+	Utils = require('./utils');
 
 function requestJoin(user)
 {
@@ -13,10 +14,8 @@ function requestJoin(user)
 	game.load().then(() => game.loadPlayers()).then(() => {
 
 		// evaluate the join conditions
-		let ids = game.get('turnOrder') ? game.get('turnOrder').split(',') : [];
-		let seatTaken = ids.reduce(
-			(v,e) => v || game.players[e].get('seatNum') == user.seatNum, false
-		);
+		let ids = Utils.parseCSV(game.get('turnOrder'));
+		let seatTaken = ids.find(e => game.players[e].get('seatNum') == user.seatNum);
 		let playerIn = ids.includes(user.id);
 
 		// make sure preconditions are met
@@ -46,11 +45,10 @@ function requestJoin(user)
 				vote.set('target1', user.id);
 				vote.set('data', user.displayName);
 				vote.set('needs', 1);
+				vote.set('requires', 1);
 
 				// add to game
-				let vips = game.get('votesInProgress');
-				if(!vips) vips = [];
-				else vips = vips.split(',');
+				let vips = Utils.parseCSV(game.get('votesInProgress'));
 				vips.push(vote.get('id'));
 				game.set('votesInProgress', vips.join(','));
 
@@ -90,12 +88,8 @@ function leave(id)
 	// fetch game and player records from db
 	Promise.all([game.load(), player.load()]).then(() =>
 	{
-		// parse ids
-		let ids = game.get('turnOrder');
-		if(!ids) ids = [];
-		else ids = ids.split(',');
-
 		// check if player is in game
+		let ids = Utils.parseCSV(game.get('turnOrder'));
 		let i = ids.indexOf(id);
 		if(i > -1)
 		{
@@ -113,7 +107,7 @@ function leave(id)
 	.then(([gd, pd]) => {
 		if(gd && pd){
 			console.log('User', id, 'has left game', socket.gameId);
-			socket.server.to(socket.gameId).emit('update', gd, {id: null});
+			socket.server.to(socket.gameId).emit('update', gd, {[id]: null});
 		}
 		else {
 			console.warn('Non-player user', id, 'has attempted to leave game', socket.gameId);

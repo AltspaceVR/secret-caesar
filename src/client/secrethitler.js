@@ -130,7 +130,7 @@ class SecretHitler extends THREE.Object3D
 	}
 
 	reset(e){
-		console.log('requesting reset', e);
+		console.log('requesting reset');
 		this.socket.emit('reset');
 	}
 }

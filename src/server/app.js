@@ -14,7 +14,8 @@ const express = require('express'),
 	DB = require('./db'),
 	ObjectSync = require('./objectsync'),
 	Players = require('./players'),
-	Game = require('./game');
+	Game = require('./game'),
+	Vote = require('./vote');
 
 // configure base path
 const app = express();
@@ -81,6 +82,7 @@ io.on('connection', socket =>
 	socket.on('requestJoin', Players.requestJoin);
 	socket.on('leave', Players.leave);
 	socket.on('reset', Game.reset);
+	socket.on('vote', Vote.tallyVote);
 
 	// send the catchup signal
 	let game = new DB.GameState(socket.gameId);
