@@ -47,7 +47,7 @@ export default class Ballot extends THREE.Object3D
         let votesFinished = parseCSV(SH.game.votesInProgress).filter(
             e => !vips.includes(e)
         );
-        
+
         vips.forEach(vId =>
         {
             let asked = self.questions[vId];
@@ -88,7 +88,6 @@ export default class Ballot extends THREE.Object3D
         let self = this;
         let newQ = new CascadingPromise(self.questions[self.lastAsked],
             (resolve, reject) => {
-                console.log('askQuestion run');
 
                 // make sure the answer is still relevant
                 let latestVotes = parseCSV(SH.game.votesInProgress);
@@ -112,7 +111,7 @@ export default class Ballot extends THREE.Object3D
                     {
                         // make sure only the owner of the ballot is answering
                         if(self.seat.owner !== SH.localUser.id) return;
-                        console.log('responding to prompt');
+
                         // make sure the answer still matters
                         let latestVotes = parseCSV(SH.game.votesInProgress);
                         if(!/^local/.test(id) && !latestVotes.includes(id))
@@ -145,7 +144,6 @@ export default class Ballot extends THREE.Object3D
         self.questions[id] = newQ;
         self.lastAsked = id;
         let splice = () => {
-            console.log('askQuestion then');
             delete self.questions[id];
             if(self.lastAsked === id)
                 self.lastAsked = null;

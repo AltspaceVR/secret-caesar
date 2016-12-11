@@ -63,7 +63,6 @@ export default class Nameplate extends THREE.Object3D
 
 	requestJoin()
 	{
-		console.log('Requesting to join at seat', this.seat.seatNum);
 		SH.socket.emit('requestJoin', Object.assign({seatNum: this.seat.seatNum}, SH.localUser));
 	}
 
@@ -72,10 +71,8 @@ export default class Nameplate extends THREE.Object3D
 		let self = this;
 		if(!self.question)
 		{
-			console.log('Prompting user to confirm leave action');
 			self.question = self.seat.ballot.askQuestion('Are you sure you\nwant to leave?', 'local_leave')
 			.then(confirm => {
-				console.log('nameplate then');
 				if(confirm){
 					SH.socket.emit('leave', SH.localUser.id);
 				}

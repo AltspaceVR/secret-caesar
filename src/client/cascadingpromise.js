@@ -30,7 +30,6 @@ class CascadingPromise
     _prereqSettled(){
         if(this.state === 'pending'){
             this.state = 'running';
-            console.log('pending => running');
             function settle(type){
                 return function(...args){
                     this._execSettled(type, args);
@@ -43,7 +42,6 @@ class CascadingPromise
             );
         }
         else if(this.state === 'cancelled'){
-            console.log('cancelled => settled');
             this.state = 'settled';
             this._resolveCallbacks.forEach(cb => cb());
         }
@@ -51,7 +49,6 @@ class CascadingPromise
 
     _execSettled(type, result){
         if(this.state === 'running'){
-            console.log('running => cleaningup');
             this._execType = type;
             this._execResult = result;
             this.state = 'cleaningup';
@@ -62,15 +59,12 @@ class CascadingPromise
     _cleanupDone(){
         if(this.state === 'cleaningup'){
             this.state = 'settled';
-            console.log('cleaningup => settled');
             if(this._execType === 'resolve'){
-                console.log('resolving');
                 this._resolveCallbacks.forEach(
                     (cb => cb(...this._execResult)).bind(this)
                 );
             }
             else {
-                console.log('rejecting');
                 this._rejectCallbacks.forEach(
                     (cb => cb(...this._execResult)).bind(this)
                 );
@@ -80,13 +74,11 @@ class CascadingPromise
 
     cancel(){
         if(this.state === 'running'){
-            console.log('running => cleaningup');
             this.state = 'cleaningup';
             this.cleanupFn(this._cleanupDone.bind(this));
         }
         else if(this.state === 'pending'){
             this.state = 'cancelled';
-            console.log('pending => cancelled');
         }
     }
 
