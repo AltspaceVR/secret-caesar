@@ -3,6 +3,7 @@
 import SH from './secrethitler';
 import { JaCard, NeinCard } from './card';
 import { generateQuestion, parseCSV } from './utils';
+import CascadingPromise from './cascadingpromise';
 
 export default class Ballot extends THREE.Object3D
 {
@@ -10,7 +11,11 @@ export default class Ballot extends THREE.Object3D
     {
         super();
         this.seat = seat;
-        this.questions = [];
+        this.questions = {};
+        this.lastAsked = null;
+
+        this._yesClickHandler = null;
+        this._noClickHandler = null;
 
         this.jaCard = new JaCard();
         this.neinCard = new NeinCard();
@@ -39,9 +44,13 @@ export default class Ballot extends THREE.Object3D
         if(!self.seat.owner) return;
 
         let vips = parseCSV(game.votesInProgress);
+        let votesFinished = parseCSV(SH.game.votesInProgress).filter(
+            e => !vips.includes(e)
+        );
+
         vips.forEach(vId =>
         {
-            let asked = !!self.questions.find(e => e.voteId == vId);
+            let asked = self.questions[vId];
             if(!asked)
             {
                 let questionText;
@@ -66,30 +75,22 @@ export default class Ballot extends THREE.Object3D
                 })
                 .catch(() => console.log('Vote scrubbed:', vId));
             }
+            else if(votesFinished.includes(vId)){
+                self.questions[vId].cancel();
+            }
         });
     }
 
     askQuestion(qText, id)
     {
         let self = this;
-
-        let newQ = new Promise((resolve, reject) =>
-        {
-            // check for previous questions
-            let prereq;
-            if(self.questions.length > 0){
-                // only run when earlier questions are answered
-                prereq = self.questions[self.questions.length-1];
-            }
-            else {
-                prereq = Promise.resolve();
-            }
-
-            prereq.then(() => {
+        let newQ = new CascadingPromise(self.questions[self.lastAsked],
+            (resolve, reject) => {
+                console.log('executor running');
 
                 // make sure the answer is still relevant
                 let latestVotes = parseCSV(SH.game.votesInProgress);
-                if(!latestVotes.includes(id)){
+                if(id !== 'leave' && !latestVotes.includes(id)){
                     reject();
                     return;
                 }
@@ -109,14 +110,7 @@ export default class Ballot extends THREE.Object3D
                     {
                         // make sure only the owner of the ballot is answering
                         if(self.seat.owner !== SH.localUser.id) return;
-
-                        // hide the question and return the answer
-                        self.jaCard.hide();
-                        self.neinCard.hide();
-                        self.question.visible = false;
-                        self.jaCard.removeEventListener('cursorup', handler);
-                        self.neinCard.removeEventListener('cursorup', handler);
-
+                        console.log('responding to prompt');
                         // make sure the answer still matters
                         let latestVotes = parseCSV(SH.game.votesInProgress);
                         if(!latestVotes.includes(id))
@@ -125,16 +119,36 @@ export default class Ballot extends THREE.Object3D
                             resolve(answer);
                     }
 
+                    if(answer) self._yesClickHandler = handler;
+                    else self._noClickHandler = handler;
                     return handler;
                 }
-            });
-        });
+            },
+            (done) => {
+                delete self.questions[id];
+                if(self.lastAsked === id)
+                    self.lastAsked = null;
+
+                // hide the question
+                self.jaCard.hide();
+                self.neinCard.hide();
+                self.question.visible = false;
+                self.jaCard.removeEventListener('cursorup', self._yesClickHandler);
+                self.neinCard.removeEventListener('cursorup', self._noClickHandler);
+                done();
+            }
+        );
 
         // add question to queue, remove when done
-        self.questions.push(newQ);
-        newQ.voteId = id;
-        let splice = () => self.questions.splice( self.questions.indexOf(newQ), 1 );
-        newQ.then(splice).catch(splice);
+        self.questions[id] = newQ;
+        self.lastAsked = id;
+        let splice = () => {
+            console.log('then is happening');
+            delete self.questions[id];
+            if(self.lastAsked === id)
+                self.lastAsked = null;
+        };
+        newQ.then(splice, splice);
 
         return newQ;
     }
