@@ -47,7 +47,7 @@ export default class Ballot extends THREE.Object3D
         let votesFinished = parseCSV(SH.game.votesInProgress).filter(
             e => !vips.includes(e)
         );
-
+        
         vips.forEach(vId =>
         {
             let asked = self.questions[vId];
@@ -75,9 +75,11 @@ export default class Ballot extends THREE.Object3D
                 })
                 .catch(() => console.log('Vote scrubbed:', vId));
             }
-            else if(votesFinished.includes(vId)){
+        });
+
+        votesFinished.forEach((vId) => {
+            if(self.questions[vId])
                 self.questions[vId].cancel();
-            }
         });
     }
 
@@ -86,11 +88,11 @@ export default class Ballot extends THREE.Object3D
         let self = this;
         let newQ = new CascadingPromise(self.questions[self.lastAsked],
             (resolve, reject) => {
-                console.log('executor running');
+                console.log('askQuestion run');
 
                 // make sure the answer is still relevant
                 let latestVotes = parseCSV(SH.game.votesInProgress);
-                if(id !== 'leave' && !latestVotes.includes(id)){
+                if(!/^local/.test(id) && !latestVotes.includes(id)){
                     reject();
                     return;
                 }
@@ -113,7 +115,7 @@ export default class Ballot extends THREE.Object3D
                         console.log('responding to prompt');
                         // make sure the answer still matters
                         let latestVotes = parseCSV(SH.game.votesInProgress);
-                        if(!latestVotes.includes(id))
+                        if(!/^local/.test(id) && !latestVotes.includes(id))
                             reject();
                         else
                             resolve(answer);
@@ -143,7 +145,7 @@ export default class Ballot extends THREE.Object3D
         self.questions[id] = newQ;
         self.lastAsked = id;
         let splice = () => {
-            console.log('then is happening');
+            console.log('askQuestion then');
             delete self.questions[id];
             if(self.lastAsked === id)
                 self.lastAsked = null;

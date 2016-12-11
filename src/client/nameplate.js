@@ -73,8 +73,9 @@ export default class Nameplate extends THREE.Object3D
 		if(!self.question)
 		{
 			console.log('Prompting user to confirm leave action');
-			self.question = self.seat.ballot.askQuestion('Are you sure you\nwant to leave?', 'leave')
+			self.question = self.seat.ballot.askQuestion('Are you sure you\nwant to leave?', 'local_leave')
 			.then(confirm => {
+				console.log('nameplate then');
 				if(confirm){
 					SH.socket.emit('leave', SH.localUser.id);
 				}

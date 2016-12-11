@@ -39,8 +39,7 @@ function generateQuestion(text, texture = null)
 	}
 
 	let g = bmp.getContext('2d');
-	g.fillStyle = 'rgba(0,0,0,0)';
-	g.fillRect(0, 0, 512, 256);
+	g.clearRect(0, 0, 512, 256);
 	g.textAlign = 'center';
 	g.fillStyle = 'white';
 

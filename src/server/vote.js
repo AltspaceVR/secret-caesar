@@ -83,7 +83,7 @@ function evaluateVote(game, vote, passed)
                 console.log('Vote passed, player joining');
                 game.players[p.get('id')] = p;
                 ids.push(p.get('id'));
-                ids.sort((a,b) => game.players[b].get('seatNum') - game.players[a].get('seatNum'));
+                ids.sort((a,b) => game.players[a].get('seatNum') - game.players[b].get('seatNum'));
                 game.set('turnOrder', ids.join(','));
             }
 

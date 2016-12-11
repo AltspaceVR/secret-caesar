@@ -32,7 +32,7 @@ function requestJoin(user)
 			if(ids.length < 1)
 			{
 				ids.push(user.id);
-				ids.sort((a,b) => game.players[b].get('seatNum') - game.players[a].get('seatNum'));
+				ids.sort((a,b) => game.players[a].get('seatNum') - game.players[b].get('seatNum'));
 				game.set('turnOrder', ids.join(','));
 				return Promise.all([game.save(), p.save()]);
 			}
@@ -101,11 +101,11 @@ function leave(id)
 		}
 		else {
 			// otherwise, make no changes
-			return Promise.resolve([null,null]);
+			return Promise.resolve([]);
 		}
 	})
-	.then(([gd, pd]) => {
-		if(gd && pd){
+	.then(([gd]) => {
+		if(gd){
 			console.log('User', id, 'has left game', socket.gameId);
 			socket.server.to(socket.gameId).emit('update', gd, {[id]: null});
 		}
