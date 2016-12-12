@@ -50,8 +50,11 @@ export default class Ballot extends THREE.Object3D
 
         vips.forEach(vId =>
         {
+            let vs = parseCSV(votes[vId].yesVoters+','+votes[vId].noVoters);
+            let nv = parseCSV(votes[vId].nonVoters);
+
             let asked = self.questions[vId];
-            if(!asked)
+            if(!asked && !nv.includes(self.seat.owner) && !vs.includes(self.seat.owner))
             {
                 let questionText;
                 if(votes[vId].type === 'elect'){
@@ -64,7 +67,7 @@ export default class Ballot extends THREE.Object3D
                     questionText = votes[vId].data + '\nto join?';
                 }
                 else if(votes[vId].type === 'kick'){
-                    questionText = 'Kick\n'
+                    questionText = 'Vote to kick\n'
                         + players[votes[vId].target1].displayName
                         + '?';
                 }
@@ -74,6 +77,11 @@ export default class Ballot extends THREE.Object3D
                     SH.socket.emit('vote', vId, SH.localUser.id, answer);
                 })
                 .catch(() => console.log('Vote scrubbed:', vId));
+            }
+            else if(vs.includes(self.seat.owner))
+            {
+                if(self.questions[vId])
+                    self.questions[vId].cancel();
             }
         });
 

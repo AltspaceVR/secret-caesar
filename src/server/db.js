@@ -72,11 +72,14 @@ class GameObject
 			return this.delta[field];
 		else if(this.cache[field] !== undefined)
 			return this.cache[field];
-		else return null;
 	}
 
 	set(field, val){
-		this.delta[field] = val;
+		if(this.cache[field] !== undefined || this.delta[field] !== undefined)
+			this.delta[field] = val;
+		else {
+			throw new Error(`Field ${field} is not valid on this object`);
+		}
 	}
 
 	serialize()
@@ -224,8 +227,6 @@ class Vote extends GameObject
 		Object.assign(this.delta, defaults);
 	}
 }
-
-exports.SocketForPlayer = {};
 
 exports.GameState = GameState;
 exports.Player = Player;

@@ -79,8 +79,9 @@ io.on('connection', socket =>
 
 	// hook up various listeners
 	socket.on('objectsync', ObjectSync.pushToClients);
-	socket.on('requestJoin', Players.requestJoin);
-	socket.on('leave', Players.leave);
+	socket.on('join', Players.requestJoin);
+	socket.on('leave', Players.requestLeave);
+	socket.on('kick', Players.requestKick);
 	socket.on('reset', Game.reset);
 	socket.on('vote', Vote.tallyVote);
 

@@ -6,4 +6,10 @@ function parseCSV(str)
     else return [];
 }
 
+function generateId()
+{
+    return Math.floor( Math.random() * 100000000 );
+}
+
 exports.parseCSV = parseCSV;
+exports.generateId = generateId;

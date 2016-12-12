@@ -55,15 +55,18 @@ export default class Nameplate extends THREE.Object3D
 
 	click(e)
 	{
+		let playerIds = parseCSV(SH.game.turnOrder);
 		if(!this.seat.owner && SH.game.state === 'setup')
 			this.requestJoin();
 		else if(this.seat.owner === SH.localUser.id)
 			this.requestLeave();
+		else if(this.seat.owner && playerIds.includes(SH.localUser.id))
+			this.requestKick();
 	}
 
 	requestJoin()
 	{
-		SH.socket.emit('requestJoin', Object.assign({seatNum: this.seat.seatNum}, SH.localUser));
+		SH.socket.emit('join', Object.assign({seatNum: this.seat.seatNum}, SH.localUser));
 	}
 
 	requestLeave()
@@ -75,6 +78,27 @@ export default class Nameplate extends THREE.Object3D
 			.then(confirm => {
 				if(confirm){
 					SH.socket.emit('leave', SH.localUser.id);
+				}
+				self.question = null;
+			})
+			.catch(() => { self.question = null; });
+		}
+	}
+
+	requestKick()
+	{
+		let self = this;
+		if(!self.question)
+		{
+			let seat = SH.seats[SH.players[SH.localUser.id].seatNum];
+			self.question = seat.ballot.askQuestion(
+				'Are you sure you\nwant to try to kick\n'
+				+SH.players[self.seat.owner].displayName,
+				'local_kick'
+			)
+			.then(confirm => {
+				if(confirm){
+					SH.socket.emit('kick', SH.localUser.id, self.seat.owner);
 				}
 				self.question = null;
 			})

@@ -1,7 +1,8 @@
 'use strict';
 
 const DB = require('./db'),
-    Utils = require('./utils');
+    Utils = require('./utils'),
+    Players = require('./players');
 
 function tallyVote(voteId, userId, answer)
 {
@@ -46,7 +47,13 @@ function tallyVote(voteId, userId, answer)
                 evaluateVote.call(socket, game, vote, votePasses);
             }
             else {
-                vote.save();
+                vote.save().then(() => {
+                    socket.server.to(socket.gameId).emit('update',
+                        {votesInProgress: game.get('votesInProgress')},
+                        {},
+                        {[voteId]: vote.serialize()}
+                    );
+                });
             }
         }
         else
@@ -86,6 +93,15 @@ function evaluateVote(game, vote, passed)
                 ids.sort((a,b) => game.players[a].get('seatNum') - game.players[b].get('seatNum'));
                 game.set('turnOrder', ids.join(','));
             }
+            else if(!passed){
+                console.log('Vote failed, player denied entry');
+            }
+            else if(seatTaken){
+                console.log('Vote passed, but seat became taken');
+            }
+            else if(playerIn){
+                console.log('Vote passed, but player already seated elsewhere');
+            }
 
             // remove completed vote from list
             let votes = Utils.parseCSV(game.get('votesInProgress'));
@@ -95,12 +111,41 @@ function evaluateVote(game, vote, passed)
             // save and update clients
             Promise.all([game.save(), vote.destroy()]).then(([gd]) => {
                 socket.server.to(socket.gameId).emit('update', gd,
-                    {[p.get('id')]: p.serialize()}, {[vote.get('id')]: null}
+                    passed ? {[p.get('id')]: p.serialize()} : null,
+                    {[vote.get('id')]: null}
                 );
             });
         });
     }
+    else if(vote.get('type') === 'kick' && game.get('state') === 'setup')
+    {
+        let p = new DB.Player(vote.get('target1'));
 
+        if(passed)
+        {
+            // totally remove kicked player if still in setup
+            let ids = Utils.parseCSV(game.get('turnOrder'));
+            ids.splice( ids.indexOf(p.get('id')), 1 );
+            game.set('turnOrder', ids.join(','));
+        }
+        else {
+            console.log('Vote to kick failed');
+        }
+
+        // remove completed vote from list
+        let votes = Utils.parseCSV(game.get('votesInProgress'));
+        votes.splice( votes.indexOf(vote.get('id')), 1 );
+        game.set('votesInProgress', votes.join(','));
+
+        // update clients
+        Promise.all([game.save(), p.destroy()]).then(([gd]) => {
+            socket.server.to(socket.gameId).emit('update', gd,
+                passed ? {[p.get('id')]: null} : null,
+                {[vote.get('id')]: null}
+            );
+        })
+        .catch(e => console.error(e));
+    }
 }
 
 exports.tallyVote = tallyVote;

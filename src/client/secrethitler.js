@@ -110,7 +110,6 @@ class SecretHitler extends THREE.Object3D
 		let players = Object.assign({}, this.players, pd);
 		let votes = Object.assign({}, this.votes, vd);
 
-		let needPlayerInfo = ['turnOrder','pendingJoinRequest'];
 		for(let field in gd)
 		{
 			this.dispatchEvent({
@@ -118,8 +117,8 @@ class SecretHitler extends THREE.Object3D
 				bubbles: false,
 				data: {
 					game: game,
-					players: needPlayerInfo.includes(field) ? players : undefined,
-					votes: field === 'votesInProgress' ? votes : undefined
+					players: players,
+					votes: votes
 				}
 			});
 		}

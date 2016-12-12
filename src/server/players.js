@@ -29,7 +29,7 @@ function requestJoin(user)
 			}
 
 			// let all players join up to minimum count
-			if(ids.length < 1)
+			if(ids.length < 5)
 			{
 				ids.push(user.id);
 				ids.sort((a,b) => game.players[a].get('seatNum') - game.players[b].get('seatNum'));
@@ -40,7 +40,7 @@ function requestJoin(user)
 			else if(ids.length < 10)
 			{
 				// create new vote
-				let vote = new DB.Vote(Math.floor( Math.random() * 100000000 ));
+				let vote = new DB.Vote(Utils.generateId());
 				vote.set('type', 'join');
 				vote.set('target1', user.id);
 				vote.set('data', user.displayName);
@@ -79,7 +79,7 @@ function requestJoin(user)
 	});
 }
 
-function leave(id)
+function requestLeave(id)
 {
 	let socket = this;
 	let game = new DB.GameState(socket.gameId);
@@ -119,5 +119,42 @@ function leave(id)
 	});
 }
 
+function requestKick(requesterId, targetId)
+{
+	console.log('kick requested');
+
+	let socket = this;
+	let game = new DB.GameState(socket.gameId);
+	game.load().then(() =>
+	{
+		let ids = Utils.parseCSV(game.get('turnOrder'));
+
+		// make sure requester, target are in game
+		if(ids.includes(requesterId) && ids.includes(targetId))
+		{
+			// initiate vote to kick
+			let vote = new DB.Vote(Utils.generateId());
+			vote.set('type', 'kick');
+			vote.set('target1', targetId);
+			vote.set('requires', ids.length-1);
+			vote.set('toPass', Math.ceil((ids.length-1)/2 + 0.1));
+			vote.set('nonVoters', targetId);
+
+			// save vote and update
+			let votes = Utils.parseCSV(game.get('votesInProgress'));
+			votes.push(vote.get('id'));
+			game.set('votesInProgress', votes.join(','));
+			return Promise.all([game.save(), vote.save()]);
+		}
+		else return Promise.reject('Target or requester not valid');
+	})
+	.catch(err => console.error(err))
+	.then(([gd, vd]) => {
+		socket.server.to(socket.gameId).emit('update', gd, {}, {[vd.id]: vd});
+	})
+	.catch(err => console.log(err));
+}
+
 exports.requestJoin = requestJoin;
-exports.leave = leave;
+exports.requestLeave = requestLeave;
+exports.requestKick = requestKick;
