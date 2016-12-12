@@ -28,14 +28,14 @@ class CascadingPromise
     }
 
     _prereqSettled(){
+        function settle(type){
+            return function(...args){
+                this._execSettled(type, args);
+            }
+        }
+
         if(this.state === 'pending'){
             this.state = 'running';
-            function settle(type){
-                return function(...args){
-                    this._execSettled(type, args);
-                }
-            }
-
             this.execFn(
                 settle('resolve').bind(this),
                 settle('reject').bind(this)
