@@ -16,12 +16,13 @@ function tallyVote(voteId, userId, answer)
         let votes = Utils.parseCSV(game.get('votesInProgress')),
             players = Utils.parseCSV(game.get('turnOrder')),
             yesVoters = Utils.parseCSV(vote.get('yesVoters')),
-            noVoters = Utils.parseCSV(vote.get('noVoters'));
+            noVoters = Utils.parseCSV(vote.get('noVoters')),
+            nonVoters = Utils.parseCSV(vote.get('nonVoters'));
 
         let voteValid = votes.includes(voteId),
             userValid = players.includes(userId),
             notVoted = !yesVoters.includes(userId) && !noVoters.includes(userId),
-            notBlacklisted = !Utils.parseCSV(vote.get('nonvoters')).includes(userId);
+            notBlacklisted = !nonVoters.includes(userId);
 
         if(voteValid && userValid && notVoted && notBlacklisted)
         {
@@ -29,32 +30,32 @@ function tallyVote(voteId, userId, answer)
             if(answer){
                 yesVoters.push(userId);
                 vote.set('yesVoters', yesVoters.join(','));
-                vote.set('yesCount', parseInt(vote.get('yesCount'))+1);
             }
             // tally no vote
             else {
                 noVoters.push(userId);
                 vote.set('noVoters', noVoters.join(','));
-                vote.set('noCount', parseInt(vote.get('noCount'))+1);
             }
 
             // resolve vote if threshold reached
-            if( parseInt(vote.get('yesCount')) + parseInt(vote.get('noCount'))
-                >= parseInt(vote.get('requires'))
-            )
+            if( yesVoters.length + noVoters.length >= parseInt(vote.get('requires')) )
             {
-                let votePasses = parseInt(vote.get('yesCount')) >= parseInt(vote.get('toPass'));
-                evaluateVote.call(socket, game, vote, votePasses);
+                let totalEligibleVotes = players.length - nonVoters.length;
+                let votePasses = yesVoters.length >= parseInt(vote.get('toPass'));
+                let voteFails = noVoters.length > totalEligibleVotes - parseInt(vote.get('toPass'));
+                if(votePasses)
+                    return evaluateVote.call(socket, game, vote, true);
+                else if(voteFails)
+                    return evaluateVote.call(socket, game, vote, false);
             }
-            else {
-                vote.save().then(() => {
-                    socket.server.to(socket.gameId).emit('update',
-                        {votesInProgress: game.get('votesInProgress')},
-                        {},
-                        {[voteId]: vote.serialize()}
-                    );
-                });
-            }
+
+            vote.save().then(() => {
+                socket.server.to(socket.gameId).emit('update',
+                    {votesInProgress: game.get('votesInProgress')},
+                    null,
+                    {[voteId]: vote.serialize()}
+                );
+            });
         }
         else
         {

@@ -44,7 +44,7 @@ function requestJoin(user)
 				vote.set('type', 'join');
 				vote.set('target1', user.id);
 				vote.set('data', user.displayName);
-				vote.set('needs', 1);
+				vote.set('toPass', 1);
 				vote.set('requires', 1);
 
 				// add to game
@@ -136,7 +136,7 @@ function requestKick(requesterId, targetId)
 			let vote = new DB.Vote(Utils.generateId());
 			vote.set('type', 'kick');
 			vote.set('target1', targetId);
-			vote.set('requires', ids.length-1);
+			vote.set('requires', 2);
 			vote.set('toPass', Math.ceil((ids.length-1)/2 + 0.1));
 			vote.set('nonVoters', targetId);
 

@@ -216,8 +216,6 @@ class Vote extends GameObject
 
 			toPass: 1, // number of yea votes needed to pass
 			requires: 1, // number of total votes before evaluation
-			yesCount: 0,
-			noCount: 0,
 			yesVoters: '', // CSV of userIds that voted yes
 			noVoters: '', // CSV of userIds that voted no
 			nonVoters: '' // CSV of userIds that are not allowed to vote

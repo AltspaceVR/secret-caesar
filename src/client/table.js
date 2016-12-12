@@ -36,12 +36,12 @@ export default class GameTable extends THREE.Object3D
 	{
 		if(state === 'setup'){
 			let ids = parseCSV(turnOrder);
-			if(ids.length < 2)
-				this.model.material.map = this.textures[0];
-			else if(ids.length < 3)
+			if(ids.length >= 9)
+				this.model.material.map = this.textures[2];
+			else if(ids.length >= 7)
 				this.model.material.map = this.textures[1];
 			else
-				this.model.material.map = this.textures[2];
+				this.model.material.map = this.textures[0];
 		}
 	}
 };
