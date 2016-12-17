@@ -2,7 +2,7 @@
 
 import SH from './secrethitler';
 import { JaCard, NeinCard } from './card';
-import { generateQuestion, parseCSV } from './utils';
+import { generateQuestion } from './utils';
 import CascadingPromise from './cascadingpromise';
 
 export default class Ballot extends THREE.Object3D
@@ -43,15 +43,15 @@ export default class Ballot extends THREE.Object3D
         let self = this;
         if(!self.seat.owner) return;
 
-        let vips = parseCSV(game.votesInProgress);
-        let votesFinished = parseCSV(SH.game.votesInProgress).filter(
+        let vips = game.votesInProgress;
+        let votesFinished = (SH.game.votesInProgress || []).filter(
             e => !vips.includes(e)
         );
 
         vips.forEach(vId =>
         {
-            let vs = parseCSV(votes[vId].yesVoters+','+votes[vId].noVoters);
-            let nv = parseCSV(votes[vId].nonVoters);
+            let vs = [...votes[vId].yesVoters, ...votes[vId].noVoters];
+            let nv = votes[vId].nonVoters;
 
             let asked = self.questions[vId];
             if(!asked && !nv.includes(self.seat.owner) && !vs.includes(self.seat.owner))
@@ -98,7 +98,7 @@ export default class Ballot extends THREE.Object3D
             (resolve, reject) => {
 
                 // make sure the answer is still relevant
-                let latestVotes = parseCSV(SH.game.votesInProgress);
+                let latestVotes = SH.game.votesInProgress;
                 if(!/^local/.test(id) && !latestVotes.includes(id)){
                     reject();
                     return;
@@ -121,7 +121,7 @@ export default class Ballot extends THREE.Object3D
                         if(self.seat.owner !== SH.localUser.id) return;
 
                         // make sure the answer still matters
-                        let latestVotes = parseCSV(SH.game.votesInProgress);
+                        let latestVotes = SH.game.votesInProgress;
                         if(!/^local/.test(id) && !latestVotes.includes(id))
                             reject();
                         else

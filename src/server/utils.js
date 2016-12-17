@@ -2,8 +2,10 @@
 
 function parseCSV(str)
 {
-    if(str) return str.split(',');
-    else return [];
+    if(str)
+        return str.split(',').map(x => JSON.parse(x));
+    else
+        return [];
 }
 
 function generateId()

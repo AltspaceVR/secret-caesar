@@ -3,7 +3,6 @@
 import SH from './secrethitler';
 import Nameplate from './nameplate';
 import Ballot from './ballot';
-import {parseCSV} from './utils';
 
 export default class Seat extends THREE.Object3D
 {
@@ -52,13 +51,13 @@ export default class Seat extends THREE.Object3D
 
     updateOwnership({data: {game, players}})
 	{
-		let ids = parseCSV(game.turnOrder);
+		let ids = game.turnOrder;
 
 		if( !this.owner )
 		{
 			// check if a player has joined at this seat
 			for(let i in ids){
-				if(players[ids[i]].seatNum == this.seatNum){
+				if(players[ids[i]].seatNum === this.seatNum){
 					this.owner = ids[i];
 					this.nameplate.updateText(players[ids[i]].displayName);
 					return;

@@ -22,7 +22,7 @@ class SecretHitler extends THREE.Object3D
 			altspace.getUser = () => {
 				let id, re = /[?&]userId=(\d+)/.exec(window.location.search);
 				if(re)
-					id = re[1];
+					id = JSON.parse(re[1]);
 				else
 					id = Math.floor(Math.random() * 10000000);
 
@@ -40,7 +40,7 @@ class SecretHitler extends THREE.Object3D
 		altspace.getUser().then((user =>
 		{
 			this.localUser = {
-				id: user.userId.toString(),
+				id: user.userId,
 				displayName: user.displayName,
 				isModerator: user.isModerator
 			};

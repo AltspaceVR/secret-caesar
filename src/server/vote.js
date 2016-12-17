@@ -13,11 +13,11 @@ function tallyVote(voteId, userId, answer)
     Promise.all([game.load(), vote.load()]).then(() =>
     {
         // make sure vote is relevant
-        let votes = Utils.parseCSV(game.get('votesInProgress')),
-            players = Utils.parseCSV(game.get('turnOrder')),
-            yesVoters = Utils.parseCSV(vote.get('yesVoters')),
-            noVoters = Utils.parseCSV(vote.get('noVoters')),
-            nonVoters = Utils.parseCSV(vote.get('nonVoters'));
+        let votes = game.get('votesInProgress'),
+            players = game.get('turnOrder'),
+            yesVoters = vote.get('yesVoters'),
+            noVoters = vote.get('noVoters'),
+            nonVoters = vote.get('nonVoters');
 
         let voteValid = votes.includes(voteId),
             userValid = players.includes(userId),
@@ -29,20 +29,20 @@ function tallyVote(voteId, userId, answer)
             // tally yes vote
             if(answer){
                 yesVoters.push(userId);
-                vote.set('yesVoters', yesVoters.join(','));
+                vote.set('yesVoters', yesVoters);
             }
             // tally no vote
             else {
                 noVoters.push(userId);
-                vote.set('noVoters', noVoters.join(','));
+                vote.set('noVoters', noVoters);
             }
 
             // resolve vote if threshold reached
-            if( yesVoters.length + noVoters.length >= parseInt(vote.get('requires')) )
+            if( yesVoters.length + noVoters.length >= vote.get('requires') )
             {
                 let totalEligibleVotes = players.length - nonVoters.length;
-                let votePasses = yesVoters.length >= parseInt(vote.get('toPass'));
-                let voteFails = noVoters.length > totalEligibleVotes - parseInt(vote.get('toPass'));
+                let votePasses = yesVoters.length >= vote.get('toPass');
+                let voteFails = noVoters.length > totalEligibleVotes - vote.get('toPass');
                 if(votePasses)
                     return evaluateVote.call(socket, game, vote, true);
                 else if(voteFails)
@@ -81,7 +81,7 @@ function evaluateVote(game, vote, passed)
         Promise.all([game.loadPlayers(), p.load()]).then(() =>
         {
             // get prereqs
-            let ids = Utils.parseCSV(game.get('turnOrder'));
+            let ids = game.get('turnOrder');
             let seatTaken = ids.find(e => game.players[e].get('seatNum') == p.get('seatNum'));
     		let playerIn = ids.includes(p.get('id'));
 
@@ -92,7 +92,7 @@ function evaluateVote(game, vote, passed)
                 game.players[p.get('id')] = p;
                 ids.push(p.get('id'));
                 ids.sort((a,b) => game.players[a].get('seatNum') - game.players[b].get('seatNum'));
-                game.set('turnOrder', ids.join(','));
+                game.set('turnOrder', ids);
             }
             else if(!passed){
                 console.log('Vote failed, player denied entry');
@@ -105,9 +105,9 @@ function evaluateVote(game, vote, passed)
             }
 
             // remove completed vote from list
-            let votes = Utils.parseCSV(game.get('votesInProgress'));
+            let votes = game.get('votesInProgress');
             votes.splice( votes.indexOf(vote.get('id')), 1 );
-            game.set('votesInProgress', votes.join(','));
+            game.set('votesInProgress', votes);
 
             // save and update clients
             Promise.all([game.save(), vote.destroy()]).then(([gd]) => {
@@ -125,18 +125,18 @@ function evaluateVote(game, vote, passed)
         if(passed)
         {
             // totally remove kicked player if still in setup
-            let ids = Utils.parseCSV(game.get('turnOrder'));
+            let ids = game.get('turnOrder');
             ids.splice( ids.indexOf(p.get('id')), 1 );
-            game.set('turnOrder', ids.join(','));
+            game.set('turnOrder', ids);
         }
         else {
             console.log('Vote to kick failed');
         }
 
         // remove completed vote from list
-        let votes = Utils.parseCSV(game.get('votesInProgress'));
+        let votes = game.get('votesInProgress');
         votes.splice( votes.indexOf(vote.get('id')), 1 );
-        game.set('votesInProgress', votes.join(','));
+        game.set('votesInProgress', votes);
 
         // update clients
         Promise.all([game.save(), p.destroy()]).then(([gd]) => {

@@ -1,8 +1,9 @@
 'use strict';
 
-const redis = require('redis');
-const bluebird = require('bluebird');
-const config = require('./config');
+const redis = require('redis'),
+	bluebird = require('bluebird'),
+	parseCSV = require('./utils').parseCSV,
+	config = require('./config');
 
 bluebird.promisifyAll(redis.RedisClient.prototype);
 bluebird.promisifyAll(redis.Multi.prototype);
@@ -15,6 +16,7 @@ class GameObject
 	{
 		this.type = type;
 		this.properties = ['id'];
+		this.propTypes = {id: 'int'};
 		this.cache = {};
 		this.delta = {id};
 	}
@@ -27,7 +29,24 @@ class GameObject
 			client.hmgetAsync(self.type+':'+self.get('id'), self.properties)
 			.then(result => {
 				self.properties.forEach((k,i) => {
-					if(result[i] !== null) self.cache[k] = result[i];
+					if(result[i] !== null)
+					{
+						switch(self.propTypes[k]){
+
+						case 'csv':
+							self.cache[k] = parseCSV(result[i]);
+							break;
+						case 'int':
+						case 'bool':
+						case 'json':
+							self.cache[k] = JSON.parse(result[i]);
+							break;
+						case 'string':
+						default:
+							self.cache[k] = result[i];
+							break;
+						}
+					}
 				});
 				if(Object.keys(self.cache).length > 0)
 					self.delta = {};
@@ -45,8 +64,25 @@ class GameObject
 		let self = this;
 		return new Promise((resolve,reject) =>
 		{
+			let dbSafe = {};
+			for(let i in self.delta){
+				switch(self.propTypes[i]){
+					case 'csv':
+						dbSafe[i] = self.delta[i].join(',');
+						break;
+					case 'int':
+					case 'bool':
+					case 'json':
+						dbSafe[i] = JSON.stringify(self.delta[i]);
+						break;
+					case 'string':
+					default:
+						dbSafe[i] = self.delta[i];
+				}
+			}
+
 			client.multi()
-			.hmset(self.type+':'+self.get('id'), self.delta)
+			.hmset(self.type+':'+self.get('id'), dbSafe)
 			.expire(self.type+':'+self.get('id'), 60*60*24)
 			.execAsync()
 			.then(result => {
@@ -115,8 +151,8 @@ class GameState extends GameObject
 		super('game', id);
 		let defaults = {
 			state: 'setup',
-			turnOrder: '', // CSV of userIds
-			votesInProgress: '', // CSV of voteIds
+			turnOrder: [], // CSV of userIds
+			votesInProgress: [], // CSV of voteIds
 			president: 0, // userId
 			chancellor: 0, // userId
 			lastPresident: 0, // userId
@@ -132,6 +168,24 @@ class GameState extends GameObject
 			failedVotes: 0
 		};
 
+		Object.assign(this.propTypes, {
+			state: 'string',
+			turnOrder: 'csv',
+			votesInProgress: 'csv',
+			president: 'int',
+			chancellor: 'int',
+			lastPresident: 'int',
+			lastChancellor: 'int',
+			liberalPolicies: 'int',
+			fascistPolicies: 'int',
+			deckLiberal: 'int',
+			deckFascist: 'int',
+			discardLiberal: 'int',
+			discardFascist: 'int',
+			specialElection: 'bool',
+			failedVotes: 'int'
+		});
+
 		this.properties.push(...Object.keys(defaults));
 		Object.assign(this.delta, defaults);
 		this.players = {};
@@ -140,12 +194,15 @@ class GameState extends GameObject
 
 	loadPlayers()
 	{
-		let ids = this.get('turnOrder') ? this.get('turnOrder').split(',') : [];
-		ids.forEach((e => {
+		this.get('turnOrder').forEach((e => {
 			this.players[e] = new Player(e);
 		}).bind(this));
 
-		return Promise.all( ids.map((e => this.players[e].load()).bind(this)) );
+		return Promise.all(
+			this.get('turnOrder').map(
+				(e => this.players[e].load()).bind(this)
+			)
+		);
 	}
 
 	serializePlayers(hideSecrets = true)
@@ -159,12 +216,15 @@ class GameState extends GameObject
 
 	loadVotes()
 	{
-		let ids = this.get('votesInProgress') ? this.get('votesInProgress').split(',') : [];
-		ids.forEach((e => {
+		this.get('votesInProgress').forEach((e => {
 			this.votes[e] = new Vote(e);
 		}).bind(this));
 
-		return Promise.all( ids.map((e => this.votes[e].load()).bind(this)) );
+		return Promise.all(
+			this.get('votesInProgress').map(
+				(e => this.votes[e].load()).bind(this)
+			)
+		);
 	}
 
 	serializeVotes()
@@ -186,10 +246,20 @@ class Player extends GameObject
 		let defaults = {
 			displayName: '',
 			isModerator: false,
-			seatNum: '',
+			seatNum: null,
 			role: 'unassigned', // one of 'unassigned', 'hitler', 'fascist', 'liberal'
-			state: 'normal' // one of 'normal', 'investigated', 'dead'
+			state: 'normal', // one of 'normal', 'investigated', 'dead'
+			connected: true
 		};
+
+		Object.assign(this.propTypes, {
+			displayName: 'string',
+			isModerator: 'bool',
+			seatNum: 'int',
+			role: 'string',
+			state: 'string',
+			connected: 'bool'
+		});
 
 		this.properties.push(...Object.keys(defaults));
 		Object.assign(this.delta, defaults);
@@ -216,10 +286,23 @@ class Vote extends GameObject
 
 			toPass: 1, // number of yea votes needed to pass
 			requires: 1, // number of total votes before evaluation
-			yesVoters: '', // CSV of userIds that voted yes
-			noVoters: '', // CSV of userIds that voted no
-			nonVoters: '' // CSV of userIds that are not allowed to vote
+			yesVoters: [], // CSV of userIds that voted yes
+			noVoters: [], // CSV of userIds that voted no
+			nonVoters: [] // CSV of userIds that are not allowed to vote
 		};
+
+		Object.assign(this.propTypes, {
+			type: 'string',
+			target1: 'int',
+			target2: 'int',
+			data: 'string',
+
+			toPass: 'int',
+			requires: 'int',
+			yesVoters: 'csv',
+			noVoters: 'csv',
+			nonVoters: 'csv'
+		});
 
 		this.properties.push(...Object.keys(defaults));
 		Object.assign(this.delta, defaults);

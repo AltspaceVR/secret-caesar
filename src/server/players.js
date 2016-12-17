@@ -14,7 +14,7 @@ function requestJoin(user)
 	game.load().then(() => game.loadPlayers()).then(() => {
 
 		// evaluate the join conditions
-		let ids = Utils.parseCSV(game.get('turnOrder'));
+		let ids = game.get('turnOrder');
 		let seatTaken = ids.find(e => game.players[e].get('seatNum') == user.seatNum);
 		let playerIn = ids.includes(user.id);
 
@@ -33,7 +33,7 @@ function requestJoin(user)
 			{
 				ids.push(user.id);
 				ids.sort((a,b) => game.players[a].get('seatNum') - game.players[b].get('seatNum'));
-				game.set('turnOrder', ids.join(','));
+				game.set('turnOrder', ids);
 				return Promise.all([game.save(), p.save()]);
 			}
 			// after minimum count, require vote to approve
@@ -48,9 +48,9 @@ function requestJoin(user)
 				vote.set('requires', 1);
 
 				// add to game
-				let vips = Utils.parseCSV(game.get('votesInProgress'));
+				let vips = game.get('votesInProgress');
 				vips.push(vote.get('id'));
-				game.set('votesInProgress', vips.join(','));
+				game.set('votesInProgress', vips);
 
 				return Promise.all([game.save(), p.save(), vote.save()]);
 			}
@@ -89,13 +89,13 @@ function requestLeave(id)
 	Promise.all([game.load(), player.load()]).then(() =>
 	{
 		// check if player is in game
-		let ids = Utils.parseCSV(game.get('turnOrder'));
+		let ids = game.get('turnOrder');
 		let i = ids.indexOf(id);
 		if(i > -1)
 		{
 			// if so, remove from game
 			ids.splice(i, 1);
-			game.set('turnOrder', ids.join(','));
+			game.set('turnOrder', ids);
 
 			return Promise.all([game.save(), player.destroy()]);
 		}
@@ -127,7 +127,7 @@ function requestKick(requesterId, targetId)
 	let game = new DB.GameState(socket.gameId);
 	game.load().then(() =>
 	{
-		let ids = Utils.parseCSV(game.get('turnOrder'));
+		let ids = game.get('turnOrder');
 
 		// make sure requester, target are in game
 		if(ids.includes(requesterId) && ids.includes(targetId))
@@ -138,12 +138,12 @@ function requestKick(requesterId, targetId)
 			vote.set('target1', targetId);
 			vote.set('requires', 2);
 			vote.set('toPass', Math.ceil((ids.length-1)/2 + 0.1));
-			vote.set('nonVoters', targetId);
+			vote.set('nonVoters', [targetId]);
 
 			// save vote and update
-			let votes = Utils.parseCSV(game.get('votesInProgress'));
+			let votes = game.get('votesInProgress');
 			votes.push(vote.get('id'));
-			game.set('votesInProgress', votes.join(','));
+			game.set('votesInProgress', votes);
 			return Promise.all([game.save(), vote.save()]);
 		}
 		else return Promise.reject('Target or requester not valid');
@@ -155,6 +155,12 @@ function requestKick(requesterId, targetId)
 	.catch(err => console.log(err));
 }
 
+function checkIn(userId)
+{
+
+}
+
 exports.requestJoin = requestJoin;
 exports.requestLeave = requestLeave;
 exports.requestKick = requestKick;
+exports.checkIn = checkIn;

@@ -2,7 +2,6 @@
 
 import SH from './secrethitler';
 import AM from './assetmanager';
-import { parseCSV } from './utils';
 
 export default class Nameplate extends THREE.Object3D
 {
@@ -55,12 +54,11 @@ export default class Nameplate extends THREE.Object3D
 
 	click(e)
 	{
-		let playerIds = parseCSV(SH.game.turnOrder);
 		if(!this.seat.owner && SH.game.state === 'setup')
 			this.requestJoin();
 		else if(this.seat.owner === SH.localUser.id)
 			this.requestLeave();
-		else if(this.seat.owner && playerIds.includes(SH.localUser.id))
+		else if(this.seat.owner && SH.game.turnOrder.includes(SH.localUser.id))
 			this.requestKick();
 	}
 
