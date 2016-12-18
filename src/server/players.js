@@ -213,7 +213,7 @@ function onDisconnect()
 				socket.server.to(socket.gameId).emit('update', cleanGame.serialize(), null, null);
 			});
 		}
-		else {
+		else if( game.get('turnOrder').includes(userId) ){
 			socket.server.to(socket.gameId).emit('update',
 				{turnOrder: game.get('turnOrder')}, {[userId]: game.players[userId].serialize()}
 			);
