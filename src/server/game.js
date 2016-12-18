@@ -4,7 +4,6 @@ const DB = require('./db');
 
 function reset()
 {
-    console.log('reset is happening');
     let socket = this;
     let game = new DB.GameState(socket.gameId);
 

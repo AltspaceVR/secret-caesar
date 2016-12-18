@@ -123,14 +123,20 @@ class SecretHitler extends THREE.Object3D
 			});
 		}
 
+		if(players[this.localUser.id] && !players[this.localUser.id].connected){
+			this.socket.emit('checkIn', this.localUser);
+		}
+
 		this.game = game;
 		this.players = players;
 		this.votes = votes;
 	}
 
 	reset(e){
-		console.log('requesting reset');
-		this.socket.emit('reset');
+		if(this.localUser.isModerator){
+			console.log('requesting reset');
+			this.socket.emit('reset');
+		}
 	}
 }
 

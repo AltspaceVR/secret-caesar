@@ -21,12 +21,16 @@ function requestJoin(user)
 		// make sure preconditions are met
 		if( user.seatNum !== null && game.get('state') === 'setup' && !seatTaken && !playerIn )
 		{
-			// create player db entry
+			// create new data structure
 			let p = new DB.Player(user.id);
-			game.players[user.id] = p;
-			for(let i in user){
+			for(let i in user)
 				p.set(i, user[i]);
-			}
+			game.players[user.id] = p;
+
+			// hook up disconnect listener
+			DB.playerWithSocket[socket.id] = user.id;
+			DB.socketWithPlayer[user.id] = socket.id;
+			socket.on('disconnect', onDisconnect.bind(socket));
 
 			// let all players join up to minimum count
 			if(ids.length < 5)
@@ -155,9 +159,67 @@ function requestKick(requesterId, targetId)
 	.catch(err => console.log(err));
 }
 
-function checkIn(userId)
-{
+let playersForSockets = {};
 
+function checkIn(user)
+{
+	let socket = this;
+	let game = new DB.GameState(socket.gameId);
+	let p = new DB.Player(user.id);
+
+	Promise.all([game.load(), p.load()]).then(() =>
+	{
+		console.log('checking in');
+
+		// update user info
+		for(let i in user){
+			p.set(i, user[i]);
+		}
+
+		DB.playerWithSocket[socket.id] = user.id;
+		DB.socketWithPlayer[user.id] = socket.id;
+		socket.on('disconnect', onDisconnect.bind(socket));
+
+		p.save().then(() => {
+			socket.server.to(socket.gameId).emit('update',
+				{turnOrder: game.get('turnOrder')}, {[p.get('id')]: p.serialize()}
+			);
+		})
+		.catch(e => console.error(e));
+	})
+	.catch(e => console.error(e));
+}
+
+function onDisconnect()
+{
+	let socket = this;
+	let game = new DB.GameState(socket.gameId);
+	let userId = DB.playerWithSocket[socket.id];
+
+	// mark player as disconnected
+	delete DB.playerWithSocket[socket.id];
+	delete DB.socketWithPlayer[userId];
+
+	game.load().then(() => game.loadPlayers()).then(() =>
+	{
+		let connectedCount = game.get('turnOrder').filter(p => !!DB.socketWithPlayer[p]).length;
+		console.log(connectedCount);
+
+		// no players remaining, reset
+		if(connectedCount === 0)
+		{
+			game.destroy().then(() => {
+				let cleanGame = new DB.GameState(socket.gameId);
+				socket.server.to(socket.gameId).emit('update', cleanGame.serialize(), null, null);
+			});
+		}
+		else {
+			socket.server.to(socket.gameId).emit('update',
+				{turnOrder: game.get('turnOrder')}, {[userId]: game.players[userId].serialize()}
+			);
+		}
+	})
+	.catch(e => console.error(e));
 }
 
 exports.requestJoin = requestJoin;

@@ -169,6 +169,7 @@ class GameState extends GameObject
 		};
 
 		Object.assign(this.propTypes, {
+			id: 'string',
 			state: 'string',
 			turnOrder: 'csv',
 			votesInProgress: 'csv',
@@ -248,8 +249,7 @@ class Player extends GameObject
 			isModerator: false,
 			seatNum: null,
 			role: 'unassigned', // one of 'unassigned', 'hitler', 'fascist', 'liberal'
-			state: 'normal', // one of 'normal', 'investigated', 'dead'
-			connected: true
+			state: 'normal' // one of 'normal', 'investigated', 'dead'
 		};
 
 		Object.assign(this.propTypes, {
@@ -257,8 +257,7 @@ class Player extends GameObject
 			isModerator: 'bool',
 			seatNum: 'int',
 			role: 'string',
-			state: 'string',
-			connected: 'bool'
+			state: 'string'
 		});
 
 		this.properties.push(...Object.keys(defaults));
@@ -268,6 +267,7 @@ class Player extends GameObject
 	serialize(hideSecrets = true){
 		let safe = super.serialize();
 		if(hideSecrets) delete safe.role;
+		safe.connected = !!socketWithPlayer[this.get('id')];
 		return safe;
 	}
 }
@@ -308,6 +308,9 @@ class Vote extends GameObject
 		Object.assign(this.delta, defaults);
 	}
 }
+
+let playerWithSocket = exports.playerWithSocket = {};
+let socketWithPlayer = exports.socketWithPlayer = {};
 
 exports.GameState = GameState;
 exports.Player = Player;

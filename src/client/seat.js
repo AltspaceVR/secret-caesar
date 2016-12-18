@@ -53,6 +53,7 @@ export default class Seat extends THREE.Object3D
 	{
 		let ids = game.turnOrder;
 
+        // register this seat if it's newly claimed
 		if( !this.owner )
 		{
 			// check if a player has joined at this seat
@@ -60,11 +61,11 @@ export default class Seat extends THREE.Object3D
 				if(players[ids[i]].seatNum === this.seatNum){
 					this.owner = ids[i];
 					this.nameplate.updateText(players[ids[i]].displayName);
-					return;
 				}
 			}
 		}
 
+        // reset this seat if it's newly vacated
 		if( !ids.includes(this.owner) )
 		{
 			this.owner = 0;
@@ -72,5 +73,13 @@ export default class Seat extends THREE.Object3D
 				this.nameplate.updateText('<Join>');
 			}
 		}
+
+        // update disconnect colors
+        else if( !players[this.owner].connected ){
+            this.nameplate.model.material.color.setHex(0x808080);
+        }
+        else if( players[this.owner].connected ){
+            this.nameplate.model.material.color.setHex(0xffffff);
+        }
 	}
 }
