@@ -1,7 +1,6 @@
 'use strict';
 
 import SH from './secrethitler';
-import PM from './playermanager';
 
 class Behavior
 {
@@ -30,7 +29,7 @@ class BSync extends Behavior
 		// listen for update events
 		this.hook = this._s.on(eventName, this.updateFromServer.bind(this));
 		this.eventName = eventName;
-		this.owner = 'unowned';
+		this.owner = 0;
 	}
 
 	updateFromServer(data)
@@ -41,15 +40,15 @@ class BSync extends Behavior
 
 	takeOwnership()
 	{
-		if(PM.localUser && PM.localUser.userId)
-			this.owner = PM.localUser.userId;
+		if(SH.localUser && SH.localUser.userId)
+			this.owner = SH.localUser.userId;
 	}
 
 	update(dT)
 	{
-		if(PM.localUser && PM.localUser.skeleton && PM.localUser.userId === this.owner)
+		if(SH.localUser && SH.localUser.skeleton && SH.localUser.id === this.owner)
 		{
-			let j = PM.localUser.skeleton.getJoint('Head');
+			let j = SH.localUser.skeleton.getJoint('Head');
 			this._s.emit(this.eventName, [...j.position.toArray(), ...j.rotation.toArray()]);
 		}
 	}
