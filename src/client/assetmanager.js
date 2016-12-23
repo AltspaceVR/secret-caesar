@@ -7,7 +7,8 @@ export default {
 			nameplate: 'static/model/nameplate.dae',
 			tophat: 'static/model/tophat.gltf',
 			visorcap: 'static/model/visor_cap.gltf',
-			dummy: 'static/model/dummy.gltf'
+			dummy: 'static/model/dummy.gltf',
+			playermeter: 'static/model/playermeter.dae'
 		},
 		textures: {
 			board_large: 'static/img/board-large-baked.png',

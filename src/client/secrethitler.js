@@ -7,6 +7,7 @@ import AssetManager from './assetmanager';
 import { getGameId } from './utils';
 import Nameplate from './nameplate';
 import Seat from './seat';
+import PlayerMeter from './playermeter';
 
 class SecretHitler extends THREE.Object3D
 {
@@ -93,6 +94,10 @@ class SecretHitler extends THREE.Object3D
 		}
 
 		this.table.add(...this.seats);
+
+		this.playerMeter = new PlayerMeter();
+		this.playerMeter.position.set(0, 0.3, 0);
+		this.table.add(this.playerMeter);
 
 		// add avatar for scale
 		assets.models.dummy.position.set(0, 0, 1.1);

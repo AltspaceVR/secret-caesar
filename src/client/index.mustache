@@ -2,16 +2,22 @@
 <html>
 	<head>
 		<title>Secret Hitler!</title>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r74/three.js"></script>
-		<script src="https://cdn.rawgit.com/mrdoob/three.js/master/examples/js/loaders/ColladaLoader.js"></script>
-		<!--script src="https://cdn.rawgit.com/mrdoob/three.js/master/examples/js/loaders/GLTFLoader.js"></script-->
-		<script src="https://cdn.rawgit.com/mrdoob/three.js/baff49679505eb90d84a1effa0afc80a90eb434e/examples/js/loaders/GLTFLoader.js"></script>
-		<script src="https://sdk.altvr.com/libs/altspace.js/0.26.1/altspace.min.js"></script>
-		<!--script src="{{basePath}}/static/js/altspace.js"></script-->
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/16.3.5/Tween.min.js"></script>
+		{{^localLibs}}
+			<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r76/three.min.js"></script>
+			<script src="https://cdn.rawgit.com/mrdoob/three.js/master/examples/js/loaders/ColladaLoader.js"></script>
+			<script src="https://cdn.rawgit.com/mrdoob/three.js/baff49679505eb90d84a1effa0afc80a90eb434e/examples/js/loaders/GLTFLoader.js"></script>
+			<script src="https://sdk.altvr.com/libs/altspace.js/0.26.1/altspace.min.js"></script>
+			<script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/16.3.5/Tween.min.js"></script>
+			<script src="https://rawgit.com/stevenvergenz/altspace-diorama/development/dist/diorama.min.js"></script>
+		{{/localLibs}}
+		{{#localLibs}}
+			<script src='{{basePath}}/static/js/three.r76.js'></script>
+			<script src='{{basePath}}/static/js/ColladaLoader.js'></script>
+			<script src='{{basePath}}/static/js/GLTFLoader.js'></script>
+			<script src="{{basePath}}/static/js/altspace.js"></script>
+			<script src='{{basePath}}/static/js/diorama.js'></script>
+		{{/localLibs}}
 		<script src="{{basePath}}/static/socket.io/socket.io.min.js"></script>
-		<script src="https://rawgit.com/stevenvergenz/altspace-diorama/development/dist/diorama.js"></script>
-		<!--script src='{{basePath}}/static/js/diorama.js'></script-->
 		<script src='{{basePath}}/static/js/secrethitler.js'></script>
 	</head>
 	<body>
