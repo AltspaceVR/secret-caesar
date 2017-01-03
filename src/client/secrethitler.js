@@ -96,7 +96,6 @@ class SecretHitler extends THREE.Object3D
 		this.table.add(...this.seats);
 
 		this.playerMeter = new PlayerMeter();
-		this.playerMeter.position.set(0, 0.3, 0);
 		this.table.add(this.playerMeter);
 
 		// add avatar for scale

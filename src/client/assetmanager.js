@@ -15,7 +15,8 @@ export default {
 			board_med: 'static/img/board-medium-baked.png',
 			board_small: 'static/img/board-small-baked.png',
 			cards: 'static/img/cards.png',
-			reset: 'static/img/bomb.png'
+			reset: 'static/img/bomb.png',
+			text: 'static/img/text.png'
 		}
 	},
 	cache: {}

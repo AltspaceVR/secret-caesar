@@ -1,6 +1,7 @@
 'use strict';
 
 import AM from './assetmanager';
+import SH from './secrethitler';
 
 export default class PlayerMeter extends THREE.Object3D
 {
@@ -8,26 +9,59 @@ export default class PlayerMeter extends THREE.Object3D
     {
         super();
 
-        this.scale.set(0.4, 0.2, 0.15);
+        let model = AM.cache.models.playermeter;
+        model.position.set(0, 0.15, 0);
+        model.rotation.set(-Math.PI/2, 0, 0);
+        model.scale.setScalar(0.8);
 
-        // root offset for meter
-        let mat = new THREE.MeshBasicMaterial({
-            color: 0xffffff,
-            vertexColors: THREE.VertexColors
-        });
-        this.meter = AM.cache.models.playermeter;
-        this.meter.rotation.set(Math.PI/2, 0, Math.PI/2);
-        this.meter.traverse(o => {
-            if(o instanceof THREE.Mesh)
-                o.material = mat;
-        });
-        this.add(this.meter);
+        // set up rainbow meter
+        this.pm = model.children[0];
+        this.pm.material.vertexColors = THREE.VertexColors;
+        this.pm.material.color.set(0xffffff);
+        this.pm.visible = false;
 
-        this.setMeter(0);
+        // set up label
+        this.label = model.children[1].children[0];
+        this.label.material.transparent = true;
+        this.label.visible = false;
+
+        this.add(model);
+
+        // set up gauge
+        this.gauge = new THREE.Object3D();
+        this.gauge.position.set(0, 0.15, 0);
+
+        let wedgeMat = new THREE.MeshBasicMaterial({color: 0xc0c0c0});
+        for(let i=0; i<4; i++){
+            let wedge = new THREE.Mesh(new THREE.BufferGeometry(), wedgeMat);
+            wedge.rotation.set(0, i*Math.PI/2, 0);
+            this.gauge.add(wedge);
+        }
+        this.setMeterValue(0);
+        this.add(this.gauge);
+
+        SH.addEventListener('update_turnOrder', this.adjustPlayerCount.bind(this));
     }
 
-    setMeter(val)
+    setMeterValue(val)
     {
+        let wedgeGeo = new THREE.CylinderBufferGeometry(
+            0.4, 0.4, 0.15, 40, 1, false, -Math.PI/4, (val/10)*Math.PI/2
+        );
+        this.gauge.children.forEach(o => { o.geometry = wedgeGeo; });
+    }
+
+    adjustPlayerCount({data: {game: {turnOrder, state}}})
+    {
+        if(state === 'setup'){
+            this.setMeterValue(turnOrder.length);
+            this.pm.visible = true;
+            this.label.visible = turnOrder.length >= 5;
+        }
+        else {
+            this.pm.visible = false;
+            this.label.visible = false;
+        }
 
     }
 };
