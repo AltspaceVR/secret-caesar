@@ -1284,6 +1284,12 @@ GLTFParser.prototype.loadMeshes = function() {
 								geometry.addAttribute( 'uv', bufferAttribute );
 								break;
 
+							case 'COLOR_0':
+							case 'COLOR0':
+							case 'COLOR':
+								geometry.addAttribute( 'color', bufferAttribute );
+								break;
+
 							case 'WEIGHT':
 								geometry.addAttribute( 'skinWeight', bufferAttribute );
 								break;

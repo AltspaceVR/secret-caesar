@@ -11,18 +11,17 @@ export default class PlayerMeter extends THREE.Object3D
 
         let model = AM.cache.models.playermeter;
         model.position.set(0, 0.15, 0);
-        model.rotation.set(-Math.PI/2, 0, 0);
         model.scale.setScalar(0.8);
 
         // set up rainbow meter
-        this.pm = model.children[0];
+        this.pm = model.children[0].children[0];
         this.pm.material.vertexColors = THREE.VertexColors;
         this.pm.material.color.set(0xffffff);
+        //this.pm.material.needsUpdate = true;
         this.pm.visible = false;
 
         // set up label
-        this.label = model.children[1].children[0];
-        this.label.material.transparent = true;
+        this.label = model.children[0].children[1].children[0];
         this.label.visible = false;
 
         this.add(model);

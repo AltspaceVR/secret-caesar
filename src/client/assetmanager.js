@@ -8,7 +8,7 @@ export default {
 			tophat: 'static/model/tophat.gltf',
 			visorcap: 'static/model/visor_cap.gltf',
 			dummy: 'static/model/dummy.gltf',
-			playermeter: 'static/model/playermeter.dae'
+			playermeter: 'static/model/playermeter.gltf'
 		},
 		textures: {
 			board_large: 'static/img/board-large-baked.png',
