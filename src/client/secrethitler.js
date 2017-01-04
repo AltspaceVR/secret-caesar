@@ -4,7 +4,7 @@ import * as Cards from './card';
 import { PresidentHat, ChancellorHat } from './hats';
 import GameTable from './table';
 import AssetManager from './assetmanager';
-import { getGameId } from './utils';
+import { getGameId, mergeObjects } from './utils';
 import Nameplate from './nameplate';
 import Seat from './seat';
 import PlayerMeter from './playermeter';
@@ -104,6 +104,7 @@ class SecretHitler extends THREE.Object3D
 		this.add(assets.models.dummy);
 
 		this.socket.on('update', this.updateFromServer.bind(this));
+		this.socket.on('checkedIn', this.checkedIn.bind(this));
 	}
 
 	updateFromServer(gd, pd, vd)
@@ -111,8 +112,8 @@ class SecretHitler extends THREE.Object3D
 		console.log(gd, pd, vd);
 
 		let game = Object.assign({}, this.game, gd);
-		let players = Object.assign({}, this.players, pd);
-		let votes = Object.assign({}, this.votes, vd);
+		let players = mergeObjects(this.players, pd || {});
+		let votes = mergeObjects(this.votes, vd || {});
 
 		for(let field in gd)
 		{
@@ -134,6 +135,16 @@ class SecretHitler extends THREE.Object3D
 		this.game = game;
 		this.players = players;
 		this.votes = votes;
+	}
+
+	checkedIn(p)
+	{
+		Object.assign(this.players[p.id], p);
+		this.dispatchEvent({
+			type: 'checkedIn',
+			bubbles: false,
+			data: p.id
+		});
 	}
 
 	reset(e){

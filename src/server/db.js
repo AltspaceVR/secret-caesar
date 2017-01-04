@@ -160,10 +160,10 @@ class GameState extends GameObject
 
 			liberalPolicies: 0,
 			fascistPolicies: 0,
-			deckFascist: 11,
-			deckLiberal: 6,
-			discardFascist: 0,
-			discardLiberal: 0,
+			// bit-packed boolean array. liberal=1, fascist=0
+			// most sig bit is 1. least sig bit is top of deck
+			deck: 0x1, // bpba
+			discard: 0x1, // bpba
 			specialElection: false,
 			failedVotes: 0
 		};
@@ -180,7 +180,6 @@ class GameState extends GameObject
 			liberalPolicies: 'int',
 			fascistPolicies: 'int',
 			deckLiberal: 'int',
-			deckFascist: 'int',
 			discardLiberal: 'int',
 			discardFascist: 'int',
 			specialElection: 'bool',
@@ -264,7 +263,7 @@ class Player extends GameObject
 		Object.assign(this.delta, defaults);
 	}
 
-	serialize(hideSecrets = true){
+	serialize(hideSecrets = false){
 		let safe = super.serialize();
 		if(hideSecrets) delete safe.role;
 		safe.connected = !!socketWithPlayer[this.get('id')];

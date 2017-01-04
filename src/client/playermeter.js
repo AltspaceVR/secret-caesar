@@ -41,6 +41,7 @@ export default class PlayerMeter extends THREE.Object3D
         this.add(this.gauge);
 
         SH.addEventListener('update_turnOrder', this.adjustPlayerCount.bind(this));
+        this.addEventListener('cursorup', this.onclick.bind(this));
     }
 
     setMeterValue(val)
@@ -62,6 +63,15 @@ export default class PlayerMeter extends THREE.Object3D
             this.pm.visible = false;
             this.label.visible = false;
         }
+    }
 
+    onclick(evt)
+    {
+        let to = SH.game.turnOrder;
+        if(SH.game.state === 'setup' && to.length >= 5 && to.length <= 10
+            && to.includes(SH.localUser.id))
+        {
+            SH.socket.emit('start');
+        }
     }
 };

@@ -59,4 +59,26 @@ function generateQuestion(text, texture = null)
 	}
 }
 
-export { getGameId, parseCSV, generateQuestion };
+function mergeObjects(a, b, depth=2)
+{
+	let aIsObj = a instanceof Object, bIsObj = b instanceof Object;
+	if(aIsObj && bIsObj && depth > 0)
+	{
+		function unique(e, i, a){
+			return a.indexOf(e) === i;
+		}
+
+		let result = {};
+		let keys = [...Object.keys(a), ...Object.keys(b)].filter(unique);
+		for(let i=0; i<keys.length; i++){
+			result[keys[i]] = mergeObjects(a[keys[i]], b[keys[i]], depth-1);
+		}
+		return result;
+	}
+	else if(b !== undefined)
+		return b;
+	else
+		return a;
+}
+
+export { getGameId, parseCSV, generateQuestion, mergeObjects };
