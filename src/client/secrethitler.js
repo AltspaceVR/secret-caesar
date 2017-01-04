@@ -23,13 +23,13 @@ class SecretHitler extends THREE.Object3D
 			altspace.getUser = () => {
 				let id, re = /[?&]userId=(\d+)/.exec(window.location.search);
 				if(re)
-					id = JSON.parse(re[1]);
+					id = re[1];
 				else
-					id = Math.floor(Math.random() * 10000000);
+					id = Math.floor(Math.random() * 10000000).toString();
 
 				altspace._localUser = {
 					userId: id,
-					displayName: 'Guest'+id,
+					displayName: id,
 					isModerator: false
 				};
 				console.log('Masquerading as', altspace._localUser);

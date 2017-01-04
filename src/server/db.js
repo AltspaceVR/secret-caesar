@@ -16,7 +16,7 @@ class GameObject
 	{
 		this.type = type;
 		this.properties = ['id'];
-		this.propTypes = {id: 'int'};
+		this.propTypes = {id: 'string'};
 		this.cache = {};
 		this.delta = {id};
 	}
@@ -153,10 +153,10 @@ class GameState extends GameObject
 			state: 'setup',
 			turnOrder: [], // CSV of userIds
 			votesInProgress: [], // CSV of voteIds
-			president: 0, // userId
-			chancellor: 0, // userId
-			lastPresident: 0, // userId
-			lastChancellor: 0, // userId
+			president: '', // userId
+			chancellor: '', // userId
+			lastPresident: '', // userId
+			lastChancellor: '', // userId
 
 			liberalPolicies: 0,
 			fascistPolicies: 0,
@@ -173,10 +173,10 @@ class GameState extends GameObject
 			state: 'string',
 			turnOrder: 'csv',
 			votesInProgress: 'csv',
-			president: 'int',
-			chancellor: 'int',
-			lastPresident: 'int',
-			lastChancellor: 'int',
+			president: 'string',
+			chancellor: 'string',
+			lastPresident: 'string',
+			lastChancellor: 'string',
 			liberalPolicies: 'int',
 			fascistPolicies: 'int',
 			deckLiberal: 'int',
@@ -280,8 +280,8 @@ class Vote extends GameObject
 
 		let defaults = {
 			type: 'elect', // one of 'elect', 'join', 'kick', 'reset'
-			target1: 0, // userId of president/joiner/kicker
-			target2: 0, // userId of chancellor
+			target1: '', // userId of president/joiner/kicker
+			target2: '', // userId of chancellor
 			data: '', // display name of join requester
 
 			toPass: 1, // number of yea votes needed to pass
@@ -293,8 +293,8 @@ class Vote extends GameObject
 
 		Object.assign(this.propTypes, {
 			type: 'string',
-			target1: 'int',
-			target2: 'int',
+			target1: 'string',
+			target2: 'string',
 			data: 'string',
 
 			toPass: 'int',
