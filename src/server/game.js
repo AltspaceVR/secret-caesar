@@ -45,6 +45,7 @@ function start()
         });
         game.set('deck', pack);
         game.set('state', 'night');
+        game.set('president', Math.floor(Math.random()*pc));
 
         return Promise.all([game.save(),
             Promise.all(game.get('turnOrder').map(u => game.players[u].save()))
