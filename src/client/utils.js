@@ -61,13 +61,13 @@ function generateQuestion(text, texture = null)
 
 function mergeObjects(a, b, depth=2)
 {
+	function unique(e, i, a){
+		return a.indexOf(e) === i;
+	}
+
 	let aIsObj = a instanceof Object, bIsObj = b instanceof Object;
 	if(aIsObj && bIsObj && depth > 0)
 	{
-		function unique(e, i, a){
-			return a.indexOf(e) === i;
-		}
-
 		let result = {};
 		let keys = [...Object.keys(a), ...Object.keys(b)].filter(unique);
 		for(let i=0; i<keys.length; i++){
