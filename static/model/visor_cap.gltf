@@ -186,7 +186,8 @@
                     "technique": "CONSTANT",
                     "transparent": false,
                     "values": {
-                        "diffuse": "texture_Untitled"
+                        "diffuse": "texture_Untitled",
+                        "emission": "texture_Untitled"
                     }
                 }
             },
@@ -200,7 +201,8 @@
                     "technique": "CONSTANT",
                     "transparent": false,
                     "values": {
-                        "diffuse": "texture_visor_hat_png"
+                        "diffuse": "texture_visor_hat_png",
+                        "emission": "texture_visor_hat_png"
                     }
                 }
             },

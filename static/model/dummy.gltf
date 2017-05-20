@@ -182,7 +182,8 @@
                     "technique": "CONSTANT",
                     "transparent": false,
                     "values": {
-                        "diffuse": "texture_file1"
+                        "diffuse": "texture_file1",
+                        "emission": "texture_file1"
                     }
                 }
             },

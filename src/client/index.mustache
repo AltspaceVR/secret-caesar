@@ -3,19 +3,18 @@
 	<head>
 		<title>Secret Hitler!</title>
 		{{^localLibs}}
-			<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r76/three.min.js"></script>
-			<script src="https://cdn.rawgit.com/mrdoob/three.js/master/examples/js/loaders/ColladaLoader.js"></script>
-			<script src="https://cdn.rawgit.com/mrdoob/three.js/baff49679505eb90d84a1effa0afc80a90eb434e/examples/js/loaders/GLTFLoader.js"></script>
-			<script src="https://sdk.altvr.com/libs/altspace.js/0.26.1/altspace.min.js"></script>
+			<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/84/three.min.js"></script>
+			<script src="https://cdn.rawgit.com/mrdoob/three.js/r84/examples/js/loaders/ColladaLoader.js"></script>
+			<script src="https://cdn.rawgit.com/mrdoob/three.js/r85/examples/js/loaders/GLTFLoader.js"></script>
+			<script src="https://sdk.altvr.com/libs/altspace.js/2.4.5/altspace.min.js"></script>
 			<script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/16.3.5/Tween.min.js"></script>
-			<script src="https://rawgit.com/stevenvergenz/altspace-diorama/development/dist/diorama.min.js"></script>
+			<script src="https://cdn.rawgit.com/stevenvergenz/altspace-diorama/2627dc1/dist/diorama.min.js"></script>
 		{{/localLibs}}
 		{{#localLibs}}
-			<script src='{{basePath}}/static/js/three.r76.js'></script>
-			<script src='{{basePath}}/static/js/ColladaLoader.js'></script>
-			<script src='{{basePath}}/static/js/GLTFLoader.js'></script>
-			<script src="{{basePath}}/static/js/altspace.js"></script>
-			<script src='{{basePath}}/static/js/diorama.js'></script>
+			<script src='{{basePath}}/static/lib/three.r84.js'></script>
+			<script src='{{basePath}}/static/lib/GLTFLoader.r85.js'></script>
+			<script src="{{basePath}}/static/lib/altspace.245.js"></script>
+			<script src='{{basePath}}/static/lib/diorama.2627dc1.js'></script>
 		{{/localLibs}}
 		<script src="{{basePath}}/static/socket.io/socket.io.min.js"></script>
 		<script src='{{basePath}}/static/js/secrethitler.js'></script>

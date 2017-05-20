@@ -15,14 +15,13 @@ export default class PlayerMeter extends THREE.Object3D
         model.scale.setScalar(0.8);
 
         // set up rainbow meter
-        this.pm = model.children[0];
+        this.pm = model.children[0].children[0];
         this.pm.material.vertexColors = THREE.VertexColors;
         this.pm.material.color.set(0xffffff);
-        //this.pm.material.needsUpdate = true;
         this.pm.visible = false;
 
         // set up label
-        this.label = model.children[1].children[0];
+        this.label = model.children[0].children[1];
         this.label.visible = false;
 
         this.add(model);
@@ -56,7 +55,7 @@ export default class PlayerMeter extends THREE.Object3D
     {
         if(state === 'setup'){
             this.setMeterValue(turnOrder.length);
-            this.pm.visible = true;
+            this.pm.visible = turnOrder.length >= 1;
             this.label.visible = turnOrder.length >= 5;
         }
         else {
