@@ -30,7 +30,7 @@ class SecretHitler extends THREE.Object3D
 				altspace._localUser = {
 					userId: id,
 					displayName: id,
-					isModerator: false
+					isModerator: /isModerator/.test(window.location.search)
 				};
 				console.log('Masquerading as', altspace._localUser);
 				return Promise.resolve(altspace._localUser);
@@ -70,7 +70,7 @@ class SecretHitler extends THREE.Object3D
 			new THREE.MeshBasicMaterial({map: assets.textures.reset})
 		);
 		this.resetButton.position.set(0, -0.18, 0);
-		this.resetButton.addEventListener('cursorup', this.reset.bind(this));
+		this.resetButton.addEventListener('cursorup', this.sendReset.bind(this));
 		this.table.add(this.resetButton);
 
 		// create idle display
@@ -105,6 +105,9 @@ class SecretHitler extends THREE.Object3D
 
 		this.socket.on('update', this.updateFromServer.bind(this));
 		this.socket.on('checkedIn', this.checkedIn.bind(this));
+
+		this.socket.on('reset', this.doReset.bind(this));
+		this.socket.on('disconnect', this.doReset.bind(this));
 	}
 
 	updateFromServer(gd, pd, vd)
@@ -147,10 +150,20 @@ class SecretHitler extends THREE.Object3D
 		});
 	}
 
-	reset(e){
+	sendReset(e){
 		if(this.localUser.isModerator){
 			console.log('requesting reset');
 			this.socket.emit('reset');
+		}
+	}
+
+	doReset()
+	{
+		if( /&cacheBust=\d+$/.test(window.location.search) ){
+			window.location.search += '1';
+		}
+		else {
+			window.location.search += '&cacheBust=1';
 		}
 	}
 }

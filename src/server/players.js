@@ -191,9 +191,9 @@ function checkIn(user)
 				Object.assign({id: user.id, connected: !!DB.socketWithPlayer[user.id]}, diff)
 			);
 		})
-		.catch(e => console.error(e));
+		.catch(e => console.error('checkin failed:', e));
 	})
-	.catch(e => console.error(e));
+	.catch(e => console.error('game load failed:', e));
 }
 
 function onDisconnect()

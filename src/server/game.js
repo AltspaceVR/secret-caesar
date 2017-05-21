@@ -6,6 +6,8 @@ const shuffleInPlace = require('./utils').shuffleInPlace;
 function reset()
 {
     let socket = this;
+    socket.server.to(socket.gameId).emit('reset');
+
     let game = new DB.GameState(socket.gameId);
 
     game.destroy().then(() => {

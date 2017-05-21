@@ -40,11 +40,15 @@ export default class PlayerMeter extends THREE.Object3D
         this.add(this.gauge);
 
         SH.addEventListener('update_turnOrder', this.adjustPlayerCount.bind(this));
+        SH.addEventListener('update_state', this.adjustPlayerCount.bind(this));
         this.addEventListener('cursorup', this.onclick.bind(this));
     }
 
     setMeterValue(val)
     {
+        this.pm.visible = val >= 1;
+        this.label.visible = val >= 5;
+
         let wedgeGeo = new THREE.CylinderBufferGeometry(
             0.4, 0.4, 0.15, 40, 1, false, -Math.PI/4, (val/10)*Math.PI/2
         );
@@ -55,12 +59,9 @@ export default class PlayerMeter extends THREE.Object3D
     {
         if(state === 'setup'){
             this.setMeterValue(turnOrder.length);
-            this.pm.visible = turnOrder.length >= 1;
-            this.label.visible = turnOrder.length >= 5;
         }
         else {
-            this.pm.visible = false;
-            this.label.visible = false;
+            this.setMeterValue(0);
         }
     }
 

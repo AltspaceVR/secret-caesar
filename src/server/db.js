@@ -64,6 +64,9 @@ class GameObject
 		let self = this;
 		return new Promise((resolve,reject) =>
 		{
+			if( Object.keys(self.delta).length === 0 )
+				resolve({});
+
 			let dbSafe = {};
 			for(let i in self.delta){
 				switch(self.propTypes[i]){
@@ -92,7 +95,6 @@ class GameObject
 				self.delta = {};
 			})
 			.catch(err => {
-				console.error(err);
 				reject(err);
 			});
 		});
