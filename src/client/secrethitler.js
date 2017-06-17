@@ -4,9 +4,10 @@ import * as Cards from './card';
 import { PresidentHat, ChancellorHat } from './hats';
 import GameTable from './table';
 import AssetManager from './assetmanager';
-import { getGameId } from './utils';
+import { getGameId, mergeObjects } from './utils';
 import Nameplate from './nameplate';
 import Seat from './seat';
+import PlayerMeter from './playermeter';
 
 class SecretHitler extends THREE.Object3D
 {
@@ -22,14 +23,14 @@ class SecretHitler extends THREE.Object3D
 			altspace.getUser = () => {
 				let id, re = /[?&]userId=(\d+)/.exec(window.location.search);
 				if(re)
-					id = JSON.parse(re[1]);
+					id = re[1];
 				else
-					id = Math.floor(Math.random() * 10000000);
+					id = Math.floor(Math.random() * 10000000).toString();
 
 				altspace._localUser = {
 					userId: id,
-					displayName: 'Guest'+id,
-					isModerator: false
+					displayName: id,
+					isModerator: /isModerator/.test(window.location.search)
 				};
 				console.log('Masquerading as', altspace._localUser);
 				return Promise.resolve(altspace._localUser);
@@ -69,7 +70,7 @@ class SecretHitler extends THREE.Object3D
 			new THREE.MeshBasicMaterial({map: assets.textures.reset})
 		);
 		this.resetButton.position.set(0, -0.18, 0);
-		this.resetButton.addEventListener('cursorup', this.reset.bind(this));
+		this.resetButton.addEventListener('cursorup', this.sendReset.bind(this));
 		this.table.add(this.resetButton);
 
 		// create idle display
@@ -94,12 +95,19 @@ class SecretHitler extends THREE.Object3D
 
 		this.table.add(...this.seats);
 
+		this.playerMeter = new PlayerMeter();
+		this.table.add(this.playerMeter);
+
 		// add avatar for scale
-		assets.models.dummy.position.set(0, 0, 1.1);
+		assets.models.dummy.position.set(0, -0.12, 1.1);
 		assets.models.dummy.rotateZ(Math.PI);
 		this.add(assets.models.dummy);
 
 		this.socket.on('update', this.updateFromServer.bind(this));
+		this.socket.on('checkedIn', this.checkedIn.bind(this));
+
+		this.socket.on('reset', this.doReset.bind(this));
+		this.socket.on('disconnect', this.doReset.bind(this));
 	}
 
 	updateFromServer(gd, pd, vd)
@@ -107,8 +115,8 @@ class SecretHitler extends THREE.Object3D
 		console.log(gd, pd, vd);
 
 		let game = Object.assign({}, this.game, gd);
-		let players = Object.assign({}, this.players, pd);
-		let votes = Object.assign({}, this.votes, vd);
+		let players = mergeObjects(this.players, pd || {});
+		let votes = mergeObjects(this.votes, vd || {});
 
 		for(let field in gd)
 		{
@@ -132,10 +140,30 @@ class SecretHitler extends THREE.Object3D
 		this.votes = votes;
 	}
 
-	reset(e){
+	checkedIn(p)
+	{
+		Object.assign(this.players[p.id], p);
+		this.dispatchEvent({
+			type: 'checkedIn',
+			bubbles: false,
+			data: p.id
+		});
+	}
+
+	sendReset(e){
 		if(this.localUser.isModerator){
 			console.log('requesting reset');
 			this.socket.emit('reset');
+		}
+	}
+
+	doReset()
+	{
+		if( /&cacheBust=\d+$/.test(window.location.search) ){
+			window.location.search += '1';
+		}
+		else {
+			window.location.search += '&cacheBust=1';
 		}
 	}
 }

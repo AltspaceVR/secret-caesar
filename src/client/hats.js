@@ -12,9 +12,13 @@ class PresidentHat extends THREE.Object3D
 		this.model.rotation.set(-Math.PI/2, 0, 0);
 		this.add(this.model);
 
-		SH.addEventListener('update_state', ((e) => {
-			if(e.data.game.state === 'setup') this.idle();
-		}).bind(this));
+		SH.addEventListener('update_state', e => {
+			if(e.data.game.state === 'setup')
+				this.idle();
+			else {
+				SH.idleRoot.remove(this);
+			}
+		});
 	}
 
 	idle(){
@@ -33,9 +37,13 @@ class ChancellorHat extends THREE.Object3D
 		this.model.rotation.set(-Math.PI/2, 0, 0);
 		this.add(this.model);
 
-		SH.addEventListener('update_state', ((e) => {
-			if(e.data.game.state === 'setup') this.idle();
-		}).bind(this));
+		SH.addEventListener('update_state', e => {
+			if(e.data.game.state === 'setup')
+				this.idle();
+			else {
+				SH.idleRoot.remove(this);
+			}
+		});
 	}
 
 	idle(){

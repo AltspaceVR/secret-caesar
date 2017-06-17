@@ -16,7 +16,7 @@ class GameObject
 	{
 		this.type = type;
 		this.properties = ['id'];
-		this.propTypes = {id: 'int'};
+		this.propTypes = {id: 'string'};
 		this.cache = {};
 		this.delta = {id};
 	}
@@ -64,6 +64,9 @@ class GameObject
 		let self = this;
 		return new Promise((resolve,reject) =>
 		{
+			if( Object.keys(self.delta).length === 0 )
+				resolve({});
+
 			let dbSafe = {};
 			for(let i in self.delta){
 				switch(self.propTypes[i]){
@@ -92,7 +95,6 @@ class GameObject
 				self.delta = {};
 			})
 			.catch(err => {
-				console.error(err);
 				reject(err);
 			});
 		});
@@ -153,17 +155,17 @@ class GameState extends GameObject
 			state: 'setup',
 			turnOrder: [], // CSV of userIds
 			votesInProgress: [], // CSV of voteIds
-			president: 0, // userId
-			chancellor: 0, // userId
-			lastPresident: 0, // userId
-			lastChancellor: 0, // userId
+			president: '', // userId
+			chancellor: '', // userId
+			lastPresident: '', // userId
+			lastChancellor: '', // userId
 
 			liberalPolicies: 0,
 			fascistPolicies: 0,
-			deckFascist: 11,
-			deckLiberal: 6,
-			discardFascist: 0,
-			discardLiberal: 0,
+			// bit-packed boolean array. liberal=1, fascist=0
+			// most sig bit is 1. least sig bit is top of deck
+			deck: 0x1, // bpba
+			discard: 0x1, // bpba
 			specialElection: false,
 			failedVotes: 0
 		};
@@ -173,14 +175,13 @@ class GameState extends GameObject
 			state: 'string',
 			turnOrder: 'csv',
 			votesInProgress: 'csv',
-			president: 'int',
-			chancellor: 'int',
-			lastPresident: 'int',
-			lastChancellor: 'int',
+			president: 'string',
+			chancellor: 'string',
+			lastPresident: 'string',
+			lastChancellor: 'string',
 			liberalPolicies: 'int',
 			fascistPolicies: 'int',
 			deckLiberal: 'int',
-			deckFascist: 'int',
 			discardLiberal: 'int',
 			discardFascist: 'int',
 			specialElection: 'bool',
@@ -264,7 +265,7 @@ class Player extends GameObject
 		Object.assign(this.delta, defaults);
 	}
 
-	serialize(hideSecrets = true){
+	serialize(hideSecrets = false){
 		let safe = super.serialize();
 		if(hideSecrets) delete safe.role;
 		safe.connected = !!socketWithPlayer[this.get('id')];
@@ -279,9 +280,9 @@ class Vote extends GameObject
 		super('vote', id);
 
 		let defaults = {
-			type: 'elect', // one of 'elect', 'join', 'kick', 'reset'
-			target1: 0, // userId of president/joiner/kicker
-			target2: 0, // userId of chancellor
+			type: 'elect', // one of 'elect', 'join', 'kick', 'reset', 'confirmRole'
+			target1: '', // userId of president/joiner/kicker
+			target2: '', // userId of chancellor
 			data: '', // display name of join requester
 
 			toPass: 1, // number of yea votes needed to pass
@@ -293,8 +294,8 @@ class Vote extends GameObject
 
 		Object.assign(this.propTypes, {
 			type: 'string',
-			target1: 'int',
-			target2: 'int',
+			target1: 'string',
+			target2: 'string',
 			data: 'string',
 
 			toPass: 'int',

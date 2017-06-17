@@ -84,6 +84,7 @@ io.on('connection', socket =>
 	socket.on('kick', Players.requestKick);
 	socket.on('checkIn', Players.checkIn);
 	socket.on('reset', Game.reset);
+	socket.on('start', Game.start);
 	socket.on('vote', Vote.tallyVote);
 
 	// send the catchup signal

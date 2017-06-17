@@ -11,7 +11,7 @@ export default class Seat extends THREE.Object3D
         super();
 
         this.seatNum = seatNum;
-        this.owner = 0;
+        this.owner = '';
 
         // position seat
         let x, y=0.65, z;
@@ -47,6 +47,10 @@ export default class Seat extends THREE.Object3D
         this.add(this.ballot);
 
 		SH.addEventListener('update_turnOrder', this.updateOwnership.bind(this));
+        SH.addEventListener('checkedIn', (id => {
+            if(this.owner === id)
+                this.updateOwnership({data: {game: SH.game, players: SH.players}});
+        }).bind(this));
     }
 
     updateOwnership({data: {game, players}})
@@ -58,8 +62,8 @@ export default class Seat extends THREE.Object3D
 		{
 			// check if a player has joined at this seat
 			for(let i in ids){
-				if(players[ids[i]].seatNum === this.seatNum){
-					this.owner = ids[i];
+				if(players[ids[i]].seatNum == this.seatNum){
+                    this.owner = ids[i];
 					this.nameplate.updateText(players[ids[i]].displayName);
 				}
 			}
@@ -68,7 +72,7 @@ export default class Seat extends THREE.Object3D
         // reset this seat if it's newly vacated
 		if( !ids.includes(this.owner) )
 		{
-			this.owner = 0;
+            this.owner = '';
 			if(game.state === 'setup'){
 				this.nameplate.updateText('<Join>');
 			}

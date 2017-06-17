@@ -1,0 +1,239 @@
+{
+    "accessors": {
+        "accessor_buffer_Cube_0": {
+            "bufferView": "bufferView_buffer_Cube_0",
+            "byteOffset": 0,
+            "byteStride": 12,
+            "componentType": 5126,
+            "count": 160,
+            "max": [
+                1.0000001192092896,
+                0.697999894618988,
+                2.9802322387695312e-08
+            ],
+            "min": [
+                -0.9999999403953552,
+                -0.6980000734329224,
+                -1.0000001192092896
+            ],
+            "type": "VEC3"
+        },
+        "accessor_buffer_Cube_1": {
+            "bufferView": "bufferView_buffer_Cube_0",
+            "byteOffset": 1920,
+            "byteStride": 12,
+            "componentType": 5126,
+            "count": 160,
+            "max": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "min": [
+                -1.0,
+                -1.0,
+                -1.0
+            ],
+            "type": "VEC3"
+        },
+        "accessor_buffer_Cube_2": {
+            "bufferView": "bufferView_buffer_Cube_0",
+            "byteOffset": 3840,
+            "byteStride": 8,
+            "componentType": 5126,
+            "count": 160,
+            "max": [
+                0.9900002479553223,
+                1.0266384929418564
+            ],
+            "min": [
+                -8.940696716308594e-08,
+                0.0
+            ],
+            "type": "VEC2"
+        },
+        "accessor_buffer_Cube_3": {
+            "bufferView": "bufferView_buffer_Cube_0",
+            "byteOffset": 5120,
+            "byteStride": 8,
+            "componentType": 5126,
+            "count": 160,
+            "max": [
+                0.9967126846313477,
+                0.9966555181890726
+            ],
+            "min": [
+                0.0032873114105314016,
+                0.0033444762229919434
+            ],
+            "type": "VEC2"
+        },
+        "accessor_buffer_Cube_4": {
+            "bufferView": "bufferView_buffer_Cube_1",
+            "byteOffset": 0,
+            "byteStride": 2,
+            "componentType": 5123,
+            "count": 258,
+            "max": [
+                159
+            ],
+            "min": [
+                0
+            ],
+            "type": "SCALAR"
+        }
+    },
+    "asset": {
+        "profile": {
+            "api": "WebGL",
+            "version": "1.0.3"
+        },
+        "version": "1.0"
+    },
+    "bufferViews": {
+        "bufferView_buffer_Cube_0": {
+            "buffer": "buffer_combined",
+            "byteLength": 6400,
+            "byteOffset": 0,
+            "target": 34962
+        },
+        "bufferView_buffer_Cube_1": {
+            "buffer": "buffer_combined",
+            "byteLength": 516,
+            "byteOffset": 6400,
+            "target": 34963
+        }
+    },
+    "buffers": {
+        "buffer_combined": {
+            "byteLength": 6916,
+            "type": "arraybuffer",
+            "uri": "table.bin"
+        }
+    },
+    "extensions": {
+        "KHR_materials_common": {
+            "lights": {}
+        }
+    },
+    "extensionsUsed": [
+        "KHR_materials_common"
+    ],
+    "images": {
+        "image_table-lightmap": {
+            "uri": "../img/board-lightmap.jpg"
+        }
+    },
+    "materials": {
+        "material_Material": {
+            "extensions": {
+                "KHR_materials_common": {
+                    "technique": "CONSTANT",
+                    "values": {
+                        "diffuse": "texture_Tex",
+                        "emission": "texture_Tex"
+                    }
+                }
+            },
+            "name": "Material"
+        }
+    },
+    "meshes": {
+        "mesh_Cube": {
+            "name": "Cube",
+            "primitives": [
+                {
+                    "attributes": {
+                        "NORMAL": "accessor_buffer_Cube_1",
+                        "POSITION": "accessor_buffer_Cube_0",
+                        "TEXCOORD_0": "accessor_buffer_Cube_2",
+                        "TEXCOORD_1": "accessor_buffer_Cube_3"
+                    },
+                    "indices": "accessor_buffer_Cube_4",
+                    "material": "material_Material",
+                    "mode": 4
+                }
+            ]
+        }
+    },
+    "nodes": {
+        "node_Table": {
+            "children": [],
+            "matrix": [
+                1.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                1.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                1.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                1.0
+            ],
+            "meshes": [
+                "mesh_Cube"
+            ],
+            "name": "Table"
+        },
+        "node_scene_Scene_root": {
+            "children": [
+                "node_Table"
+            ],
+            "matrix": [
+                1.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                -1.0,
+                0.0,
+                0.0,
+                1.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                1.0
+            ],
+            "name": "node_scene_Scene_root"
+        }
+    },
+    "samplers": {
+        "sampler_default": {}
+    },
+    "scene": "scene_Scene",
+    "scenes": {
+        "scene_Scene": {
+            "extras": {
+                "active_camera": "camera_Camera",
+                "background_color": [
+                    0.05087608844041824,
+                    0.05087608844041824,
+                    0.05087608844041824
+                ],
+                "frames_per_second": 24
+            },
+            "name": "Scene",
+            "nodes": [
+                "node_scene_Scene_root"
+            ]
+        }
+    },
+    "textures": {
+        "texture_Tex": {
+            "format": 6408,
+            "internalFormat": 6408,
+            "sampler": "sampler_default",
+            "source": "image_table-lightmap"
+        }
+    }
+}

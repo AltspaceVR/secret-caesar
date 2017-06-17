@@ -68,7 +68,8 @@ function requestJoin(user)
 	.then(([gd, p, v]) => {
 		if(gd && gd.turnOrder){
 			console.log('posting update with new player');
-			socket.server.to(socket.gameId).emit('update', gd, {[p.id]: p});
+			let pdiff = {[p.id]: Object.assign(p, {connected: true})};
+			socket.server.to(socket.gameId).emit('update', gd, pdiff);
 		}
 		else if(gd && gd.votesInProgress){
 			console.log('Putting new join to a vote');
@@ -167,27 +168,32 @@ function checkIn(user)
 	let game = new DB.GameState(socket.gameId);
 	let p = new DB.Player(user.id);
 
+	if(DB.socketWithPlayer[user.id]){
+		console.log('unnecessary checkin');
+		return;
+	}
+
+	console.log('checking in', user);
 	Promise.all([game.load(), p.load()]).then(() =>
 	{
-		console.log('checking in');
-
 		// update user info
 		for(let i in user){
-			p.set(i, user[i]);
+			if(user[i] !== p.get(i))
+				p.set(i, user[i]);
 		}
 
 		DB.playerWithSocket[socket.id] = user.id;
 		DB.socketWithPlayer[user.id] = socket.id;
 		socket.on('disconnect', onDisconnect.bind(socket));
 
-		p.save().then(() => {
-			socket.server.to(socket.gameId).emit('update',
-				{turnOrder: game.get('turnOrder')}, {[p.get('id')]: p.serialize()}
+		p.save().then((diff) => {
+			socket.server.to(socket.gameId).emit('checkedIn',
+				Object.assign({id: user.id, connected: !!DB.socketWithPlayer[user.id]}, diff)
 			);
 		})
-		.catch(e => console.error(e));
+		.catch(e => console.error('checkin failed:', e));
 	})
-	.catch(e => console.error(e));
+	.catch(e => console.error('game load failed:', e));
 }
 
 function onDisconnect()

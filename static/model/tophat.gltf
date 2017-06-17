@@ -186,7 +186,8 @@
                     "technique": "CONSTANT",
                     "transparent": false,
                     "values": {
-                        "diffuse": "texture_lightmap"
+                        "diffuse": "texture_lightmap",
+                        "emission": "texture_lightmap"
                     }
                 }
             },
@@ -200,7 +201,8 @@
                     "technique": "CONSTANT",
                     "transparent": false,
                     "values": {
-                        "diffuse": "texture_tophat_jpg"
+                        "diffuse": "texture_tophat_jpg",
+                        "emission": "texture_tophat_jpg"
                     }
                 }
             },
