@@ -280,7 +280,7 @@ class Vote extends GameObject
 		super('vote', id);
 
 		let defaults = {
-			type: 'elect', // one of 'elect', 'join', 'kick', 'reset'
+			type: 'elect', // one of 'elect', 'join', 'kick', 'reset', 'confirmRole'
 			target1: '', // userId of president/joiner/kicker
 			target2: '', // userId of chancellor
 			data: '', // display name of join requester

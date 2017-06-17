@@ -62,7 +62,7 @@ export default class Seat extends THREE.Object3D
 		{
 			// check if a player has joined at this seat
 			for(let i in ids){
-				if(players[ids[i]].seatNum === this.seatNum){
+				if(players[ids[i]].seatNum == this.seatNum){
                     this.owner = ids[i];
 					this.nameplate.updateText(players[ids[i]].displayName);
 				}
