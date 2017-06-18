@@ -47,9 +47,15 @@ function start()
         });
         game.set('deck', pack);
         game.set('state', 'night');
-        game.set('president', Math.floor(Math.random()*pc));
 
-        return Promise.all([game.save(),
+        // start role confirmation vote
+        let vote = new DB.Vote(Utils.generateId());
+        vote.set('type', 'confirmRole');
+        vote.set('toPass', pc);
+        vote.set('requires', pc);
+        game.set('votesInProgress', [...game.get('votesInProgress'), vote.get('id')]);
+
+        return Promise.all([game.save(), vote.save(),
             Promise.all(game.get('turnOrder').map(u => game.players[u].save()))
         ]);
     })
@@ -61,7 +67,9 @@ function start()
             pdiff[i] = {role: game.players[i].get('role')};
         }
 
-        socket.server.to(socket.gameId).emit('update', diffs[0], pdiff );
+        let vdiffs = {};
+        vdiffs[diffs[1].id] = diffs[1];
+        socket.server.to(socket.gameId).emit('update', diffs[0], pdiff, vdiffs);
     })
     .catch(e => {
         console.error(e.stack);

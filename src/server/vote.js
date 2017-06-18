@@ -75,62 +75,47 @@ function evaluateVote(game, vote, passed)
 {
     let socket = this;
 
-    if(vote.get('type') === 'join')
+    if(vote.get('type') === 'join' && game.get('state') === 'setup')
     {
-        let p = new DB.Player(vote.get('target1'));
-        Promise.all([game.loadPlayers(), p.load()]).then(() =>
-        {
-            // get prereqs
-            let ids = game.get('turnOrder');
-            let seatTaken = ids.find(e => game.players[e].get('seatNum') == p.get('seatNum'));
-    		let playerIn = ids.includes(p.get('id'));
-
-            // add player to turn order if vote passed and still relevant
-            if( passed && !seatTaken && !playerIn)
-            {
-                console.log('Vote passed, player joining');
-                game.players[p.get('id')] = p;
-                ids.push(p.get('id'));
-                ids.sort((a,b) => game.players[a].get('seatNum') - game.players[b].get('seatNum'));
-                game.set('turnOrder', ids);
-            }
-            else if(!passed){
-                console.log('Vote failed, player denied entry');
-            }
-            else if(seatTaken){
-                console.log('Vote passed, but seat became taken');
-            }
-            else if(playerIn){
-                console.log('Vote passed, but player already seated elsewhere');
-            }
-
-            // remove completed vote from list
-            let votes = game.get('votesInProgress');
-            votes.splice( votes.indexOf(vote.get('id')), 1 );
-            game.set('votesInProgress', votes);
-
-            // save and update clients
-            Promise.all([game.save(), vote.destroy()]).then(([gd]) => {
-                socket.server.to(socket.gameId).emit('update', gd,
-                    passed ? {[p.get('id')]: p.serialize()} : null,
-                    {[vote.get('id')]: null}
-                );
-            });
-        });
+        evaluateJoinVote(game, vote, passed);
     }
     else if(vote.get('type') === 'kick' && game.get('state') === 'setup')
     {
-        let p = new DB.Player(vote.get('target1'));
+        evaluateKickVote(game, vote, passed);
+    }
+    else if(vote.get('type') === 'confirmRole' && game.get('state') === 'night')
+    {
+        evaluateConfirmVote(game, vote, passed);
+    }
+}
 
-        if(passed)
+function evaluateJoinVote(game, vote, passed)
+{
+    let p = new DB.Player(vote.get('target1'));
+    Promise.all([game.loadPlayers(), p.load()]).then(() =>
+    {
+        // get prereqs
+        let ids = game.get('turnOrder');
+        let seatTaken = ids.find(e => game.players[e].get('seatNum') == p.get('seatNum'));
+        let playerIn = ids.includes(p.get('id'));
+
+        // add player to turn order if vote passed and still relevant
+        if( passed && !seatTaken && !playerIn)
         {
-            // totally remove kicked player if still in setup
-            let ids = game.get('turnOrder');
-            ids.splice( ids.indexOf(p.get('id')), 1 );
+            console.log('Vote passed, player joining');
+            game.players[p.get('id')] = p;
+            ids.push(p.get('id'));
+            ids.sort((a,b) => game.players[a].get('seatNum') - game.players[b].get('seatNum'));
             game.set('turnOrder', ids);
         }
-        else {
-            console.log('Vote to kick failed');
+        else if(!passed){
+            console.log('Vote failed, player denied entry');
+        }
+        else if(seatTaken){
+            console.log('Vote passed, but seat became taken');
+        }
+        else if(playerIn){
+            console.log('Vote passed, but player already seated elsewhere');
         }
 
         // remove completed vote from list
@@ -138,15 +123,49 @@ function evaluateVote(game, vote, passed)
         votes.splice( votes.indexOf(vote.get('id')), 1 );
         game.set('votesInProgress', votes);
 
-        // update clients
-        Promise.all([game.save(), p.destroy()]).then(([gd]) => {
+        // save and update clients
+        Promise.all([game.save(), vote.destroy()]).then(([gd]) => {
             socket.server.to(socket.gameId).emit('update', gd,
-                passed ? {[p.get('id')]: null} : null,
+                passed ? {[p.get('id')]: p.serialize()} : null,
                 {[vote.get('id')]: null}
             );
-        })
-        .catch(e => console.error(e));
+        });
+    });
+}
+
+function evaluateKickVote(game, vote, passed)
+{
+    let p = new DB.Player(vote.get('target1'));
+
+    if(passed)
+    {
+        // totally remove kicked player if still in setup
+        let ids = game.get('turnOrder');
+        ids.splice( ids.indexOf(p.get('id')), 1 );
+        game.set('turnOrder', ids);
     }
+    else {
+        console.log('Vote to kick failed');
+    }
+
+    // remove completed vote from list
+    let votes = game.get('votesInProgress');
+    votes.splice( votes.indexOf(vote.get('id')), 1 );
+    game.set('votesInProgress', votes);
+
+    // update clients
+    Promise.all([game.save(), p.destroy()]).then(([gd]) => {
+        socket.server.to(socket.gameId).emit('update', gd,
+            passed ? {[p.get('id')]: null} : null,
+            {[vote.get('id')]: null}
+        );
+    })
+    .catch(e => console.error(e));
+}
+
+function evaluateConfirmVote(game, vote, passed)
+{
+    // confirmation votes only go one way, no need to check
 }
 
 exports.tallyVote = tallyVote;
