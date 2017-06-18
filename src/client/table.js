@@ -2,6 +2,7 @@
 
 import AM from './assetmanager';
 import SH from './secrethitler';
+import {Card, Types as CardTypes} from './card';
 
 export default class GameTable extends THREE.Object3D
 {

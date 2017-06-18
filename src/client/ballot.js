@@ -56,7 +56,7 @@ export default class Ballot extends THREE.Object3D
             let asked = self.questions[vId];
             if(!asked && !nv.includes(self.seat.owner) && !vs.includes(self.seat.owner))
             {
-                let questionText;
+                let questionText, isConfirm = false;
                 if(votes[vId].type === 'elect'){
                     questionText = players[votes[vId].target1].displayName
                         + '\nfor president and\n'
@@ -71,12 +71,23 @@ export default class Ballot extends THREE.Object3D
                         + players[votes[vId].target1].displayName
                         + '?';
                 }
+                else if(votes[vId].type === 'confirmRole' && self.seat.owner === SH.localUser.id)
+                {
+                    isConfirm = true;
+                    let role = players[SH.localUser.id].role;
+                    role = role.charAt(0).toUpperCase() + role.slice(1);
+                    questionText = 'Your role:\n' + role;
+                }
 
-                self.askQuestion(questionText, vId)
-                .then(answer => {
-                    SH.socket.emit('vote', vId, SH.localUser.id, answer);
-                })
-                .catch(() => console.log('Vote scrubbed:', vId));
+                if(questionText)
+                {
+                    self.askQuestion(questionText, vId, isConfirm)
+                    .then(answer => {
+                        SH.socket.emit('vote', vId, SH.localUser.id, answer);
+                    })
+                    .catch(() => console.log('Vote scrubbed:', vId));
+                }
+
             }
             else if(vs.includes(self.seat.owner))
             {
@@ -91,7 +102,7 @@ export default class Ballot extends THREE.Object3D
         });
     }
 
-    askQuestion(qText, id)
+    askQuestion(qText, id, isConfirm)
     {
         let self = this;
         let newQ = new CascadingPromise(self.questions[self.lastAsked],
@@ -112,7 +123,8 @@ export default class Ballot extends THREE.Object3D
                 // show the ballot
                 self.question.visible = true;
                 self.jaCard.show();
-                self.neinCard.show();
+                if(!isConfirm)
+                    self.neinCard.show();
 
                 function respond(answer){
                     function handler()
@@ -159,5 +171,10 @@ export default class Ballot extends THREE.Object3D
         newQ.then(splice, splice);
 
         return newQ;
+    }
+
+    presentRole(playerData)
+    {
+
     }
 }

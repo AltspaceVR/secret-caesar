@@ -207,7 +207,7 @@ class GameState extends GameObject
 		);
 	}
 
-	serializePlayers(hideSecrets = true)
+	serializePlayers(hideSecrets = false)
 	{
 		let c = {};
 		for(let i in this.players){
