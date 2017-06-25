@@ -54,10 +54,8 @@ export default class Seat extends THREE.Object3D
         this.add(this.ballot);
 
         this.playerInfo = new PlayerInfo(this);
-        this.playerInfo.position.set(0, 0, 0.25);
+        this.playerInfo.position.set(0, 0, 0.3);
         this.add(this.playerInfo);
-
-
     }
 
     updateOwnership({data: {game, players}})

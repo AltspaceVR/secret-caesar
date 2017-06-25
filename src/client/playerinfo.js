@@ -11,7 +11,7 @@ export default class PlayerInfo extends THREE.Object3D
         super();
         this.seat = seat;
         this.card = null;
-        this.rotation.set(0, Math.PI, 0);
+        //this.rotation.set(0, Math.PI, 0);
         this.scale.setScalar(0.3);
 
         SH.addEventListener('update_state', lateUpdate(this.updateRole.bind(this)));
@@ -37,6 +37,9 @@ export default class PlayerInfo extends THREE.Object3D
                 case 'hitler' : this.card = new HitlerRoleCard();  break;
                 case 'liberal': this.card = new LiberalRoleCard(); break;
             }
+
+            let playerPos = this.worldToLocal(SH.seats[localPlayer.seatNum].getWorldPosition());
+            this.lookAt(playerPos);
             this.add(this.card);
         }
         else if(game.state !== 'night' && this.card !== null)
