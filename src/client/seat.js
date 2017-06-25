@@ -38,6 +38,12 @@ export default class Seat extends THREE.Object3D
             break;
         }
 
+        SH.addEventListener('update_turnOrder', this.updateOwnership.bind(this));
+        SH.addEventListener('checkedIn', id => {
+            if(this.owner === id)
+                this.updateOwnership({data: {game: SH.game, players: SH.players}});
+        });
+
         this.nameplate = new Nameplate(this);
         this.nameplate.position.set(0, -0.635, 0.22);
         this.add(this.nameplate);
@@ -51,11 +57,7 @@ export default class Seat extends THREE.Object3D
         this.playerInfo.position.set(0, 0, 0.25);
         this.add(this.playerInfo);
 
-		SH.addEventListener('update_turnOrder', this.updateOwnership.bind(this));
-        SH.addEventListener('checkedIn', (id => {
-            if(this.owner === id)
-                this.updateOwnership({data: {game: SH.game, players: SH.players}});
-        }).bind(this));
+
     }
 
     updateOwnership({data: {game, players}})

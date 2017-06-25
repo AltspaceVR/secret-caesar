@@ -81,4 +81,11 @@ function mergeObjects(a, b, depth=2)
 		return a;
 }
 
-export { getGameId, parseCSV, generateQuestion, mergeObjects };
+function lateUpdate(fn)
+{
+	return (...args) => {
+		setTimeout(() => fn(...args), 15);
+	};
+}
+
+export { getGameId, parseCSV, generateQuestion, mergeObjects, lateUpdate };
