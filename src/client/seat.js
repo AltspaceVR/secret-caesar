@@ -3,6 +3,7 @@
 import SH from './secrethitler';
 import Nameplate from './nameplate';
 import Ballot from './ballot';
+import PlayerInfo from './playerinfo';
 
 export default class Seat extends THREE.Object3D
 {
@@ -45,6 +46,10 @@ export default class Seat extends THREE.Object3D
         this.ballot.position.set(0, -0.3, 0.25);
         //this.ballot.rotateY(0.1);
         this.add(this.ballot);
+
+        this.playerInfo = new PlayerInfo(this);
+        this.playerInfo.position.set(0, 0, 0.25);
+        this.add(this.playerInfo);
 
 		SH.addEventListener('update_turnOrder', this.updateOwnership.bind(this));
         SH.addEventListener('checkedIn', (id => {
