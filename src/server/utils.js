@@ -23,6 +23,13 @@ function shuffleInPlace(array)
     return array;
 }
 
+function log(game, message)
+{
+    let d = new Date();
+    console.log(`${d.toISOString()} [${game.get('id')}] ${message}`);
+}
+
 exports.parseCSV = parseCSV;
 exports.generateId = generateId;
 exports.shuffleInPlace = shuffleInPlace;
+exports.log = log;

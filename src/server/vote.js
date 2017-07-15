@@ -73,24 +73,23 @@ function tallyVote(voteId, userId, answer)
 
 function evaluateVote(game, vote, passed)
 {
-    let socket = this;
-
     if(vote.get('type') === 'join' && game.get('state') === 'setup')
     {
-        evaluateJoinVote(game, vote, passed);
+        evaluateJoinVote.call(this, game, vote, passed);
     }
     else if(vote.get('type') === 'kick' && game.get('state') === 'setup')
     {
-        evaluateKickVote(game, vote, passed);
+        evaluateKickVote.call(this, game, vote, passed);
     }
     else if(vote.get('type') === 'confirmRole' && game.get('state') === 'night')
     {
-        evaluateConfirmVote(game, vote, passed);
+        evaluateConfirmVote.call(this, game, vote, passed);
     }
 }
 
 function evaluateJoinVote(game, vote, passed)
 {
+    let socket = this;
     let p = new DB.Player(vote.get('target1'));
     Promise.all([game.loadPlayers(), p.load()]).then(() =>
     {
@@ -135,6 +134,7 @@ function evaluateJoinVote(game, vote, passed)
 
 function evaluateKickVote(game, vote, passed)
 {
+    let socket = this;
     let p = new DB.Player(vote.get('target1'));
 
     if(passed)
@@ -165,7 +165,28 @@ function evaluateKickVote(game, vote, passed)
 
 function evaluateConfirmVote(game, vote, passed)
 {
+    let socket = this;
+
     // confirmation votes only go one way, no need to check
+    Utils.log(game, 'Roles confirmed, continuing');
+
+    // choose president randomly
+    let players = game.get('turnOrder');
+    game.set('president', players[ Math.floor(Math.random() * players.length) ]);
+    game.set('state', 'nominate');
+
+    // remove completed vote from list
+    let votes = game.get('votesInProgress');
+    votes.splice( votes.indexOf(vote.get('id')), 1 );
+    game.set('votesInProgress', votes);
+
+    // update clients
+    Promise.all([game.save(), vote.destroy()]).then(([gd]) => {
+        socket.server.to(socket.gameId).emit('update',
+            gd, null, {[vote.get('id')]: null}
+        );
+    })
+    .catch(e => console.error(e));
 }
 
 exports.tallyVote = tallyVote;
