@@ -44,6 +44,12 @@ export default class Seat extends THREE.Object3D
 			if(this.owner === id)
 				this.updateOwnership({data: {game: SH.game, players: SH.players}});
 		});
+		SH.addEventListener('update_state', ({data: {game: {state, president}}}) => {
+			this.hitbox.visible =
+				state === 'nominate'
+				&& SH.localUser.id === president
+				&& this.owner !== SH.localUser.id;
+		});
 
 		this.nameplate = new Nameplate(this);
 		this.nameplate.position.set(0, -0.635, 0.22);
@@ -65,10 +71,12 @@ export default class Seat extends THREE.Object3D
 		this.hitbox.position.set(0, -0.5, 0);
 		this.hitbox.material.transparent = true;
 		this.hitbox.material.opacity = 0;
+		this.hitbox.visible = false;
 		this.add(this.hitbox);
 
 		this.hitbox.addEventListener('cursorenter', () => this.hitbox.material.opacity = 0.1);
 		this.hitbox.addEventListener('cursorleave', () => this.hitbox.material.opacity = 0);
+		this.hitbox.addEventListener('cursorup', this.checkNominate.bind(this));
 	}
 
 	updateOwnership({data: {game, players}})
@@ -102,6 +110,13 @@ export default class Seat extends THREE.Object3D
 		}
 		else if( players[this.owner].connected ){
 			this.nameplate.model.material.color.setHex(0xffffff);
+		}
+	}
+
+	checkNominate(evt)
+	{
+		if(SH.game.state === 'nominate' && SH.localUser.id === SH.game.president){
+			SH.socket.emit('nominate', this.owner)
 		}
 	}
 }

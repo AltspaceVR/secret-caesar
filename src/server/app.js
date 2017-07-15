@@ -86,6 +86,7 @@ io.on('connection', socket =>
 	socket.on('reset', Game.reset);
 	socket.on('start', Game.start);
 	socket.on('vote', Vote.tallyVote);
+	socket.on('nominate', Game.nominate);
 
 	// send the catchup signal
 	let game = new DB.GameState(socket.gameId);
