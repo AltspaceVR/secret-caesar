@@ -73,7 +73,7 @@ export default class Seat extends THREE.Object3D
 
 	updateOwnership({data: {game, players}})
 	{
-		let ids = game.turnOrder;
+		let ids = game.turnOrder || [];
 
 		// register this seat if it's newly claimed
 		if( !this.owner )

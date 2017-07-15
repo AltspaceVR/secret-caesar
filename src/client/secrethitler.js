@@ -1,5 +1,7 @@
 'use strict';
 
+import './polyfill';
+
 import * as Cards from './card';
 import { PresidentHat, ChancellorHat } from './hats';
 import GameTable from './table';
