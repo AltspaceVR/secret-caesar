@@ -268,7 +268,7 @@ class Player extends GameObject
 	serialize(hideSecrets = false){
 		let safe = super.serialize();
 		if(hideSecrets) delete safe.role;
-		safe.connected = !!socketWithPlayer[this.get('id')];
+		safe.connected = !!socketForPlayer[this.get('id')];
 		return safe;
 	}
 }
@@ -310,9 +310,10 @@ class Vote extends GameObject
 	}
 }
 
-let playerWithSocket = exports.playerWithSocket = {};
-let socketWithPlayer = exports.socketWithPlayer = {};
+let playerForSocket = exports.playerForSocket = {};
+let socketForPlayer = exports.socketForPlayer = {};
 
 exports.GameState = GameState;
 exports.Player = Player;
 exports.Vote = Vote;
+exports.client = client;

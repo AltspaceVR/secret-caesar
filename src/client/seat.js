@@ -44,10 +44,19 @@ export default class Seat extends THREE.Object3D
 			if(this.owner === id)
 				this.updateOwnership({data: {game: SH.game, players: SH.players}});
 		});
-		SH.addEventListener('update_state', ({data: {game: {state, president}}}) => {
+		SH.addEventListener('update_state', evt =>
+		{
+			let {data: {game: {state, president}, players}} = evt;
+
+			// first update?
+			if(players && Object.keys(SH.players).length === 0){
+				this.updateOwnership(evt);
+			}
+
 			this.hitbox.visible =
 				state === 'nominate'
 				&& SH.localUser.id === president
+				&& this.owner.length > 0
 				&& this.owner !== SH.localUser.id;
 		});
 

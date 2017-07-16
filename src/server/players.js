@@ -28,8 +28,8 @@ function requestJoin(user)
 			game.players[user.id] = p;
 
 			// hook up disconnect listener
-			DB.playerWithSocket[socket.id] = user.id;
-			DB.socketWithPlayer[user.id] = socket.id;
+			DB.playerForSocket[socket.id] = user.id;
+			DB.socketForPlayer[user.id] = socket.id;
 			socket.on('disconnect', onDisconnect.bind(socket));
 
 			// let all players join up to minimum count
@@ -112,6 +112,8 @@ function requestLeave(id)
 	.then(([gd]) => {
 		if(gd){
 			console.log('User', id, 'has left game', socket.gameId);
+			delete DB.playerForSocket[socket.id];
+			delete DB.socketForPlayer[id];
 			socket.server.to(socket.gameId).emit('update', gd, {[id]: null});
 		}
 		else {
@@ -168,7 +170,7 @@ function checkIn(user)
 	let game = new DB.GameState(socket.gameId);
 	let p = new DB.Player(user.id);
 
-	if(DB.socketWithPlayer[user.id]){
+	if(DB.socketForPlayer[user.id]){
 		console.log('unnecessary checkin');
 		return;
 	}
@@ -182,13 +184,13 @@ function checkIn(user)
 				p.set(i, user[i]);
 		}
 
-		DB.playerWithSocket[socket.id] = user.id;
-		DB.socketWithPlayer[user.id] = socket.id;
+		DB.playerForSocket[socket.id] = user.id;
+		DB.socketForPlayer[user.id] = socket.id;
 		socket.on('disconnect', onDisconnect.bind(socket));
 
 		p.save().then((diff) => {
 			socket.server.to(socket.gameId).emit('checkedIn',
-				Object.assign({id: user.id, connected: !!DB.socketWithPlayer[user.id]}, diff)
+				Object.assign({id: user.id, connected: !!DB.socketForPlayer[user.id]}, diff)
 			);
 		})
 		.catch(e => console.error('checkin failed:', e));
@@ -200,15 +202,15 @@ function onDisconnect()
 {
 	let socket = this;
 	let game = new DB.GameState(socket.gameId);
-	let userId = DB.playerWithSocket[socket.id];
+	let userId = DB.playerForSocket[socket.id];
 
 	// mark player as disconnected
-	delete DB.playerWithSocket[socket.id];
-	delete DB.socketWithPlayer[userId];
+	delete DB.playerForSocket[socket.id];
+	delete DB.socketForPlayer[userId];
 
 	game.load().then(() => game.loadPlayers()).then(() =>
 	{
-		let connectedCount = game.get('turnOrder').filter(p => !!DB.socketWithPlayer[p]).length;
+		let connectedCount = game.get('turnOrder').filter(p => !!DB.socketForPlayer[p]).length;
 		console.log(connectedCount);
 
 		// no players remaining, reset

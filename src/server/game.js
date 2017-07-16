@@ -82,8 +82,15 @@ function nominate(chancellor)
 	let game = new DB.GameState(socket.gameId);
 
 	game.load().then(() => {
-		if(game.get('state') === 'nominate' && game.get('president') === localUser){
-			
+		let pres = new DB.Player(game.get('president'));
+		let chanc = new DB.Player(chancellor);
+		return Promise.all([pres.load(), chanc.load()]);
+	})
+	.then(([pres, chanc]) => {
+		if(game.get('state') === 'nominate'
+			&& game.get('president') === DB.playerForSocket[socket.id]
+		){
+			Utils.log(game, `${pres.get('displayName')} nominated ${chanc.get('displayName')} as chancellor`);
 		}
 	});
 }

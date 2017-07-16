@@ -143,6 +143,10 @@ function evaluateKickVote(game, vote, passed)
 		let ids = game.get('turnOrder');
 		ids.splice( ids.indexOf(p.get('id')), 1 );
 		game.set('turnOrder', ids);
+
+		let kickSocket = DB.socketForPlayer[p.get('id')];
+		delete DB.socketForPlayer[p.get('id')];
+		delete DB.playerForSocket[kickSocket];
 	}
 	else {
 		console.log('Vote to kick failed');
