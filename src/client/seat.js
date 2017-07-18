@@ -5,6 +5,7 @@ import Nameplate from './nameplate';
 import Ballot from './ballot';
 import PlayerInfo from './playerinfo';
 import CapsuleGeometry from './capsulegeometry';
+import {lateUpdate} from './utils';
 
 export default class Seat extends THREE.Object3D
 {
@@ -40,24 +41,10 @@ export default class Seat extends THREE.Object3D
 		}
 
 		SH.addEventListener('update_turnOrder', this.updateOwnership.bind(this));
+		SH.addEventListener('update_state', lateUpdate(this.updateState.bind(this)));
 		SH.addEventListener('checkedIn', id => {
 			if(this.owner === id)
 				this.updateOwnership({data: {game: SH.game, players: SH.players}});
-		});
-		SH.addEventListener('update_state', evt =>
-		{
-			let {data: {game: {state, president}, players}} = evt;
-
-			// first update?
-			if(players && Object.keys(SH.players).length === 0){
-				this.updateOwnership(evt);
-			}
-
-			this.hitbox.visible =
-				state === 'nominate'
-				&& SH.localUser.id === president
-				&& this.owner.length > 0
-				&& this.owner !== SH.localUser.id;
 		});
 
 		this.nameplate = new Nameplate(this);
@@ -122,10 +109,50 @@ export default class Seat extends THREE.Object3D
 		}
 	}
 
+	updateState({data: {game: {state, president}, players}})
+	{
+		let self = this;
+
+		function chooseChancellor(){
+			return self.ballot.askQuestion('Choose your\nchancellor!', 'local_nominate', 0)
+			.then(confirmChancellor);
+		}
+
+		function confirmChancellor(userId){
+			let username = SH.players[userId].displayName;
+			let text = `Name ${username}\nas chancellor?`;
+			return self.ballot.askQuestion(text, 'local_nominate_confirm', 2)
+			.then(confirmed => {
+				if(confirmed){
+					return Promise.resolve(userId);
+				}
+				else {
+					return chooseChancellor();
+				}
+			});
+		}
+
+		if(state === 'nominate' && SH.localUser.id === president)
+		{
+			this.hitbox.visible = this.owner.length > 0 && this.owner !== SH.localUser.id;
+
+			if(this.owner === SH.localUser.id)
+			{
+				chooseChancellor().then(userId => {
+					SH.socket.emit('nominate', userId);
+				});
+			}
+		}
+	}
+
 	checkNominate(evt)
 	{
 		if(SH.game.state === 'nominate' && SH.localUser.id === SH.game.president){
-			SH.socket.emit('nominate', this.owner)
+			SH.dispatchEvent({
+				type: 'unconfirmedChancellor',
+				bubbles: false,
+				data: this.owner
+			});
 		}
 	}
 }
