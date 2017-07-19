@@ -3,7 +3,6 @@
 import SH from './secrethitler';
 import { JaCard, NeinCard } from './card';
 import { generateQuestion } from './utils';
-import CascadingPromise from './cascadingpromise';
 
 export default class Ballot extends THREE.Object3D
 {
@@ -11,8 +10,8 @@ export default class Ballot extends THREE.Object3D
 	{
 		super();
 		this.seat = seat;
-		this.questions = {};
-		this.lastAsked = null;
+		this.lastQueued = Promise.resolve();
+		this.displayed = null;
 
 		this._yesClickHandler = null;
 		this._noClickHandler = null;
@@ -45,65 +44,58 @@ export default class Ballot extends THREE.Object3D
 		if(!self.seat.owner) return;
 
 		let vips = game.votesInProgress;
-		let votesFinished = (SH.game.votesInProgress || []).filter(
-			e => !vips.includes(e)
+		let blacklistedVotes = vips.filter(id => {
+			let vs = [...votes[id].yesVoters, ...votes[id].noVoters];
+			let nv = votes[id].nonVoters;
+			return nv.includes(self.seat.owner) || vs.includes(self.seat.owner);
+		});
+		let newVotes = vips.filter(
+			id => !SH.game.votesInProgress.includes(id) && !blacklistedVotes.includes(id)
 		);
+		let finishedVotes = SH.game.votesInProgress.filter(id => !vips.includes(id))
+			.concat(blacklistedVotes);
 
-		vips.forEach(vId =>
+		newVotes.forEach(vId =>
 		{
-			let vs = [...votes[vId].yesVoters, ...votes[vId].noVoters];
-			let nv = votes[vId].nonVoters;
-
-			let asked = self.questions[vId];
-			if(!asked && !nv.includes(self.seat.owner) && !vs.includes(self.seat.owner))
-			{
-				let questionText, choices = 2;
-				if(votes[vId].type === 'elect'){
-					questionText = players[votes[vId].target1].displayName
-						+ '\nfor president and\n'
-						+ players[votes[vId].target2].displayName
-						+ '\nfor chancellor?';
-				}
-				else if(votes[vId].type === 'join'){
-					questionText = votes[vId].data + '\nto join?';
-				}
-				else if(votes[vId].type === 'kick'){
-					questionText = 'Vote to kick\n'
-						+ players[votes[vId].target1].displayName
-						+ '?';
-				}
-				else if(votes[vId].type === 'confirmRole' && self.seat.owner === SH.localUser.id)
-				{
-					choices = 1;
-					let role = players[SH.localUser.id].role;
-					role = role.charAt(0).toUpperCase() + role.slice(1);
-					questionText = 'Your role:\n' + role;
-				}
-
-				if(questionText)
-				{
-					self.askQuestion(questionText, vId, choices)
-					.then(answer => {
-						SH.socket.emit('vote', vId, SH.localUser.id, answer);
-					})
-					.catch(() => console.log('Vote scrubbed:', vId));
-				}
-
+			// generate new question to ask
+			let questionText, choices = 2;
+			if(votes[vId].type === 'elect'){
+				questionText = players[votes[vId].target1].displayName
+					+ '\nfor president and\n'
+					+ players[votes[vId].target2].displayName
+					+ '\nfor chancellor?';
 			}
-			else if(vs.includes(self.seat.owner))
+			else if(votes[vId].type === 'join'){
+				questionText = votes[vId].data + '\nto join?';
+			}
+			else if(votes[vId].type === 'kick'){
+				questionText = 'Vote to kick\n'
+					+ players[votes[vId].target1].displayName
+					+ '?';
+			}
+			else if(votes[vId].type === 'confirmRole' && self.seat.owner === SH.localUser.id)
 			{
-				if(self.questions[vId])
-					self.questions[vId].cancel();
+				choices = 1;
+				let role = players[SH.localUser.id].role;
+				role = role.charAt(0).toUpperCase() + role.slice(1);
+				questionText = 'Your role:\n' + role;
+			}
+
+			if(questionText)
+			{
+				self.askQuestion(questionText, vId, choices)
+				.then(answer => {
+					SH.socket.emit('vote', vId, SH.localUser.id, answer);
+				})
+				.catch(() => console.log('Vote scrubbed:', vId));
 			}
 		});
 
-		votesFinished.forEach((vId) => {
-			if(self.questions[vId])
-				self.questions[vId].cancel();
-		});
+		if(finishedVotes.includes(self.displayed))
+			self.dispatchEvent({type: 'cancelVote', bubbles: false});
 	}
 
-	askQuestion(qText, id, choices = 2)
+	/*askQuestion(qText, id, choices = 2)
 	{
 		let self = this;
 		let newQ = new CascadingPromise(self.questions[self.lastAsked],
@@ -179,10 +171,91 @@ export default class Ballot extends THREE.Object3D
 		newQ.then(splice, splice);
 
 		return newQ;
-	}
+	}*/
 
-	presentRole(playerData)
+	askQuestion(qText, id, choices = 2)
 	{
+		let self = this;
 
+		function isVoteValid()
+		{
+			let isLocalVote = /^local/.test(id);
+			let vote = SH.game.votesInProgress[id];
+			let voters = vote ? [...vote.yesVoters, ...vote.noVoters] : [];
+			let alreadyVoted = voters.includes(self.seat.owner);
+			return isLocalVote || vote && !alreadyVoted;
+		}
+
+		function hookUpQuestion(){
+			return new Promise(questionExecutor);
+		}
+
+		function questionExecutor(resolve, reject)
+		{
+			// make sure the answer is still relevant
+			if(!isVoteValid()){
+				return reject();
+			}
+
+			// show the ballot
+			self.question.material.map = generateQuestion(qText, this.question.material.map);
+			self.question.visible = true;
+
+			// hook up q/a cards
+			if(choices === 0){
+				SH.addEventListener('playerSelect', respond('player', resolve, reject));
+			}
+			if(choices >= 1){
+				self.jaCard.show();
+				self.jaCard.addEventListener('cursorup', respond('yes', resolve, reject));
+			}
+			if(choices >= 2){
+				self.neinCard.show();
+				self.neinCard.addEventListener('cursorup', respond('no', resolve, reject));
+			}
+
+			self.displayed = id;
+		}
+
+		function respond(answer, resolve, reject)
+		{
+			function handler(evt)
+			{
+				// make sure only the owner of the ballot is answering
+				if(self.seat.owner !== SH.localUser.id) return;
+
+				// clean up
+				self.jaCard.hide();
+				self.neinCard.hide();
+				self.question.visible = false;
+				self.displayed = null;
+				self.jaCard.removeEventListener('cursorup', self._yesClickHandler);
+				self.neinCard.removeEventListener('cursorup', self._noClickHandler);
+				SH.removeEventListener('playerSelect', self._nominateHandler);
+
+				// make sure the answer still matters
+				if(!isVoteValid())
+					reject();
+				else if(answer === 'yes')
+					resolve(true);
+				else if(answer === 'no')
+					resolve(false);
+				else if(answer === 'player')
+					resolve(evt.data);
+			}
+
+			if(answer === 'yes')
+				self._yesClickHandler = handler;
+			else if(answer === 'no')
+				self._noClickHandler = handler;
+			else if(answer === 'player')
+				self._nominateHandler = handler;
+
+			return handler;
+		}
+
+		self.lastQueued = self.lastQueued.then(hookUpQuestion, hookUpQuestion);
+
+		return self.lastQueued;
 	}
 }

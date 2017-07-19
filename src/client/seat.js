@@ -72,7 +72,13 @@ export default class Seat extends THREE.Object3D
 
 		this.hitbox.addEventListener('cursorenter', () => this.hitbox.material.opacity = 0.1);
 		this.hitbox.addEventListener('cursorleave', () => this.hitbox.material.opacity = 0);
-		this.hitbox.addEventListener('cursorup', this.checkNominate.bind(this));
+		this.hitbox.addEventListener('cursorup', () => {
+			SH.dispatchEvent({
+				type: 'playerSelect',
+				bubbles: false,
+				data: this.owner
+			});
+		});
 	}
 
 	updateOwnership({data: {game, players}})
@@ -142,17 +148,6 @@ export default class Seat extends THREE.Object3D
 					SH.socket.emit('nominate', userId);
 				});
 			}
-		}
-	}
-
-	checkNominate(evt)
-	{
-		if(SH.game.state === 'nominate' && SH.localUser.id === SH.game.president){
-			SH.dispatchEvent({
-				type: 'unconfirmedChancellor',
-				bubbles: false,
-				data: this.owner
-			});
 		}
 	}
 }
