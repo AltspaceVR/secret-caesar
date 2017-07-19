@@ -16,6 +16,7 @@ export default class Ballot extends THREE.Object3D
 		this._yesClickHandler = null;
 		this._noClickHandler = null;
 		this._nominateHandler = null;
+		this._cancelHandler = null;
 
 		this.jaCard = new JaCard();
 		this.neinCard = new NeinCard();
@@ -214,6 +215,8 @@ export default class Ballot extends THREE.Object3D
 				self.neinCard.addEventListener('cursorup', respond('no', resolve, reject));
 			}
 
+			self.addEventListener('cancelVote', respond('cancel', resolve, reject));
+
 			self.displayed = id;
 		}
 
@@ -234,7 +237,7 @@ export default class Ballot extends THREE.Object3D
 				SH.removeEventListener('playerSelect', self._nominateHandler);
 
 				// make sure the answer still matters
-				if(!isVoteValid())
+				if(!isVoteValid() || answer === 'cancel')
 					reject();
 				else if(answer === 'yes')
 					resolve(true);
@@ -250,6 +253,8 @@ export default class Ballot extends THREE.Object3D
 				self._noClickHandler = handler;
 			else if(answer === 'player')
 				self._nominateHandler = handler;
+			else if(answer === 'cancel')
+				self._cancelHandler = handler;
 
 			return handler;
 		}
