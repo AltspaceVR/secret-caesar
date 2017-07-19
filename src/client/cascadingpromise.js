@@ -10,17 +10,21 @@ class CascadingPromise
 {
     constructor(prereqPromise, execFn, cleanupFn)
     {
-        // set up state information
+        this.id = CascadingPromise.id++;
+        // set up state information. One of 'pending', 'running', 'cleaningup', 'settled' or 'cancelled'.
         this.state = 'pending';
         this.prereqPromise = prereqPromise || Promise.resolve();
         this.execFn = execFn;
         this.cleanupFn = cleanupFn;
 
         // track callbacks
-        this._resolveCallbacks = [];
-        this._rejectCallbacks = [];
+        this._resolveCallback = null;
+        this._rejectCallback = null;
         this._execType = null;
         this._execResult = [];
+        this._nextResolve = null;
+        this._nextReject = null;
+        this._resolveResult = null;
 
         // bind events
         let cb = this._prereqSettled.bind(this);
@@ -43,7 +47,7 @@ class CascadingPromise
         }
         else if(this.state === 'cancelled'){
             this.state = 'settled';
-            this._resolveCallbacks.forEach(cb => cb());
+            this._resolveCallback();
         }
     }
 
@@ -60,15 +64,20 @@ class CascadingPromise
         if(this.state === 'cleaningup'){
             this.state = 'settled';
             if(this._execType === 'resolve'){
-                this._resolveCallbacks.forEach(
-                    (cb => cb(...this._execResult)).bind(this)
-                );
+                if (this._resolveCallback) {
+                    this._resolveResult = this._resolveCallback(...this._execResult);
+                    this._callNext();
+                }
             }
             else {
-                this._rejectCallbacks.forEach(
-                    (cb => cb(...this._execResult)).bind(this)
-                );
+                this._rejectCallback(...this._execResult);
             }
+        }
+    }
+
+    _callNext(){
+        if (this._resolveResult && this._nextResolve) {
+            this._resolveResult.then(this._nextResolve, this._nextReject);
         }
     }
 
@@ -84,22 +93,28 @@ class CascadingPromise
 
     then(doneCb, errCb)
     {
+        let nextPromise = new CascadingPromise(null, (resolve, reject) => {
+            this._nextResolve = resolve;
+            this._nextReject = reject;
+        }, (cleanupDone) => cleanupDone());
+
         if(this.state === 'settled')
         {
             if(this._execType === 'resolve'){
-                doneCb(...this._execResult);
+                this._resolveResult = doneCb(...this._execResult);
+                this._callNext();
             }
             else {
                 errCb(...this._execResult);
             }
         }
         else {
-            this._resolveCallbacks.push(doneCb);
+            this._resolveCallback = doneCb;
             if(errCb)
-                this._rejectCallbacks.push(errCb);
+                this._rejectCallback = errCb;
         }
 
-        return this;
+        return nextPromise;
     }
 
     catch(cb){
@@ -108,10 +123,16 @@ class CascadingPromise
                 cb(...this._execResult);
         }
         else
-            this._rejectCallbacks.push(cb);
+            this._rejectCallback = cb;
 
-        return this;
+        return new CascadingPromise(null, (resolve, reject) => {
+            this._nextResolve = resolve;
+            this._nextReject = reject;
+        }, (cleanupDone) => cleanupDone());
     }
 }
+
+// keep track of created promises, mostly for debugging.
+CascadingPromise.id = 0;
 
 export default CascadingPromise;
