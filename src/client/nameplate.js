@@ -54,7 +54,9 @@ export default class Nameplate extends THREE.Object3D
 
 	click(e)
 	{
-		if(!this.seat.owner && SH.game.state === 'setup')
+		if(SH.game.state !== 'setup') return;
+
+		if(!this.seat.owner)
 			this.requestJoin();
 		else if(this.seat.owner === SH.localUser.id)
 			this.requestLeave();

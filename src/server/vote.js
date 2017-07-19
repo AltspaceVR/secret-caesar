@@ -24,6 +24,8 @@ function tallyVote(voteId, userId, answer)
 			notVoted = !yesVoters.includes(userId) && !noVoters.includes(userId),
 			notBlacklisted = !nonVoters.includes(userId);
 
+		Utils.log(game, `${userId} voted ${answer} on vote ${voteId}`);
+
 		if(voteValid && userValid && notVoted && notBlacklisted)
 		{
 			// tally yes vote

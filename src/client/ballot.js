@@ -51,10 +51,10 @@ export default class Ballot extends THREE.Object3D
 			return nv.includes(self.seat.owner) || vs.includes(self.seat.owner);
 		});
 		let newVotes = vips.filter(
-			id => !SH.game.votesInProgress.includes(id) && !blacklistedVotes.includes(id)
+			id => (!SH.game.votesInProgress || !SH.game.votesInProgress.includes(id)) && !blacklistedVotes.includes(id)
 		);
-		let finishedVotes = SH.game.votesInProgress.filter(id => !vips.includes(id))
-			.concat(blacklistedVotes);
+		let finishedVotes = !SH.game.votesInProgress ? blacklistedVotes
+			: SH.game.votesInProgress.filter(id => !vips.includes(id)).concat(blacklistedVotes);
 
 		newVotes.forEach(vId =>
 		{
@@ -92,8 +92,9 @@ export default class Ballot extends THREE.Object3D
 			}
 		});
 
-		if(finishedVotes.includes(self.displayed))
+		if(finishedVotes.includes(self.displayed)){
 			self.dispatchEvent({type: 'cancelVote', bubbles: false});
+		}
 	}
 
 	/*askQuestion(qText, id, choices = 2)
@@ -181,10 +182,11 @@ export default class Ballot extends THREE.Object3D
 		function isVoteValid()
 		{
 			let isLocalVote = /^local/.test(id);
-			let vote = SH.game.votesInProgress[id];
+			let isFirstUpdate = !SH.game.votesInProgress;
+			let vote = SH.votes[id];
 			let voters = vote ? [...vote.yesVoters, ...vote.noVoters] : [];
 			let alreadyVoted = voters.includes(self.seat.owner);
-			return isLocalVote || vote && !alreadyVoted;
+			return isLocalVote || isFirstUpdate || vote && !alreadyVoted;
 		}
 
 		function hookUpQuestion(){
@@ -199,7 +201,7 @@ export default class Ballot extends THREE.Object3D
 			}
 
 			// show the ballot
-			self.question.material.map = generateQuestion(qText, this.question.material.map);
+			self.question.material.map = generateQuestion(qText, self.question.material.map);
 			self.question.visible = true;
 
 			// hook up q/a cards
@@ -225,7 +227,7 @@ export default class Ballot extends THREE.Object3D
 			function handler(evt)
 			{
 				// make sure only the owner of the ballot is answering
-				if(self.seat.owner !== SH.localUser.id) return;
+				if(answer !== 'cancel' && self.seat.owner !== SH.localUser.id) return;
 
 				// clean up
 				self.jaCard.hide();
@@ -237,8 +239,9 @@ export default class Ballot extends THREE.Object3D
 				SH.removeEventListener('playerSelect', self._nominateHandler);
 
 				// make sure the answer still matters
-				if(!isVoteValid() || answer === 'cancel')
+				if(!isVoteValid() || answer === 'cancel'){
 					reject();
+				}
 				else if(answer === 'yes')
 					resolve(true);
 				else if(answer === 'no')
