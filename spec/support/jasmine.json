@@ -1,0 +1,8 @@
+{
+  "spec_dir": "spec",
+  "spec_files": [
+    "index.es5.js"
+  ],
+  "stopSpecOnExpectationFailure": false,
+  "random": false
+}

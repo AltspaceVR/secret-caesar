@@ -8,11 +8,15 @@
     "start-dev": "nodemon -w src/server/ src/server/app.js",
     "build": "rollup -c",
     "build-dev": "rollup -w -c",
-    "build-common": "rollup -c rollup.common.js"
+    "build-common": "rollup -c rollup.common.js",
+    "build-spec": "rollup -c rollup.spec.js",
+    "build-and-run-test": "rollup -c spec/support/rollup.specs.js && jasmine",
+    "test": "nodemon --quiet --ignore spec/index.es5.js --exec npm run build-and-run-test"
   },
   "author": "Steven Vergenz",
   "license": "CC-BY-NC-SA-4.0",
   "devDependencies": {
+    "jasmine": "^2.6.0",
     "nodemon": "^1.11.0",
     "rollup": "^0.36.3",
     "rollup-plugin-babel": "^2.6.1",
