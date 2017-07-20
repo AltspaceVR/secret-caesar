@@ -1,8 +1,8 @@
 let DB = require('../src/server/db');
 
-var game = new DB.GameState('testReady');
+var game = new DB.GameState('test');
 game.delta = {
-	"id": "testReady",
+	"id": "test",
 	"state": "setup",
 	"turnOrder": ["3333333","2222222","1111111","5555555","4444444"],
 	"votesInProgress": [],

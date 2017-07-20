@@ -1,8 +1,8 @@
 let DB = require('../src/server/db');
 
-var game = new DB.GameState('testNight');
+var game = new DB.GameState('test');
 game.delta = {
-    "id": "testNight",
+    "id": "test",
     "state": "night",
     "turnOrder": ["3333333","2222222","1111111","5555555","4444444"],
     "votesInProgress": ["29223324"],
@@ -81,5 +81,4 @@ vote.delta = {
 };
 
 Promise.all([game.save(), Promise.all(players.map(p => p.save())), vote.save()])
-.then(() => console.log('Saved'))
-.catch(e => console.error(e));
+.then(() => {console.log('Saved'); DB.client.quit();}, e => {console.error(e); DB.client.quit();});
