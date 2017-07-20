@@ -3,11 +3,11 @@ let DB = require('../src/server/db');
 var game = new DB.GameState('test');
 game.delta = {
 	"id": "test",
-	"state": "night",
+	"state": "election",
 	"turnOrder": ["3333333","2222222","1111111","5555555","4444444"],
 	"votesInProgress": ["29223324"],
-	"president": "",
-	"chancellor": "",
+	"president": "1111111",
+	"chancellor": "2222222",
 	"lastPresident": "",
 	"lastChancellor": "",
 	"liberalPolicies": "0",
@@ -69,11 +69,11 @@ players[4].delta = {
 let vote = new DB.Vote('29223324');
 vote.delta = {
 	"id": "29223324",
-	"type": "confirmRole",
+	"type": "elect",
 	"target1": "",
 	"target2": "",
 	"data": "",
-	"toPass": "5",
+	"toPass": "3",
 	"requires": "5",
 	"yesVoters": [],
 	"noVoters": [],
