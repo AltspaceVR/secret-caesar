@@ -87,6 +87,10 @@ function evaluateVote(game, vote, passed)
 	{
 		evaluateConfirmVote.call(this, game, vote, passed);
 	}
+	else if(vote.get('type') === 'elect' && game.get('state') === 'election')
+	{
+		evaluateElectionVote.call(this, game, vote, passed);
+	}
 }
 
 function evaluateJoinVote(game, vote, passed)
@@ -193,6 +197,48 @@ function evaluateConfirmVote(game, vote, passed)
 		);
 	})
 	.catch(e => console.error(e));
+}
+
+function evaluateElectionVote(game, vote, passed)
+{
+	let socket = this;
+
+	// get election reaction
+	game.set('state', 'lameDuck');
+
+	// remove completed vote from list
+	let votes = game.get('votesInProgress');
+	votes.splice( votes.indexOf(vote.get('id')), 1 );
+	game.set('votesInProgress', votes);
+	game.set('lastElection', vote.get('id'));
+
+	if(passed)
+	{
+		// update government
+		game.set('lastPresident', game.get('president'));
+		game.set('lastChancellor', game.get('chancellor'));
+		game.set('failedVotes', 0);
+	}
+	else
+	{
+		// continue to reaction, but increment fail count
+		game.set('failedVotes', game.get('failedVotes') + 1);
+
+		let players = game.get('turnOrder');
+		let nextPres = (players.indexOf(game.get('president')) + 1) % players.length;
+		game.set('president', nextPres);
+		game.set('chancellor', '');
+	}
+
+	Promise.all([game.save(), vote.save()])
+	.then(([gdiff, vdiff]) => {
+		console.log('election saved');
+		socket.server.to(socket.gameId).emit('update',
+			gdiff, null, {[vote.get('id')]: vdiff}
+		);
+
+	}, err => Utils.log(game, err))
+	.catch(err => console.log(err.stack));
 }
 
 exports.tallyVote = tallyVote;

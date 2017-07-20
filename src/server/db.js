@@ -152,13 +152,14 @@ class GameState extends GameObject
 	{
 		super('game', id);
 		let defaults = {
-			state: 'setup', // setup, night, nominate, election, policy1, policy2, power, done
+			state: 'setup', // setup, night, nominate, election, lameDuck, policy1, policy2, power, done
 			turnOrder: [], // CSV of userIds
 			votesInProgress: [], // CSV of voteIds
 			president: '', // userId
 			chancellor: '', // userId
 			lastPresident: '', // userId
 			lastChancellor: '', // userId
+			lastElection: '', // voteId
 
 			liberalPolicies: 0,
 			fascistPolicies: 0,
@@ -179,11 +180,11 @@ class GameState extends GameObject
 			chancellor: 'string',
 			lastPresident: 'string',
 			lastChancellor: 'string',
+			lastElection: 'string',
 			liberalPolicies: 'int',
 			fascistPolicies: 'int',
-			deckLiberal: 'int',
-			discardLiberal: 'int',
-			discardFascist: 'int',
+			deck: 'int',
+			discard: 'int',
 			specialElection: 'bool',
 			failedVotes: 'int'
 		});
@@ -222,10 +223,12 @@ class GameState extends GameObject
 			this.votes[e] = new Vote(e);
 		}).bind(this));
 
+		let lastElection = this.get('lastElection');
+		if(lastElection)
+			this.votes[lastElection] = new Vote(lastElection);
+
 		return Promise.all(
-			this.get('votesInProgress').map(
-				(e => this.votes[e].load()).bind(this)
-			)
+			Object.keys(this.votes).map(e => this.votes[e].load())
 		);
 	}
 

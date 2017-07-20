@@ -1,7 +1,7 @@
 'use strict';
 
 import SH from './secrethitler';
-import {FascistRoleCard, HitlerRoleCard, LiberalRoleCard, FascistPartyCard, LiberalPartyCard} from './card';
+import {FascistRoleCard, HitlerRoleCard, LiberalRoleCard, FascistPartyCard, LiberalPartyCard, JaCard, NeinCard} from './card';
 import {lateUpdate} from './utils';
 
 export default class PlayerInfo extends THREE.Object3D
@@ -15,23 +15,49 @@ export default class PlayerInfo extends THREE.Object3D
 		this.scale.setScalar(0.3);
 		seat.add(this);
 
-		SH.addEventListener('update_state', lateUpdate(this.updateRole.bind(this)));
+		SH.addEventListener('update_state', lateUpdate(this.updateState.bind(this)));
+		SH.addEventListener('update_turnOrder', this.updateTurnOrder.bind(this));
 	}
 
-	updateRole({data: {game, players, votes}})
+	updateTurnOrder({data: {game, players}})
+	{
+		let localPlayer = players[SH.localUser.id];
+
+		if(localPlayer){
+			let playerPos = this.worldToLocal(SH.seats[localPlayer.seatNum].getWorldPosition());
+			this.lookAt(playerPos);
+		}
+	}
+
+	updateState({data: {game, players, votes}})
+	{
+		if(!this.seat.owner)
+			return;
+
+		if(game.state === 'night' && players[SH.localUser.id])
+			this.presentRole(game, players, votes);
+
+		else if(game.state === 'lameDuck')
+			this.presentVote(game, players, votes);
+
+		else if(this.card !== null)
+		{
+			this.remove(this.card);
+			this.card = null;
+		}
+	}
+
+	presentRole(game, players)
 	{
 		let localPlayer = players[SH.localUser.id];
 		let seatedPlayer = players[this.seat.owner];
-
-		if(!this.seat.owner || !localPlayer)
-			return;
 
 		let seatedRoleShouldBeVisible =
 			SH.localUser.id === this.seat.owner ||
 			localPlayer.role === 'fascist' && (seatedPlayer.role === 'fascist' || seatedPlayer.role === 'hitler') ||
 			localPlayer.role === 'hitler' && seatedPlayer.role === 'fascist' && game.turnOrder.length < 9;
 
-		if(game.state === 'night' && this.card === null && seatedRoleShouldBeVisible)
+		if(seatedRoleShouldBeVisible)
 		{
 			switch(seatedPlayer.role){
 				case 'fascist': this.card = new FascistRoleCard(); break;
@@ -39,14 +65,16 @@ export default class PlayerInfo extends THREE.Object3D
 				case 'liberal': this.card = new LiberalRoleCard(); break;
 			}
 
-			let playerPos = this.worldToLocal(SH.seats[localPlayer.seatNum].getWorldPosition());
-			this.lookAt(playerPos);
 			this.add(this.card);
 		}
-		else if(game.state !== 'night' && this.card !== null)
-		{
-			this.remove(this.card);
-			this.card = null;
-		}
+	}
+
+	presentVote(game, _, votes)
+	{
+		let vote = votes[game.lastElection];
+
+		let playerVote = vote.yesVoters.includes(this.seat.owner);
+		this.card = playerVote ? new JaCard() : new NeinCard();
+		this.add(this.card);
 	}
 };

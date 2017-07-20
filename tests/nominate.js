@@ -10,6 +10,7 @@ game.delta = {
 	"chancellor": "",
 	"lastPresident": "",
 	"lastChancellor": "",
+	"lastElection": "",
 	"liberalPolicies": "0",
 	"fascistPolicies": "0",
 	"deck": "164808",
