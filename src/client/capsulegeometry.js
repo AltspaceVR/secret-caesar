@@ -51,16 +51,16 @@ export default class CapsuleGeometry extends THREE.BufferGeometry
 				// create faces
 				if(r === 1)
 				{
-					faces.set([top_s1r1, topCap, top_s0r1], 3*fi++);
-					faces.set([bot_s0r1, botCap, bot_s1r1], 3*fi++);
+					faces.set([topCap, top_s1r1, top_s0r1], 3*fi++);
+					faces.set([botCap, bot_s0r1, bot_s1r1], 3*fi++);
 				}
 				else
 				{
-					faces.set([top_s1r1, top_s1r0, top_s0r0], 3*fi++);
-					faces.set([top_s1r1, top_s0r0, top_s0r1], 3*fi++);
+					faces.set([top_s1r0, top_s1r1, top_s0r0], 3*fi++);
+					faces.set([top_s0r0, top_s1r1, top_s0r1], 3*fi++);
 
-					faces.set([bot_s1r1, bot_s0r1, bot_s0r0], 3*fi++);
-					faces.set([bot_s1r1, bot_s0r0, bot_s1r0], 3*fi++);
+					faces.set([bot_s0r1, bot_s1r1, bot_s0r0], 3*fi++);
+					faces.set([bot_s0r0, bot_s1r1, bot_s1r0], 3*fi++);
 				}
 			}
 
@@ -72,8 +72,8 @@ export default class CapsuleGeometry extends THREE.BufferGeometry
 				bot_s0 += numVerts-2;
 			}
 
-			faces.set([top_s1, top_s0, bot_s1], 3*fi++);
-			faces.set([top_s0, bot_s0, bot_s1], 3*fi++);
+			faces.set([top_s0, top_s1, bot_s1], 3*fi++);
+			faces.set([bot_s0, top_s0, bot_s1], 3*fi++);
 		}
 
 		this.addAttribute('position', new THREE.BufferAttribute(verts, 3));

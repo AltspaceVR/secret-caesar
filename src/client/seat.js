@@ -4,7 +4,7 @@ import SH from './secrethitler';
 import Nameplate from './nameplate';
 import Ballot from './ballot';
 import PlayerInfo from './playerinfo';
-import CapsuleGeometry from './capsulegeometry';
+import Hitbox from './hitbox';
 import {lateUpdate} from './utils';
 
 export default class Seat extends THREE.Object3D
@@ -48,37 +48,9 @@ export default class Seat extends THREE.Object3D
 		});
 
 		this.nameplate = new Nameplate(this);
-		this.nameplate.position.set(0, -0.635, 0.22);
-		this.add(this.nameplate);
-
 		this.ballot = new Ballot(this);
-		this.ballot.position.set(0, -0.3, 0.25);
-		//this.ballot.rotateY(0.1);
-		this.add(this.ballot);
-
 		this.playerInfo = new PlayerInfo(this);
-		this.playerInfo.position.set(0, 0, 0.3);
-		this.add(this.playerInfo);
-
-		this.hitbox = new THREE.Mesh(
-			Seat.Hitbox,
-			new THREE.MeshBasicMaterial()
-		);
-		this.hitbox.position.set(0, -0.5, 0);
-		this.hitbox.material.transparent = true;
-		this.hitbox.material.opacity = 0;
-		this.hitbox.visible = false;
-		this.add(this.hitbox);
-
-		this.hitbox.addEventListener('cursorenter', () => this.hitbox.material.opacity = 0.1);
-		this.hitbox.addEventListener('cursorleave', () => this.hitbox.material.opacity = 0);
-		this.hitbox.addEventListener('cursorup', () => {
-			SH.dispatchEvent({
-				type: 'playerSelect',
-				bubbles: false,
-				data: this.owner
-			});
-		});
+		this.hitbox = new Hitbox(this);
 	}
 
 	updateOwnership({data: {game, players}})
@@ -138,18 +110,11 @@ export default class Seat extends THREE.Object3D
 			});
 		}
 
-		if(state === 'nominate' && SH.localUser.id === president)
+		if(state === 'nominate' && SH.localUser.id === president && this.owner === SH.localUser.id)
 		{
-			this.hitbox.visible = this.owner.length > 0 && this.owner !== SH.localUser.id;
-
-			if(this.owner === SH.localUser.id)
-			{
-				chooseChancellor().then(userId => {
-					SH.socket.emit('nominate', userId);
-				});
-			}
+			chooseChancellor().then(userId => {
+				SH.socket.emit('nominate', userId);
+			});
 		}
 	}
 }
-
-Seat.Hitbox = new CapsuleGeometry(0.3, 1.8);

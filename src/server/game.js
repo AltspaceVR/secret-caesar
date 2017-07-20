@@ -81,18 +81,40 @@ function nominate(chancellor)
 	let socket = this;
 	let game = new DB.GameState(socket.gameId);
 
-	game.load().then(() => {
-		let pres = new DB.Player(game.get('president'));
-		let chanc = new DB.Player(chancellor);
-		return Promise.all([pres.load(), chanc.load()]);
-	})
-	.then(([pres, chanc]) => {
-		if(game.get('state') === 'nominate'
-			&& game.get('president') === DB.playerForSocket[socket.id]
-		){
-			Utils.log(game, `${pres.get('displayName')} nominated ${chanc.get('displayName')} as chancellor`);
+	game.load().then(() =>
+	{
+		let pc = game.get('turnOrder').length;
+
+		if(game.get('state') !== 'nominate')
+			return Promise.reject('Nomination out of turn');
+
+		else if(game.get('president') !== DB.playerForSocket[socket.id])
+			return Promise.reject('Nomination not by president elect');
+
+		else if(game.get('lastChancellor') === chancellor || pc > 5 && game.get('lastPresident') === chancellor)
+			return Promise.reject('Chancellor elect is term-limited');
+
+		else
+		{
+			Utils.log(game, `${game.get('president')} nominated ${game.get('chancellor')} as chancellor`);
+			game.set('chancellor', chancellor);
+			game.set('state', 'election');
+
+			// set up election vote
+			let vote = new DB.Vote(Utils.generateId());
+			vote.set('type', 'elect');
+			vote.set('toPass', Math.ceil(pc/2 + 0.1));
+			vote.set('requires', pc);
+			game.set('votesInProgress', [...game.get('votesInProgress'), vote.get('id')]);
+
+			return Promise.all([game.save(), vote.save()]);
 		}
-	});
+
+	}, err => Utils.log(game, err))
+
+	.then(([game, vote]) => {
+		socket.server.to(socket.gameId).emit('update', game, null, {[vote.id]: vote});
+	}, err => Utils.log(game, err));
 }
 
 exports.reset = reset;

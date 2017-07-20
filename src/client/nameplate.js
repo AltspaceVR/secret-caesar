@@ -10,6 +10,8 @@ export default class Nameplate extends THREE.Object3D
 		super();
 
 		this.seat = seat;
+		this.position.set(0, -0.635, 0.22);
+		seat.add(this);
 
 		// add 3d model
 		this.model = AM.cache.models.nameplate.children[0].clone();
@@ -31,6 +33,13 @@ export default class Nameplate extends THREE.Object3D
 		});
 		this.model.addBehavior(this._hoverBehavior);
 		this.model.addEventListener('cursorup', this.click.bind(this));
+
+		SH.addEventListener('update_state', ({data: {game: {state}}}) => {
+			if(state === 'setup')
+				this.model.addBehavior(this._hoverBehavior);
+			else
+				this.model.removeBehavior(this._hoverBehavior);
+		});
 	}
 
 	updateText(text)
@@ -60,7 +69,7 @@ export default class Nameplate extends THREE.Object3D
 			this.requestJoin();
 		else if(this.seat.owner === SH.localUser.id)
 			this.requestLeave();
-		else if(this.seat.owner && SH.game.turnOrder.includes(SH.localUser.id))
+		else if(SH.game.turnOrder.includes(SH.localUser.id))
 			this.requestKick();
 	}
 

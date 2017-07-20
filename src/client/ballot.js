@@ -10,6 +10,9 @@ export default class Ballot extends THREE.Object3D
 	{
 		super();
 		this.seat = seat;
+		this.position.set(0, -0.3, 0.25);
+		seat.add(this);
+
 		this.lastQueued = Promise.resolve();
 		this.displayed = null;
 
@@ -61,9 +64,9 @@ export default class Ballot extends THREE.Object3D
 			// generate new question to ask
 			let questionText, choices = 2;
 			if(votes[vId].type === 'elect'){
-				questionText = players[votes[vId].target1].displayName
+				questionText = players[game.president].displayName
 					+ '\nfor president and\n'
-					+ players[votes[vId].target2].displayName
+					+ players[game.chancellor].displayName
 					+ '\nfor chancellor?';
 			}
 			else if(votes[vId].type === 'join'){
