@@ -10,6 +10,7 @@ import { getGameId, mergeObjects } from './utils';
 import Nameplate from './nameplate';
 import Seat from './seat';
 import PlayerMeter from './playermeter';
+import ContinueBox from './continuebox';
 
 class SecretHitler extends THREE.Object3D
 {
@@ -97,8 +98,9 @@ class SecretHitler extends THREE.Object3D
 
 		this.table.add(...this.seats);
 
-		this.playerMeter = new PlayerMeter();
-		this.table.add(this.playerMeter);
+		//this.playerMeter = new PlayerMeter();
+		//this.table.add(this.playerMeter);
+		this.continueBox = new ContinueBox(this.table);
 
 		// add avatar for scale
 		assets.models.dummy.position.set(0, -0.12, 1.1);
