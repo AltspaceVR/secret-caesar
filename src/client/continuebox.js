@@ -48,19 +48,19 @@ export default class ContinueBox extends THREE.Object3D
 	{
 		if(game.state === 'lameDuck'){
 			this.icon.visible = true;
-			//this.text.visible = true;
+			this.text.visible = true;
 			this.textData.text = 'Click to continue';
 			altspace.updateNativeComponent(this.text, 'n-text', this.textData);
 		}
 		else if(game.state === 'setup' && game.turnOrder.length >= 5){
 			this.icon.visible = true;
-			//this.text.visible = true;
+			this.text.visible = true;
 			this.textData.text = 'Click to start';
 			altspace.updateNativeComponent(this.text, 'n-text', this.textData);
 		}
 		else {
 			this.icon.visible = false;
-			//this.text.visible = false;
+			this.text.visible = false;
 		}
 		
 	}
