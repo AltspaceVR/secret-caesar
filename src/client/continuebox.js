@@ -18,6 +18,10 @@ export default class ContinueBox extends THREE.Object3D
 		this.add(this.icon);
 
 		this.text = new THREE.Mesh(placeholderGeo, placeholderMat);
+		altspace.addNativeComponent(this.text, 'n-billboard');
+		altspace.updateNativeComponent(this.text, 'n-billboard', {});
+		altspace.addNativeComponent(this.text, 'n-text');
+		altspace.updateNativeComponent(this.text, 'n-text', {fontSize: 1});
 		this.add(this.text);
 
 		this.position.set(0, 0.3, 0);
@@ -29,14 +33,26 @@ export default class ContinueBox extends THREE.Object3D
 
 	onclick(evt)
 	{
-		SH.socket.emit('continue');
+		if(SH.turnOrder.includes(SH.localUser.id))
+			SH.socket.emit('continue');
 	}
 
 	onstatechange({data: {game}})
 	{
-		console.log('continue:', game);
-		let visible = game.state === 'lameDuck' || game.state === 'setup' && game.turnOrder.length >= 5;
-		this.icon.visible = visible;
-		this.text.visible = visible;
+		if(game.state === 'lameDuck'){
+			this.icon.visible = true;
+			this.text.visible = true;
+			altspace.updateNativeComponent(this.text, 'n-text', {text: 'Click to continue'});
+		}
+		else if(game.state === 'setup' && game.turnOrder.length >= 5){
+			this.icon.visible = true;
+			this.text.visible = true;
+			altspace.updateNativeComponent(this.text, 'n-text', {text: 'Click to start'});
+		}
+		else {
+			this.icon.visible = false;
+			this.text.visible = false;
+		}
+		
 	}
 };
