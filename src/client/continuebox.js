@@ -25,7 +25,7 @@ export default class ContinueBox extends THREE.Object3D
 		altspace.addNativeComponent(this.text, 'n-billboard');
 
 		// must send all properties every update, or they'll zero out
-		this.textData = {fontSize: 1, text: 'Test', width: 1, height: 1, horizontalAlign: 'middle', verticalAlign: 'middle'};
+		this.textData = {fontSize: 1, width: 1, height: 1, horizontalAlign: 'middle', verticalAlign: 'middle'};
 		altspace.addNativeComponent(this.text, 'n-text');
 		altspace.updateNativeComponent(this.text, 'n-text', this.textData);
 

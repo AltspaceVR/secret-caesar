@@ -59,6 +59,7 @@ class SecretHitler extends THREE.Object3D
 	{
 		// share the diorama info
 		AssetManager.cache = assets;
+		AssetManager.fixMaterials();
 		this.env = env;
 
 		// connect to server
@@ -103,9 +104,9 @@ class SecretHitler extends THREE.Object3D
 		this.continueBox = new ContinueBox(this.table);
 
 		// add avatar for scale
-		assets.models.dummy.position.set(0, -0.12, 1.1);
+		/*assets.models.dummy.position.set(0, -0.12, 1.1);
 		assets.models.dummy.rotateZ(Math.PI);
-		this.add(assets.models.dummy);
+		this.add(assets.models.dummy);*/
 
 		this.socket.on('update', this.updateFromServer.bind(this));
 		this.socket.on('checkedIn', this.checkedIn.bind(this));

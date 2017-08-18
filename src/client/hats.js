@@ -3,54 +3,85 @@
 import AM from './assetmanager';
 import SH from './secrethitler';
 
-class PresidentHat extends THREE.Object3D
+class Hat extends THREE.Object3D
 {
-	constructor(){
+	constructor(model)
+	{
 		super();
-		this.model = AM.cache.models.tophat;
-		this.model.position.set(0,0,0);
-		this.model.rotation.set(-Math.PI/2, 0, 0);
-		this.add(this.model);
+		this.currentId = '';
 
-		SH.addEventListener('update_state', e => {
-			if(e.data.game.state === 'setup')
-				this.idle();
-			else {
-				SH.idleRoot.remove(this);
-			}
+		if(model.parent)
+			model.parent.remove(model);
+		model.updateMatrixWorld(true);
+
+		// grab meshes
+		let prop = '';
+		model.traverse(obj => {
+			if(obj.name === 'hat' || obj.name === 'text')
+				prop = obj.name;
+			else if(obj instanceof THREE.Mesh)
+				this[prop] = obj;
 		});
+
+		// strip out middle nodes
+		this.hat.matrix.copy(this.hat.matrixWorld);
+		this.hat.matrix.decompose(this.hat.position, this.hat.quaternion, this.hat.scale);
+		this.add(this.hat);
+
+		this.text.matrix.copy(this.text.matrixWorld);
+		this.text.matrix.decompose(this.text.position, this.text.quaternion, this.text.scale);
+		this.add(this.text);
+
+		d.scene.add(this);
 	}
 
-	idle(){
-		this.position.set(0.75, 0, 0);
-		this.rotation.set(0, Math.PI/2, 0);
-		SH.idleRoot.add(this);
+	setOwner(userId)
+	{
+		if(!this.currentId && userId){
+			d.scene.add(this);
+			altspace.addNativeComponent(this.hat, 'n-skeleton-parent');
+			altspace.addNativeComponent(this.text, 'n-skeleton-parent');
+		}
+		else if(this.currentId && !userId){
+			altspace.removeNativeComponent(this.hat, 'n-skeleton-parent');
+			altspace.removeNativeComponent(this.text, 'n-skeleton-parent');
+			d.scene.remove(this);
+		}
+
+		if(userId){
+			let settings = {index: 0, part: 'head', side: 'center', userId: userId};
+			altspace.updateNativeComponent(this.hat, 'n-skeleton-parent', settings);
+			altspace.updateNativeComponent(this.text, 'n-skeleton-parent', settings);
+		}
+
+		this.currentId = userId;
+	}
+}
+
+class PresidentHat extends Hat
+{
+	constructor(){
+		super(AM.cache.models.tophat);
+		this.position.set(0, 0.144/SH.env.pixelsPerMeter, .038/SH.env.pixelsPerMeter);
+		this.scale.multiplyScalar(1.2/SH.env.pixelsPerMeter);
+		
+		SH.addEventListener('update_lastPresident', e => {
+			this.setOwner(e.data.game.lastPresident);
+		});
 	}
 };
 
-class ChancellorHat extends THREE.Object3D
+class ChancellorHat extends Hat
 {
 	constructor(){
-		super();
-		this.model = AM.cache.models.visorcap;
-		this.model.position.set(0,0.04,0);
-		this.model.rotation.set(-Math.PI/2, 0, 0);
-		this.add(this.model);
-
-		SH.addEventListener('update_state', e => {
-			if(e.data.game.state === 'setup')
-				this.idle();
-			else {
-				SH.idleRoot.remove(this);
-			}
+		super(AM.cache.models.visorcap);
+		this.position.set(0, 0.07/SH.env.pixelsPerMeter, .038/SH.env.pixelsPerMeter);
+		this.scale.multiplyScalar(1.2/SH.env.pixelsPerMeter);
+		
+		SH.addEventListener('update_lastChancellor', e => {
+			this.setOwner(e.data.game.lastChancellor);
 		});
 	}
-
-	idle(){
-		this.position.set(-0.75, 0, 0);
-		this.rotation.set(0, -Math.PI/2, 0);
-		SH.idleRoot.add(this);
-	}
-};
+}
 
 export { PresidentHat, ChancellorHat };

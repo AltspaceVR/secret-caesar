@@ -7,8 +7,8 @@ export default {
 			nameplate: 'static/model/nameplate.dae',
 			tophat: 'static/model/tophat.gltf',
 			visorcap: 'static/model/visor_cap.gltf',
-			dummy: 'static/model/dummy.gltf',
-			playermeter: 'static/model/playermeter.gltf'
+			//dummy: 'static/model/dummy.gltf',
+			//playermeter: 'static/model/playermeter.gltf'
 		},
 		textures: {
 			board_large: 'static/img/board-large.png',
@@ -19,5 +19,17 @@ export default {
 			text: 'static/img/text.png'
 		}
 	},
-	cache: {}
+	cache: {},
+	fixMaterials: function()
+	{
+		Object.keys(this.cache.models).forEach(id => {
+			this.cache.models[id].traverse(obj => {
+				if(obj.material instanceof THREE.MeshStandardMaterial){
+					let newMat = new THREE.MeshBasicMaterial();
+					newMat.map = obj.material.map;
+					obj.material = newMat;
+				}
+			});
+		});
+	}
 }
