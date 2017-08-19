@@ -1,6 +1,7 @@
 'use strict';
 
 import SH from './secrethitler';
+import {NBillboard, NText} from './nativecomponents';
 
 let placeholderGeo = new THREE.BoxBufferGeometry(.001, .001, .001);
 let placeholderMat = new THREE.MeshBasicMaterial({color: 0xffffff});
@@ -20,14 +21,12 @@ export default class ContinueBox extends THREE.Object3D
 		this.text = new THREE.Mesh(placeholderGeo, placeholderMat);
 		this.text.position.set(0, .2, 0);
 		this.text.material.visible = false;
-		this.text.userData.altspace = {collider: {enabled: false}};
+		this.text.userData.altspace = {collider: {enabled: true}};
 
-		altspace.addNativeComponent(this.text, 'n-billboard');
+		let bb = new NBillboard(this.text);
 
-		// must send all properties every update, or they'll zero out
-		this.textData = {fontSize: 1, width: 1, height: 1, horizontalAlign: 'middle', verticalAlign: 'middle'};
-		altspace.addNativeComponent(this.text, 'n-text');
-		altspace.updateNativeComponent(this.text, 'n-text', this.textData);
+		this.textComponent = new NText(this.text);
+		this.textComponent.update({fontSize: 1, width: 1, height: 1, horizontalAlign: 'middle', verticalAlign: 'middle'});
 
 		this.add(this.text);
 
@@ -49,19 +48,16 @@ export default class ContinueBox extends THREE.Object3D
 		if(game.state === 'lameDuck'){
 			this.icon.visible = true;
 			this.text.visible = true;
-			this.textData.text = 'Click to continue';
-			altspace.updateNativeComponent(this.text, 'n-text', this.textData);
+			this.textComponent.update({text: 'Click to continue'});
 		}
 		else if(game.state === 'setup' && game.turnOrder.length >= 5){
 			this.icon.visible = true;
 			this.text.visible = true;
-			this.textData.text = 'Click to start';
-			altspace.updateNativeComponent(this.text, 'n-text', this.textData);
+			this.textComponent.update({text: 'Click to start'});
 		}
 		else {
 			this.icon.visible = false;
 			this.text.visible = false;
 		}
-		
 	}
 };

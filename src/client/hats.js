@@ -2,6 +2,7 @@
 
 import AM from './assetmanager';
 import SH from './secrethitler';
+import {NSkeletonParent} from './nativecomponents';
 
 class Hat extends THREE.Object3D
 {
@@ -9,6 +10,7 @@ class Hat extends THREE.Object3D
 	{
 		super();
 		this.currentId = '';
+		this.components = {hat: null, text: null};
 
 		if(model.parent)
 			model.parent.remove(model);
@@ -39,19 +41,18 @@ class Hat extends THREE.Object3D
 	{
 		if(!this.currentId && userId){
 			d.scene.add(this);
-			altspace.addNativeComponent(this.hat, 'n-skeleton-parent');
-			altspace.addNativeComponent(this.text, 'n-skeleton-parent');
+			this.components.hat = new NSkeletonParent(this.hat);
+			this.components.text = new NSkeletonParent(this.text);
 		}
 		else if(this.currentId && !userId){
-			altspace.removeNativeComponent(this.hat, 'n-skeleton-parent');
-			altspace.removeNativeComponent(this.text, 'n-skeleton-parent');
+			this.components.hat.destroy();
+			this.components.text.destroy();
 			d.scene.remove(this);
 		}
 
 		if(userId){
-			let settings = {index: 0, part: 'head', side: 'center', userId: userId};
-			altspace.updateNativeComponent(this.hat, 'n-skeleton-parent', settings);
-			altspace.updateNativeComponent(this.text, 'n-skeleton-parent', settings);
+			this.components.hat.update({userId});
+			this.components.text.update({userId});
 		}
 
 		this.currentId = userId;
