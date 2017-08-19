@@ -117,6 +117,12 @@ function nominate(chancellor)
 	}, err => Utils.log(game, err));
 }
 
+function drawPolicies(game)
+{
+	game.set('state', 'policy1');
+}
+
 exports.reset = reset;
 exports.start = start;
 exports.nominate = nominate;
+exports.drawPolicies = drawPolicies;

@@ -14,6 +14,7 @@ game.delta = {
 	"fascistPolicies": "0",
 	"deck": "164808",
 	"discard": "1",
+	"hand": "1",
 	"specialElection": "false",
 	"failedVotes": "0"
 };

@@ -167,6 +167,7 @@ class GameState extends GameObject
 			// most sig bit is 1. least sig bit is top of deck
 			deck: 0x1, // bpba
 			discard: 0x1, // bpba
+			hand: 0x1, // bpba
 			specialElection: false,
 			failedVotes: 0
 		};
@@ -185,6 +186,7 @@ class GameState extends GameObject
 			fascistPolicies: 'int',
 			deck: 'int',
 			discard: 'int',
+			hand: 'int',
 			specialElection: 'bool',
 			failedVotes: 'int'
 		});

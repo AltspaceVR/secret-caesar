@@ -1,7 +1,8 @@
 'use strict';
 
 const DB = require('./db'),
-	Utils = require('./utils');
+	Utils = require('./utils'),
+	Game = require('./game');
 
 async function evaluate()
 {
@@ -18,10 +19,10 @@ async function evaluate()
 		votePromise = Promise.resolve();
 		break;
 	case 'lameDuck':
-		game.set('state', 'policy1');
 		let vote = new DB.Vote(game.get('lastElection'));
 		votePromise = vote.destroy();
 		game.set('lastElection', '');
+		Game.drawPolicies(game);
 		break;
 	}
 
