@@ -34,8 +34,8 @@ export default class Ballot extends THREE.Object3D
 		let geo = new THREE.PlaneBufferGeometry(0.4, 0.2);
 		let mat = new THREE.MeshBasicMaterial({transparent: true});
 		this.question = new THREE.Mesh(geo, mat);
-		this.question.position.set(0, 0.05, 0);
-		this.question.rotation.set(0, Math.PI, 0);
+		this.question.position.set(0, 0.05, 0.08);
+		this.question.rotation.set(0.3, Math.PI, 0);
 		this.question.visible = false;
 		this.add(this.question);
 
@@ -99,84 +99,6 @@ export default class Ballot extends THREE.Object3D
 			self.dispatchEvent({type: 'cancelVote', bubbles: false});
 		}
 	}
-
-	/*askQuestion(qText, id, choices = 2)
-	{
-		let self = this;
-		let newQ = new CascadingPromise(self.questions[self.lastAsked],
-			(resolve, reject) => {
-
-				// make sure the answer is still relevant
-				let latestVotes = SH.game.votesInProgress;
-				if(!/^local/.test(id) && !latestVotes.includes(id)){
-					reject();
-					return;
-				}
-
-				// hook up q/a cards
-				self.question.material.map = generateQuestion(qText, this.question.material.map);
-				self.jaCard.addEventListener('cursorup', respond(true));
-				self.neinCard.addEventListener('cursorup', respond(false));
-				SH.addEventListener('unconfirmedChancellor', respond);
-
-				// show the ballot
-				self.question.visible = true;
-				if(choices >= 1)
-					self.jaCard.show();
-				if(choices >= 2)
-					self.neinCard.show();
-
-				function respond(answer){
-					function handler()
-					{
-						// make sure only the owner of the ballot is answering
-						if(self.seat.owner !== SH.localUser.id) return;
-
-						// make sure the answer still matters
-						let latestVotes = SH.game.votesInProgress;
-						if(!/^local/.test(id) && !latestVotes.includes(id))
-							reject();
-						else
-							resolve(answer.data ? answer.data : answer);
-					}
-
-					if(answer === true) self._yesClickHandler = handler;
-					else if(answer === false) self._noClickHandler = handler;
-					else {
-						self._nominateHandler = handler;
-						handler();
-					}
-					return handler;
-				}
-			},
-			(done) => {
-				delete self.questions[id];
-				if(self.lastAsked === id)
-					self.lastAsked = null;
-
-				// hide the question
-				self.jaCard.hide();
-				self.neinCard.hide();
-				self.question.visible = false;
-				self.jaCard.removeEventListener('cursorup', self._yesClickHandler);
-				self.neinCard.removeEventListener('cursorup', self._noClickHandler);
-				SH.removeEventListener('unconfirmedChancellor', self._nominateHandler);
-				done();
-			}
-		);
-
-		// add question to queue, remove when done
-		self.questions[id] = newQ;
-		self.lastAsked = id;
-		let splice = () => {
-			delete self.questions[id];
-			if(self.lastAsked === id)
-				self.lastAsked = null;
-		};
-		newQ.then(splice, splice);
-
-		return newQ;
-	}*/
 
 	askQuestion(qText, id, choices = 2)
 	{

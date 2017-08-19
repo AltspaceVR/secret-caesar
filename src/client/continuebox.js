@@ -1,10 +1,7 @@
 'use strict';
 
 import SH from './secrethitler';
-import {NBillboard, NText} from './nativecomponents';
-
-let placeholderGeo = new THREE.BoxBufferGeometry(.001, .001, .001);
-let placeholderMat = new THREE.MeshBasicMaterial({color: 0xffffff});
+import {PlaceholderMesh, NBillboard, NText} from './nativecomponents';
 
 export default class ContinueBox extends THREE.Object3D
 {
@@ -18,9 +15,8 @@ export default class ContinueBox extends THREE.Object3D
 		this.icon.addBehavior(new altspace.utilities.behaviors.Spin());
 		this.add(this.icon);
 
-		this.text = new THREE.Mesh(placeholderGeo, placeholderMat);
+		this.text = PlaceholderMesh.clone();
 		this.text.position.set(0, .2, 0);
-		this.text.material.visible = false;
 		this.text.userData.altspace = {collider: {enabled: true}};
 
 		let bb = new NBillboard(this.text);

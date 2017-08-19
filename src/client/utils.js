@@ -41,7 +41,7 @@ function generateQuestion(text, texture = null)
 	let g = bmp.getContext('2d');
 	g.clearRect(0, 0, 512, 256);
 	g.textAlign = 'center';
-	g.fillStyle = 'white';
+	g.fillStyle = 'black';
 
 	// write text
 	g.font = 'bold 50px '+fontStack;

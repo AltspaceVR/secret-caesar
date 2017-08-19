@@ -1,5 +1,9 @@
 'use strict';
 
+let placeholderGeo = new THREE.BoxBufferGeometry(.001, .001, .001);
+let placeholderMat = new THREE.MeshBasicMaterial({color: 0xffffff, visible: false});
+let PlaceholderMesh = new THREE.Mesh(placeholderGeo, placeholderMat);
+
 class NativeComponent
 {
 	constructor(mesh, needsUpdate)
@@ -58,4 +62,4 @@ class NBillboard extends NativeComponent {
 	}
 }
 
-export {NText, NSkeletonParent, NBillboard};
+export {PlaceholderMesh, NText, NSkeletonParent, NBillboard};
