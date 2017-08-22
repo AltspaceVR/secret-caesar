@@ -2,7 +2,7 @@
 
 import SH from './secrethitler';
 import Nameplate from './nameplate';
-import Ballot from './ballot';
+import {Ballot} from './ballot';
 import PlayerInfo from './playerinfo';
 import Hitbox from './hitbox';
 import {lateUpdate} from './utils';
@@ -41,7 +41,6 @@ export default class Seat extends THREE.Object3D
 		}
 
 		SH.addEventListener('update_turnOrder', this.updateOwnership.bind(this));
-		SH.addEventListener('update_state', lateUpdate(this.updateState.bind(this)));
 		SH.addEventListener('checkedIn', id => {
 			if(this.owner === id)
 				this.updateOwnership({data: {game: SH.game, players: SH.players}});
@@ -84,37 +83,6 @@ export default class Seat extends THREE.Object3D
 		}
 		else if( players[this.owner].connected ){
 			this.nameplate.model.material.color.setHex(0xffffff);
-		}
-	}
-
-	updateState({data: {game: {state, president}, players}})
-	{
-		let self = this;
-
-		function chooseChancellor(){
-			return self.ballot.askQuestion('Choose your\nchancellor!', 'local_nominate', 0)
-			.then(confirmChancellor);
-		}
-
-		function confirmChancellor(userId){
-			let username = SH.players[userId].displayName;
-			let text = `Name ${username}\nas chancellor?`;
-			return self.ballot.askQuestion(text, 'local_nominate_confirm', 2)
-			.then(confirmed => {
-				if(confirmed){
-					return Promise.resolve(userId);
-				}
-				else {
-					return chooseChancellor();
-				}
-			});
-		}
-
-		if(state === 'nominate' && SH.localUser.id === president && this.owner === SH.localUser.id)
-		{
-			chooseChancellor().then(userId => {
-				SH.socket.emit('nominate', userId);
-			});
 		}
 	}
 }

@@ -2,9 +2,15 @@
 
 import SH from './secrethitler';
 import { JaCard, NeinCard } from './card';
-import { generateQuestion } from './utils';
+import { generateQuestion, lateUpdate } from './utils';
+import * as BP from './ballotprocessor';
 
-export default class Ballot extends THREE.Object3D
+let PLAYERSELECT = 0;
+let CONFIRM = 1;
+let BINARY = 2;
+let POLICY = 3;
+
+class Ballot extends THREE.Object3D
 {
 	constructor(seat)
 	{
@@ -39,79 +45,23 @@ export default class Ballot extends THREE.Object3D
 		this.question.visible = false;
 		this.add(this.question);
 
-		SH.addEventListener('update_votesInProgress', this.update.bind(this));
+		SH.addEventListener('update_votesInProgress', BP.updateVotesInProgress.bind(this));
+		SH.addEventListener('update_state', lateUpdate(BP.updateState.bind(this)));
 	}
 
-	update({data: {game, players, votes}})
-	{
-		let self = this;
-		if(!self.seat.owner) return;
-
-		let vips = game.votesInProgress;
-		let blacklistedVotes = vips.filter(id => {
-			let vs = [...votes[id].yesVoters, ...votes[id].noVoters];
-			let nv = votes[id].nonVoters;
-			return nv.includes(self.seat.owner) || vs.includes(self.seat.owner);
-		});
-		let newVotes = vips.filter(
-			id => (!SH.game.votesInProgress || !SH.game.votesInProgress.includes(id)) && !blacklistedVotes.includes(id)
-		);
-		let finishedVotes = !SH.game.votesInProgress ? blacklistedVotes
-			: SH.game.votesInProgress.filter(id => !vips.includes(id)).concat(blacklistedVotes);
-
-		newVotes.forEach(vId =>
-		{
-			// generate new question to ask
-			let questionText, choices = 2;
-			if(votes[vId].type === 'elect'){
-				questionText = players[game.president].displayName
-					+ '\nfor president and\n'
-					+ players[game.chancellor].displayName
-					+ '\nfor chancellor?';
-			}
-			else if(votes[vId].type === 'join'){
-				questionText = votes[vId].data + '\nto join?';
-			}
-			else if(votes[vId].type === 'kick'){
-				questionText = 'Vote to kick\n'
-					+ players[votes[vId].target1].displayName
-					+ '?';
-			}
-			else if(votes[vId].type === 'confirmRole' && self.seat.owner === SH.localUser.id)
-			{
-				choices = 1;
-				let role = players[SH.localUser.id].role;
-				role = role.charAt(0).toUpperCase() + role.slice(1);
-				questionText = 'Your role:\n' + role;
-			}
-
-			if(questionText)
-			{
-				self.askQuestion(questionText, vId, choices)
-				.then(answer => {
-					SH.socket.emit('vote', vId, SH.localUser.id, answer);
-				})
-				.catch(() => console.log('Vote scrubbed:', vId));
-			}
-		});
-
-		if(finishedVotes.includes(self.displayed)){
-			self.dispatchEvent({type: 'cancelVote', bubbles: false});
-		}
-	}
-
-	askQuestion(qText, id, choices = 2)
+	askQuestion(qText, id, {choices = BINARY, policyHand = 0x1, fake = false, isInvalid = () => true} = {})
 	{
 		let self = this;
 
 		function isVoteValid()
 		{
+			let isFakeValid = fake && !isInvalid();
 			let isLocalVote = /^local/.test(id);
 			let isFirstUpdate = !SH.game.votesInProgress;
 			let vote = SH.votes[id];
 			let voters = vote ? [...vote.yesVoters, ...vote.noVoters] : [];
 			let alreadyVoted = voters.includes(self.seat.owner);
-			return isLocalVote || isFirstUpdate || vote && !alreadyVoted;
+			return isLocalVote || isFirstUpdate || isFakeValid || vote && !alreadyVoted;
 		}
 
 		function hookUpQuestion(){
@@ -130,16 +80,19 @@ export default class Ballot extends THREE.Object3D
 			self.question.visible = true;
 
 			// hook up q/a cards
-			if(choices === 0){
-				SH.addEventListener('playerSelect', respond('player', resolve, reject));
-			}
-			if(choices >= 1){
-				self.jaCard.show();
-				self.jaCard.addEventListener('cursorup', respond('yes', resolve, reject));
-			}
-			if(choices >= 2){
-				self.neinCard.show();
-				self.neinCard.addEventListener('cursorup', respond('no', resolve, reject));
+			if(!fake)
+			{
+				if(choices === PLAYERSELECT){
+					SH.addEventListener('playerSelect', respond('player', resolve, reject));
+				}
+				if(choices === CONFIRM || choices === BINARY){
+					self.jaCard.show();
+					self.jaCard.addEventListener('cursorup', respond('yes', resolve, reject));
+				}
+				if(choices === BINARY){
+					self.neinCard.show();
+					self.neinCard.addEventListener('cursorup', respond('no', resolve, reject));
+				}
 			}
 
 			self.addEventListener('cancelVote', respond('cancel', resolve, reject));
@@ -162,6 +115,7 @@ export default class Ballot extends THREE.Object3D
 				self.jaCard.removeEventListener('cursorup', self._yesClickHandler);
 				self.neinCard.removeEventListener('cursorup', self._noClickHandler);
 				SH.removeEventListener('playerSelect', self._nominateHandler);
+				self.removeEventListener('cancelVote', self._cancelHandler);
 
 				// make sure the answer still matters
 				if(!isVoteValid() || answer === 'cancel'){
@@ -191,4 +145,11 @@ export default class Ballot extends THREE.Object3D
 
 		return self.lastQueued;
 	}
+
+	askPlaceholder(qText, {choices = BINARY, policyHand = 0x1} = {})
+	{
+		// TODO: merge with askQuestion somehow?
+	}
 }
+
+export {Ballot, PLAYERSELECT, CONFIRM, BINARY, POLICY};

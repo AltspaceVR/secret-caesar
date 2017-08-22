@@ -120,6 +120,7 @@ function nominate(chancellor)
 
 async function drawPolicies(socket, game)
 {
+	Utils.log(game, 'Drawing policies');
 	let vote = new DB.Vote(game.get('lastElection'));
 	
 	game.set('lastElection', '');
