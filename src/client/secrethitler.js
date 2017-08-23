@@ -41,14 +41,14 @@ class SecretHitler extends THREE.Object3D
 		}
 
 		// get local user
-		altspace.getUser().then((user =>
-		{
+		this._userPromise = altspace.getUser();
+		this._userPromise.then(user => {
 			this.localUser = {
 				id: user.userId,
 				displayName: user.displayName,
 				isModerator: user.isModerator
 			};
-		}).bind(this));
+		});
 
 		this.game = {};
 		this.players = {};
@@ -136,9 +136,11 @@ class SecretHitler extends THREE.Object3D
 			});
 		}
 
-		if(players[this.localUser.id] && !players[this.localUser.id].connected){
-			this.socket.emit('checkIn', this.localUser);
-		}
+		this._userPromise.then(() => {
+			if(players[this.localUser.id] && !players[this.localUser.id].connected){
+				this.socket.emit('check_in', this.localUser);
+			}
+		});
 
 		this.game = game;
 		this.players = players;

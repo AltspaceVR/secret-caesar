@@ -82,7 +82,7 @@ io.on('connection', socket =>
 	socket.on('join', Players.requestJoin);
 	socket.on('leave', Players.requestLeave);
 	socket.on('kick', Players.requestKick);
-	socket.on('checkIn', Players.checkIn);
+	socket.on('check_in', Players.checkIn);
 	socket.on('reset', Game.reset);
 	socket.on('vote', Vote.tallyVote);
 	socket.on('nominate', Game.nominate);

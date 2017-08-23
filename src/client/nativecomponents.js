@@ -39,6 +39,13 @@ class NText extends NativeComponent {
 			text: ''
 		};
 		super(mesh, true);
+
+		this.color = 'black';
+	}
+	update(fields = {}){
+		if(fields.text)
+			fields.text = `<color=${this.color}>${fields.text}</color>`;
+		NativeComponent.prototype.update.call(this, fields);
 	}
 }
 

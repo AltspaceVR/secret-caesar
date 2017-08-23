@@ -5,6 +5,7 @@ import { BlankCard, JaCard, NeinCard, FascistPolicyCard, LiberalPolicyCard } fro
 import { generateQuestion, lateUpdate } from './utils';
 import * as BP from './ballotprocessor';
 import * as BPBA from './bpba';
+import {NText, PlaceholderMesh} from './nativecomponents';
 
 let PLAYERSELECT = 0;
 let CONFIRM = 1;
@@ -39,12 +40,16 @@ class Ballot extends THREE.Object3D
 		this.add(this.jaCard, this.neinCard);
 		this.policies = [];
 
-		let geo = new THREE.PlaneBufferGeometry(0.4, 0.2);
-		let mat = new THREE.MeshBasicMaterial({transparent: true, side: THREE.DoubleSide});
-		this.question = new THREE.Mesh(geo, mat);
+		//let geo = new THREE.PlaneBufferGeometry(0.4, 0.2);
+		//let mat = new THREE.MeshBasicMaterial({transparent: true, side: THREE.DoubleSide});
+		this.question = PlaceholderMesh.clone();
 		this.question.position.set(0, 0.05, 0);
+		this.question.scale.setScalar(.6);
 		this.question.visible = false;
 		this.add(this.question);
+
+		this.textComponent = new NText(this.question);
+		this.textComponent.update({width: 1, height: .5, fontSize: 1, verticalAlign: 'top'});
 
 		SH.addEventListener('update_votesInProgress', BP.updateVotesInProgress.bind(this));
 		SH.addEventListener('update_state', lateUpdate(BP.updateState.bind(this)));
@@ -77,7 +82,8 @@ class Ballot extends THREE.Object3D
 			}
 
 			// show the ballot
-			self.question.material.map = generateQuestion(qText, self.question.material.map);
+			//self.question.material.map = generateQuestion(qText, self.question.material.map);
+			self.textComponent.update({text: `${qText}`});
 			self.question.visible = true;
 
 			// hook up q/a cards

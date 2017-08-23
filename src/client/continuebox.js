@@ -46,10 +46,19 @@ export default class ContinueBox extends THREE.Object3D
 			this.text.visible = true;
 			this.textComponent.update({text: 'Click to continue'});
 		}
-		else if(game.state === 'setup' && game.turnOrder.length >= 5){
-			this.icon.visible = true;
+		else if(game.state === 'setup'){
 			this.text.visible = true;
-			this.textComponent.update({text: 'Click to start'});
+			
+			if(game.turnOrder.length >= 5){
+				this.icon.visible = true;
+				this.textComponent.update({text: 'Click to start'});
+			}
+			else {
+				this.icon.visible = false;
+				this.textComponent.update({text:
+					`Need ${5-game.turnOrder.length} more player${game.turnOrder.length!=4 ? 's' : ''}!`
+				});
+			}
 		}
 		else {
 			this.icon.visible = false;

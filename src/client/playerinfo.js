@@ -21,12 +21,13 @@ export default class PlayerInfo extends THREE.Object3D
 
 	updateTurnOrder({data: {game, players}})
 	{
-		let localPlayer = players[SH.localUser.id];
-
-		if(localPlayer){
-			let playerPos = this.worldToLocal(SH.seats[localPlayer.seatNum].getWorldPosition());
-			this.lookAt(playerPos);
-		}
+		SH._userPromise.then(() => {
+			let localPlayer = players[SH.localUser.id];
+			if(localPlayer){
+				let playerPos = this.worldToLocal(SH.seats[localPlayer.seatNum].getWorldPosition());
+				this.lookAt(playerPos);
+			}
+		});
 	}
 
 	updateState({data: {game, players, votes}})
