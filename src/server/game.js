@@ -129,10 +129,9 @@ async function drawPolicies(socket, game)
 	game.set('deck', deck);
 	game.set('hand', hand);
 
-	let [gdiff, vdiff] = await Promise.all(game.save(), vote.destroy());
-
+	let [gdiff, vdiff] = await Promise.all([game.save(), vote.destroy()]);
 	socket.server.to(socket.gameId).emit('update', 
-		gdiff, null, {[vdiff.id]: null}
+		gdiff, null, {[vote.get('id')]: null}
 	);
 }
 

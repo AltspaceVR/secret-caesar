@@ -61,7 +61,7 @@ function updateVotesInProgress({data: {game, players, votes}})
 	}
 }
 
-function updateState({data: {game: {state, president}, players}})
+function updateState({data: {game, players}})
 {
 	let ballot = this;
 
@@ -94,9 +94,9 @@ function updateState({data: {game: {state, president}, players}})
 		}
 	}
 
-	if(state === 'nominate' && ballot.seat.owner === president)
+	if(game.state === 'nominate' && ballot.seat.owner === game.president)
 	{
-		if(SH.localUser.id === president){
+		if(SH.localUser.id === game.president){
 			chooseChancellor().then(userId => {
 				SH.socket.emit('nominate', userId);
 			});
@@ -110,9 +110,24 @@ function updateState({data: {game: {state, president}, players}})
 			SH.addEventListener('update_state', hideNominatePlaceholder);
 		}
 	}
-	else if(state === 'policy1' && SH.localUser.id === president && ballot.seat.owner === SH.localUser.id)
+	else if(game.state === 'policy1' && ballot.seat.owner === game.president)
 	{
-		
+		if(SH.localUser.id === game.president)
+		{
+			ballot.askQuestion('Choose one\nto discard!', 'local_policy1',
+				{choices: BallotType.POLICY, policyHand: game.hand})
+			.then(discard => {
+				console.log('Discarding', discard);
+				//SH.socket.emit('discard_policy', discard);
+			});
+		}
+		else
+		{
+			ballot.askQuestion('Choose one\nto discard!', 'fake_policy1', {
+				choices: BallotType.POLICY, policyHand: game.hand,
+				fake: true, isInvalid: () => SH.game.state !== 'policy1'
+			});
+		}
 	}
 }
 

@@ -1,9 +1,10 @@
 'use strict;'
 
 import SH from './secrethitler';
-import { JaCard, NeinCard } from './card';
+import { BlankCard, JaCard, NeinCard, FascistPolicyCard, LiberalPolicyCard } from './card';
 import { generateQuestion, lateUpdate } from './utils';
 import * as BP from './ballotprocessor';
+import * as BPBA from './bpba';
 
 let PLAYERSELECT = 0;
 let CONFIRM = 1;
@@ -17,6 +18,7 @@ class Ballot extends THREE.Object3D
 		super();
 		this.seat = seat;
 		this.position.set(0, -0.3, 0.25);
+		this.rotation.set(.5, Math.PI, 0);
 		seat.add(this);
 
 		this.lastQueued = Promise.resolve();
@@ -31,17 +33,18 @@ class Ballot extends THREE.Object3D
 		this.neinCard = new NeinCard();
 		[this.jaCard, this.neinCard].forEach(c => {
 			c.position.set(c instanceof JaCard ? -0.1 : 0.1, -0.1, 0);
-			c.rotation.set(0.5, Math.PI, 0);
+			//c.rotation.set(0.5, 0, 0);
 			c.scale.setScalar(0.15);
-			c.hide();
+			c.visible = false;
 		});
 		this.add(this.jaCard, this.neinCard);
+		this.policies = [];
 
 		let geo = new THREE.PlaneBufferGeometry(0.4, 0.2);
-		let mat = new THREE.MeshBasicMaterial({transparent: true});
+		let mat = new THREE.MeshBasicMaterial({transparent: true, side: THREE.DoubleSide});
 		this.question = new THREE.Mesh(geo, mat);
-		this.question.position.set(0, 0.05, 0.08);
-		this.question.rotation.set(0.3, Math.PI, 0);
+		this.question.position.set(0, 0.05, 0);
+		//this.question.rotation.set(-0.3, 0, 0);
 		this.question.visible = false;
 		this.add(this.question);
 
@@ -80,19 +83,42 @@ class Ballot extends THREE.Object3D
 			self.question.visible = true;
 
 			// hook up q/a cards
-			if(!fake)
-			{
-				if(choices === PLAYERSELECT){
-					SH.addEventListener('playerSelect', respond('player', resolve, reject));
-				}
-				if(choices === CONFIRM || choices === BINARY){
-					self.jaCard.show();
+			if(choices === CONFIRM || choices === BINARY){
+				self.jaCard.visible = true;
+				if(!fake)
 					self.jaCard.addEventListener('cursorup', respond('yes', resolve, reject));
-				}
-				if(choices === BINARY){
-					self.neinCard.show();
+			}
+			if(choices === BINARY){
+				self.neinCard.visible = true;
+				if(!fake)
 					self.neinCard.addEventListener('cursorup', respond('no', resolve, reject));
-				}
+			}
+			else if(choices === PLAYERSELECT && !fake){
+				SH.addEventListener('playerSelect', respond('player', resolve, reject));
+			}
+			else if(choices === POLICY){
+				BPBA.toArray(policyHand).forEach((val, i, arr) =>
+				{
+					let card = null;
+					if(fake)
+						card = new BlankCard();
+					else if(val)
+						card = new LiberalPolicyCard();
+					else
+						card = new FascistPolicyCard();
+
+					card.scale.setScalar(0.15);
+					//card.rotation.set(-.5, 0, 0);
+
+					let width = .15 * arr.length;
+					let x = -width/2 + .15*i + .075;
+					card.position.set(x, -0.07, 0);
+					self.add(card);
+					self.policies.push(card);
+
+					if(!fake)
+						card.addEventListener('cursorup', respond(i, resolve, reject));
+				});
 			}
 
 			self.addEventListener('cancelVote', respond('cancel', resolve, reject));
@@ -108,10 +134,13 @@ class Ballot extends THREE.Object3D
 				if(answer !== 'cancel' && self.seat.owner !== SH.localUser.id) return;
 
 				// clean up
-				self.jaCard.hide();
-				self.neinCard.hide();
+				self.jaCard.visible = false;
+				self.neinCard.visible = false;
 				self.question.visible = false;
 				self.displayed = null;
+				self.remove(...self.policies);
+				self.policies = [];
+
 				self.jaCard.removeEventListener('cursorup', self._yesClickHandler);
 				self.neinCard.removeEventListener('cursorup', self._noClickHandler);
 				SH.removeEventListener('playerSelect', self._nominateHandler);
@@ -127,6 +156,8 @@ class Ballot extends THREE.Object3D
 					resolve(false);
 				else if(answer === 'player')
 					resolve(evt.data);
+				else if(choices === POLICY)
+					resolve(answer);
 			}
 
 			if(answer === 'yes')
@@ -144,11 +175,6 @@ class Ballot extends THREE.Object3D
 		self.lastQueued = self.lastQueued.then(hookUpQuestion, hookUpQuestion);
 
 		return self.lastQueued;
-	}
-
-	askPlaceholder(qText, {choices = BINARY, policyHand = 0x1} = {})
-	{
-		// TODO: merge with askQuestion somehow?
 	}
 }
 

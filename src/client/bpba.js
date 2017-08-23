@@ -58,4 +58,15 @@ function append(deck, val)
 	return deck << 1 | val;
 }
 
-export {length, shuffle, drawThree, discardOne, append, FULL_DECK};
+function toArray(deck)
+{
+	let arr = [];
+	while(deck > 1){
+		arr.push(deck & 1);
+		deck >>>= 1;
+	}
+
+	return arr;
+}
+
+export {length, shuffle, drawThree, discardOne, append, toArray, FULL_DECK};

@@ -4,7 +4,6 @@ import AssetManager from './assetmanager';
 import Animate from './animate';
 import SH from './secrethitler';
 
-
 // enum constants
 let Types = Object.freeze({
 	POLICY_LIBERAL: 0,
@@ -20,105 +19,66 @@ let Types = Object.freeze({
 	CREDITS: 10
 });
 
-function dimsToUV({side, left, right, top, bottom})
-{
-	if(side)
-		return [[
-			new THREE.Vector2(top, left),
-			new THREE.Vector2(bottom, left),
-			new THREE.Vector2(top, right)
-		],[
-			new THREE.Vector2(bottom, left),
-			new THREE.Vector2(bottom, right),
-			new THREE.Vector2(top, right)
-		]];
-	else
-		return [[
-			new THREE.Vector2(left, top),
-			new THREE.Vector2(left, bottom),
-			new THREE.Vector2(right, top)
-		],[
-			new THREE.Vector2(left, bottom),
-			new THREE.Vector2(right, bottom),
-			new THREE.Vector2(right, top)
-		]];
-}
+let temp = new Float32Array([
+	0.3575, 0.5, 0.0005,
+	-.3575, 0.5, 0.0005,
+	-.3575, -.5, 0.0005,
+	0.3575, -.5, 0.0005,
+	0.3575, 0.5, -.0005,
+	-.3575, 0.5, -.0005,
+	-.3575, -.5, -.0005,
+	0.3575, -.5, -.0005
+]);
+let cardPosPortrait = new THREE.BufferAttribute(temp, 3);
 
-function getUVs(type)
-{
-	let dims = {left: 0, right: 1, bottom: 0, top: 1};
+temp = new Float32Array([
+	0.5, -.3575, 0.0005,
+	0.5, 0.3575, 0.0005,
+	-.5, 0.3575, 0.0005,
+	-.5, -.3575, 0.0005,
+	0.5, -.3575, -.0005,
+	0.5, 0.3575, -.0005,
+	-.5, 0.3575, -.0005,
+	-.5, -.3575, -.0005
+]);
+let cardPosLandscape = new THREE.BufferAttribute(temp, 3);
 
-	switch(type)
+let cardIndex = new THREE.BufferAttribute(new Uint16Array([0,1,2, 0,2,3, 4,7,5, 5,7,6]), 1);
+let cardUVs = {
+	[Types.POLICY_LIBERAL]: [.754,.996, .754,.834, .997,.834, .997,.996],
+	[Types.POLICY_FASCIST]: [.754,.822, .754,.660, .996,.660, .996,.822],
+	[Types.ROLE_LIBERAL]:   [.746,.996, .505,.996, .505,.650, .746,.650],
+	[Types.ROLE_FASCIST]:   [.746,.645, .505,.645, .505,.300, .746,.300],
+	[Types.ROLE_HITLER]:    [.996,.645, .754,.645, .754,.300, .996,.300],
+	[Types.PARTY_LIBERAL]:  [.495,.996, .255,.996, .255,.650, .495,.650],
+	[Types.PARTY_FASCIST]:  [.495,.645, .255,.645, .255,.300, .495,.300],
+	[Types.JA]:             [.244,.992, .005,.992, .005,.653, .244,.653],
+	[Types.NEIN]:           [.243,.642, .006,.642, .006,.302, .243,.302],
+	[Types.BLANK]:          [.021,.269, .021,.022, .375,.022, .375,.269],
+	[Types.CREDITS]:        [.397,.276, .397,.015, .765,.015, .765,.276]
+};
+
+let cardMat = new THREE.MeshBasicMaterial();
+
+class Card extends THREE.Mesh
+{
+	constructor(type = Types.BLANK)
 	{
-	case Types.POLICY_LIBERAL:
-		dims = {side: true, left: 0.834, right: 0.996, top: 0.754, bottom: 0.997};
-		break;
-	case Types.POLICY_FASCIST:
-		dims = {side: true, left: 0.66, right: 0.822, top: 0.754, bottom: 0.996};
-		break;
-	case Types.ROLE_LIBERAL:
-		dims = {left: 0.505, right: 0.746, top: 0.996, bottom: 0.65};
-		break;
-	case Types.ROLE_FASCIST:
-		dims = {left: 0.505, right: 0.746, top: 0.645, bottom: 0.3};
-		break;
-	case Types.ROLE_HITLER:
-		dims = {left: 0.754, right: 0.996, top: 0.645, bottom: 0.3};
-		break;
-	case Types.PARTY_LIBERAL:
-		dims = {left: 0.255, right: 0.495, top: 0.996, bottom: 0.65};
-		break;
-	case Types.PARTY_FASCIST:
-		dims = {left: 0.255, right: 0.495, top: 0.645, bottom: 0.3};
-		break;
-	case Types.JA:
-		dims = {left: 0.005, right: 0.244, top: 0.992, bottom: 0.653};
-		break;
-	case Types.NEIN:
-		dims = {left: 0.006, right: 0.243, top: 0.642, bottom: 0.302};
-		break;
-	case Types.CREDITS:
-		dims = {side: true, left: 0.015, right: 0.276, top: 0.397, bottom: 0.765};
-		break;
-	case Types.BLANK:
-	default:
-		dims = {side: true, left: 0.022, right: .022+0.247, top: 0.021, bottom: .021+0.3543};
-		break;
-	}
+		let geo = new THREE.BufferGeometry();
+		if(type === Types.JA || type === Types.NEIN)
+			geo.addAttribute('position', cardPosLandscape);
+		else
+			geo.addAttribute('position', cardPosPortrait);
+		
+		let uvs = new THREE.BufferAttribute(
+			new Float32Array(cardUVs[type].concat(cardUVs[Types.BLANK])),
+			2);
+		geo.addAttribute('uv', uvs);
+		geo.setIndex(cardIndex);
 
-	return dimsToUV(dims);
-}
-
-
-class Card extends THREE.Object3D
-{
-	constructor(type = Types.BLANK, doubleSided = true)
-	{
-		super();
-
-		// create the card faces
-		let frontGeo = new THREE.PlaneGeometry(.715, 1);
-		let backGeo = frontGeo.clone();
-		let cardMat = new THREE.MeshBasicMaterial({map: AssetManager.cache.textures.cards});
-		let front = new THREE.Mesh(frontGeo, cardMat);
-		let back = new THREE.Mesh(backGeo, cardMat);
-		back.position.set(0.001, 0, 0);
-		front.position.set(-0.001, 0, 0);
-		back.rotateY(Math.PI);
-
-		// set the faces to the correct part of the texture
-		front.geometry.faceVertexUvs = [getUVs(type)];
-		back.geometry.faceVertexUvs = [getUVs( doubleSided ? type : Types.BLANK )];
+		cardMat.map = AssetManager.cache.textures.cards;
+		super(geo, cardMat);
 		this.scale.setScalar(0.7);
-		this.add(front, back);
-	}
-
-	hide(){
-		this.children.forEach(o => { o.visible = false; });
-	}
-
-	show(){
-		this.children.forEach(o => { o.visible = true; });
 	}
 }
 
@@ -129,16 +89,7 @@ class BlankCard extends Card {
 class CreditsCard extends Card {
 	constructor(){
 		super(Types.CREDITS);
-		let self = this;
-
-		function setVisibility({data: {game: {state}}}){
-			if(state === 'setup')
-				self.children.forEach(o => { o.visible = true; });
-			else
-				self.children.forEach(o => { o.visible = false; });
-		}
-
-		SH.addEventListener('update_state', setVisibility);
+		SH.addEventListener('update_state', e => this.visible = e.data.game.state === 'setup');
 	}
 }
 
@@ -189,47 +140,43 @@ FascistPolicyCard.spots = {
 
 class LiberalRoleCard extends Card {
 	constructor(){
-		super(Types.ROLE_LIBERAL, false);
+		super(Types.ROLE_LIBERAL);
 	}
 }
 
 class FascistRoleCard extends Card {
 	constructor(){
-		super(Types.ROLE_FASCIST, false);
+		super(Types.ROLE_FASCIST);
 	}
 }
 
 class HitlerRoleCard extends Card {
 	constructor(){
-		super(Types.ROLE_HITLER, false);
+		super(Types.ROLE_HITLER);
 	}
 }
 
 class LiberalPartyCard extends Card {
 	constructor(){
-		super(Types.PARTY_LIBERAL, false);
+		super(Types.PARTY_LIBERAL);
 	}
 }
 
 class FascistPartyCard extends Card {
 	constructor(){
-		super(Types.PARTY_FASCIST, false);
+		super(Types.PARTY_FASCIST);
 	}
 }
 
 class JaCard extends Card {
 	constructor(){
-		super(Types.JA, false);
-		this.children[0].rotateZ(-Math.PI/2);
-		this.children[1].rotateZ(-Math.PI/2);
+		super(Types.JA);
 	}
 }
 
 class NeinCard extends Card {
 	constructor(){
-		super(Types.NEIN, false);
-		this.children[0].rotateZ(-Math.PI/2);
-		this.children[1].rotateZ(-Math.PI/2);
+		super(Types.NEIN);
 	}
 }
 

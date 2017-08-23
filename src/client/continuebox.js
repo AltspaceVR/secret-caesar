@@ -35,7 +35,7 @@ export default class ContinueBox extends THREE.Object3D
 
 	onclick(evt)
 	{
-		if(SH.turnOrder.includes(SH.localUser.id))
+		if(SH.game.turnOrder.includes(SH.localUser.id))
 			SH.socket.emit('continue');
 	}
 
