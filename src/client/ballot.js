@@ -33,7 +33,6 @@ class Ballot extends THREE.Object3D
 		this.neinCard = new NeinCard();
 		[this.jaCard, this.neinCard].forEach(c => {
 			c.position.set(c instanceof JaCard ? -0.1 : 0.1, -0.1, 0);
-			//c.rotation.set(0.5, 0, 0);
 			c.scale.setScalar(0.15);
 			c.visible = false;
 		});
@@ -44,7 +43,6 @@ class Ballot extends THREE.Object3D
 		let mat = new THREE.MeshBasicMaterial({transparent: true, side: THREE.DoubleSide});
 		this.question = new THREE.Mesh(geo, mat);
 		this.question.position.set(0, 0.05, 0);
-		//this.question.rotation.set(-0.3, 0, 0);
 		this.question.visible = false;
 		this.add(this.question);
 
@@ -75,7 +73,7 @@ class Ballot extends THREE.Object3D
 		{
 			// make sure the answer is still relevant
 			if(!isVoteValid()){
-				return reject();
+				return reject('Vote no longer valid');
 			}
 
 			// show the ballot
@@ -108,7 +106,6 @@ class Ballot extends THREE.Object3D
 						card = new FascistPolicyCard();
 
 					card.scale.setScalar(0.15);
-					//card.rotation.set(-.5, 0, 0);
 
 					let width = .15 * arr.length;
 					let x = -width/2 + .15*i + .075;
@@ -148,7 +145,7 @@ class Ballot extends THREE.Object3D
 
 				// make sure the answer still matters
 				if(!isVoteValid() || answer === 'cancel'){
-					reject();
+					reject('vote cancelled');
 				}
 				else if(answer === 'yes')
 					resolve(true);

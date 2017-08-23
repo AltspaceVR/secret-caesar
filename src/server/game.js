@@ -135,8 +135,51 @@ async function drawPolicies(socket, game)
 	);
 }
 
+async function discardPolicy1(val)
+{
+	let socket = this;
+	let game = new DB.GameState(socket.gameId);
+
+	await game.load();
+
+	// transfer selected card from hand to discard
+	let [hand, discard] = BPBA.discardOne(game.get('hand'), val);
+	discard = BPBA.append(game.get('discard'), discard);
+	game.set('hand', hand);
+	game.set('discard', discard);
+
+	game.set('state', 'policy2');
+		
+	let diff = await game.save();
+	socket.server.to(socket.gameId).emit('update', diff);
+}
+
+async function discardPolicy2(val)
+{
+	let socket = this;
+	let game = new DB.GameState(socket.gameId);
+
+	await game.load();
+
+	// transfer selected card from hand to discard
+	let [hand, discard] = BPBA.discardOne(game.get('hand'), val);
+	discard = BPBA.append(game.get('discard'), discard);
+	game.set('hand', 1);
+	game.set('discard', discard);
+
+	if(hand & 1)
+		game.set('liberalPolicies', game.get('liberalPolicies')+1);
+	else
+		game.set('fascistPolicies', game.get('fascistPolicies')+1);
+	
+	game.set('state', 'power');
+		
+	let diff = await game.save();
+	socket.server.to(socket.gameId).emit('update', diff);
+}
+
 exports.reset = reset;
 exports.handleContinue = handleContinue;
-//exports.start = start;
 exports.nominate = nominate;
-//exports.drawPolicies = drawPolicies;
+exports.discardPolicy1 = discardPolicy1;
+exports.discardPolicy2 = discardPolicy2;

@@ -87,6 +87,8 @@ io.on('connection', socket =>
 	socket.on('vote', Vote.tallyVote);
 	socket.on('nominate', Game.nominate);
 	socket.on('continue', Game.handleContinue);
+	socket.on('discard_policy1', Game.discardPolicy1);
+	socket.on('discard_policy2', Game.discardPolicy2);
 
 	// send the catchup signal
 	let game = new DB.GameState(socket.gameId);

@@ -88,10 +88,20 @@ function updateState({data: {game, players}})
 
 	function hideNominatePlaceholder({data: {game}})
 	{
-		if(game.state !== 'nominate'){
+		if(game.state !== 'nominate' && ballot.displayed === 'wait_for_chancellor'){
 			ballot.dispatchEvent({type: 'cancelVote', bubbles: false});
-			SH.removeEventListener('update_state', hideNominatePlaceholder);
 		}
+		SH.removeEventListener('update_state', hideNominatePlaceholder);
+	}
+
+	function hidePolicyPlaceholder({data: {game}})
+	{
+		if(game.state !== 'policy1' && ballot.displayed === 'local_policy1' ||
+			game.state !== 'policy2' && ballot.displayed === 'local_policy2'
+		){
+			ballot.dispatchEvent({type: 'cancelVote', bubbles: false});
+		}
+		SH.removeEventListener('update_state', hidePolicyPlaceholder);
 	}
 
 	if(game.state === 'nominate' && ballot.seat.owner === game.president)
@@ -112,22 +122,29 @@ function updateState({data: {game, players}})
 	}
 	else if(game.state === 'policy1' && ballot.seat.owner === game.president)
 	{
-		if(SH.localUser.id === game.president)
-		{
-			ballot.askQuestion('Choose one\nto discard!', 'local_policy1',
-				{choices: BallotType.POLICY, policyHand: game.hand})
-			.then(discard => {
-				console.log('Discarding', discard);
-				//SH.socket.emit('discard_policy', discard);
-			});
+		let opts = {choices: BallotType.POLICY, policyHand: game.hand};
+		if(SH.localUser.id !== game.president){
+			Object.assign(opts, {fake: true, isInvalid: () => SH.game.state !== 'policy1'});
 		}
-		else
-		{
-			ballot.askQuestion('Choose one\nto discard!', 'fake_policy1', {
-				choices: BallotType.POLICY, policyHand: game.hand,
-				fake: true, isInvalid: () => SH.game.state !== 'policy1'
-			});
+
+		ballot.askQuestion('Choose one\nto discard!', 'local_policy1', opts)
+		.then(discard => {
+			SH.socket.emit('discard_policy1', discard);
+		});
+		SH.addEventListener('update_state', hidePolicyPlaceholder);
+	}
+	else if(game.state === 'policy2' && ballot.seat.owner === game.chancellor)
+	{
+		let opts = {choices: BallotType.POLICY, policyHand: game.hand};
+		if(SH.localUser.id !== game.chancellor){
+			Object.assign(opts, {fake: true, isInvalid: () => SH.game.state !== 'policy2'});
 		}
+
+		ballot.askQuestion('Choose one\nto discard!', 'local_policy2', opts)
+		.then(discard => {
+			SH.socket.emit('discard_policy2', discard);
+		}, err => console.error(err));
+		SH.addEventListener('update_state', hidePolicyPlaceholder);
 	}
 }
 

@@ -7,17 +7,9 @@
 * E.g. 0b101001 represents a deck with 2 liberal and 3 fascist cards
 */
 
-let positions = [
-	0x1, 0x2, 0x4, 0x8,
-	0x10, 0x20, 0x40, 0x80,
-	0x100, 0x200, 0x400, 0x800,
-	0x1000, 0x2000, 0x4000, 0x8000,
-	0x10000, 0x20000, 0x40000
-];
-
 function length(deck)
 {
-	return positions.findIndex(s => s > deck) -1;
+	return Math.floor(Math.log2(deck));
 }
 
 function shuffle(deck)
