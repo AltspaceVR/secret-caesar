@@ -11,9 +11,9 @@ export default {
 			//playermeter: 'static/model/playermeter.gltf'
 		},
 		textures: {
-			board_large: 'static/img/board-large.png',
-			board_med: 'static/img/board-medium.png',
-			board_small: 'static/img/board-small.png',
+			board_large: 'static/img/board-large.jpg',
+			board_med: 'static/img/board-medium.jpg',
+			board_small: 'static/img/board-small.jpg',
 			cards: 'static/img/cards.png',
 			reset: 'static/img/bomb.png',
 			text: 'static/img/text.png'
@@ -27,6 +27,7 @@ export default {
 				if(obj.material instanceof THREE.MeshStandardMaterial){
 					let newMat = new THREE.MeshBasicMaterial();
 					newMat.map = obj.material.map;
+					newMat.color.copy(obj.material.color);
 					obj.material = newMat;
 				}
 			});

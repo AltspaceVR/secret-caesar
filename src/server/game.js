@@ -172,7 +172,7 @@ async function discardPolicy2(val)
 	else
 		game.set('fascistPolicies', game.get('fascistPolicies')+1);
 	
-	game.set('state', 'power');
+	game.set('state', 'aftermath');
 		
 	let diff = await game.save();
 	socket.server.to(socket.gameId).emit('update', diff);
