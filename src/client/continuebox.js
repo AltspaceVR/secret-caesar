@@ -42,7 +42,7 @@ export default class ContinueBox extends THREE.Object3D
 
 	onstatechange({data: {game}})
 	{
-		if(game.state === 'lameDuck'){
+		if(game.state === 'lameDuck' || game.state === 'aftermath'){
 			this.icon.visible = true;
 			this.text.visible = true;
 			this.textComponent.update({text: 'Click to continue'});

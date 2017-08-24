@@ -130,18 +130,18 @@ class LiberalPolicyCard extends Card {
 }
 
 LiberalPolicyCard.spots = {
-	pos_0: new THREE.Vector3(0.533, 0.76, -0.336),
-	pos_1: new THREE.Vector3(0.263, 0.76, -0.336),
-	pos_2: new THREE.Vector3(-.007, 0.76, -0.336),
-	pos_3: new THREE.Vector3(-.279, 0.76, -0.336),
-	pos_4: new THREE.Vector3(-.552, 0.76, -0.336),
+	pos_0: new THREE.Vector3(0.69, 0.001, -0.42),
+	pos_1: new THREE.Vector3(0.345, 0.001, -0.42),
+	pos_2: new THREE.Vector3(0.002, 0.001, -0.42),
+	pos_3: new THREE.Vector3(-.34, 0.001, -0.42),
+	pos_4: new THREE.Vector3(-.69, 0.001, -0.42),
 	quat: new THREE.Quaternion(0, 0.7071067811865475, 0.7071067811865475, 0),
-	scale: new THREE.Vector3(0.7, 0.7, 0.7)
+	scale: new THREE.Vector3(0.4, 0.4, 0.4)
 }
 
 class FascistPolicyCard extends Card {
 	constructor(){
-		super(Types.POLICY_FASCIST, false);
+		super(Types.POLICY_FASCIST);
 	}
 	goToPosition(spot = 0)
 	{
@@ -152,14 +152,14 @@ class FascistPolicyCard extends Card {
 }
 
 FascistPolicyCard.spots = {
-	pos_0: new THREE.Vector3(-.687, 0.76, 0.341),
-	pos_1: new THREE.Vector3(-.417, 0.76, 0.341),
-	pos_2: new THREE.Vector3(-.146, 0.76, 0.341),
-	pos_3: new THREE.Vector3(0.127, 0.76, 0.341),
-	pos_4: new THREE.Vector3(0.400, 0.76, 0.341),
-	pos_5: new THREE.Vector3(0.673, 0.76, 0.341),
+	pos_0: new THREE.Vector3(-.86, 0.001, .425),
+	pos_1: new THREE.Vector3(-.515, 0.001, .425),
+	pos_2: new THREE.Vector3(-.17, 0.001, .425),
+	pos_3: new THREE.Vector3(0.17, 0.001, .425),
+	pos_4: new THREE.Vector3(.518, 0.001, .425),
+	pos_5: new THREE.Vector3(0.87, 0.001, .425),
 	quat: new THREE.Quaternion(-0.7071067811865475, 0, 0, 0.7071067811865475),
-	scale: new THREE.Vector3(0.7, 0.7, 0.7)
+	scale: new THREE.Vector3(0.4, 0.4, 0.4)
 }
 
 class LiberalRoleCard extends Card {

@@ -2,7 +2,7 @@
 
 import AM from './assetmanager';
 import SH from './secrethitler';
-import {Card, Types as CardTypes} from './card';
+import {LiberalPolicyCard, FascistPolicyCard} from './card';
 
 export default class GameTable extends THREE.Object3D
 {
@@ -14,6 +14,7 @@ export default class GameTable extends THREE.Object3D
 		this.liberalCards = 0;
 		this.fascistCards = 0;
 		this.failedVotes = 0;
+		this.cards = [];
 
 		// add table asset
 		this.model = AM.cache.models.table;
@@ -64,6 +65,24 @@ export default class GameTable extends THREE.Object3D
 
 	updatePolicies({data: {game: {liberalPolicies, fascistPolicies}}})
 	{
+		for(var i=this.liberalCards; i<liberalPolicies; i++){
+			let card = new LiberalPolicyCard();
+			this.cards.push(card);
+			this.add(card);
+			card.goToPosition(i);
+		}
+		this.liberalCards = liberalPolicies;
 
+		for(var i=this.fascistCards; i<fascistPolicies; i++){
+			let card = new FascistPolicyCard();
+			this.cards.push(card);
+			this.add(card);
+			card.goToPosition(i);
+		}
+		this.fascistCards = fascistPolicies;
+
+		if(liberalPolicies === 0 && fascistPolicies === 0){
+			this.cards.forEach(c => this.remove(c));
+		}
 	}
 };
