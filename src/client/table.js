@@ -10,28 +10,31 @@ export default class GameTable extends THREE.Object3D
 	{
 		super();
 
-		// save references to the textures
-		this.textures = [
-			AM.cache.textures.board_small,
-			AM.cache.textures.board_med,
-			AM.cache.textures.board_large
-		];
-
-		// de-flip textures
-		this.textures.forEach(tex => tex.flipY = false);
+		// table state
+		this.liberalCards = 0;
+		this.fascistCards = 0;
+		this.failedVotes = 0;
 
 		// add table asset
 		this.model = AM.cache.models.table;
 		this.model.scale.setScalar(1.25);
 		this.add(this.model);
 
-		// set the default material
+		// save references to the textures
+		this.textures = [
+			AM.cache.textures.board_small,
+			AM.cache.textures.board_med,
+			AM.cache.textures.board_large
+		];
+		this.textures.forEach(tex => tex.flipY = false);
 		this.setTexture(this.textures[0], true);
-
+		
 		// position table
 		this.position.set(0, 0.8, 0);
 
 		SH.addEventListener('update_turnOrder', this.changeMode.bind(this));
+		SH.addEventListener('update_liberalPolicies', this.updatePolicies.bind(this));
+		SH.addEventListener('update_fascistPolicies', this.updatePolicies.bind(this));
 	}
 
 	changeMode({data: {game: {state, turnOrder}}})
@@ -57,5 +60,10 @@ export default class GameTable extends THREE.Object3D
 				o.material.map = newTex;
 			}
 		});
+	}
+
+	updatePolicies({data: {game: {liberalPolicies, fascistPolicies}}})
+	{
+
 	}
 };

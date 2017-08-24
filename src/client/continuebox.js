@@ -30,6 +30,7 @@ export default class ContinueBox extends THREE.Object3D
 		parent.add(this);
 
 		SH.addEventListener('update_state', this.onstatechange.bind(this));
+		SH.addEventListener('update_turnOrder', this.playerSetup.bind(this));
 		this.addEventListener('cursorup', this.onclick.bind(this));
 	}
 
@@ -47,6 +48,17 @@ export default class ContinueBox extends THREE.Object3D
 			this.textComponent.update({text: 'Click to continue'});
 		}
 		else if(game.state === 'setup'){
+			this.playerSetup({data: {game}});
+		}
+		else {
+			this.icon.visible = false;
+			this.text.visible = false;
+		}
+	}
+
+	playerSetup({data: {game}})
+	{
+		if(game.state === 'setup'){
 			this.text.visible = true;
 			
 			if(game.turnOrder.length >= 5){
@@ -59,10 +71,6 @@ export default class ContinueBox extends THREE.Object3D
 					`Need ${5-game.turnOrder.length} more player${game.turnOrder.length!=4 ? 's' : ''}!`
 				});
 			}
-		}
-		else {
-			this.icon.visible = false;
-			this.text.visible = false;
 		}
 	}
 };

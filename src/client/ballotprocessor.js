@@ -26,9 +26,9 @@ function updateVotesInProgress({data: {game, players, votes}})
 		let questionText, opts = {};
 		if(votes[vId].type === 'elect'){
 			questionText = players[game.president].displayName
-				+ '\nfor president and\n'
+				+ ' for president and '
 				+ players[game.chancellor].displayName
-				+ '\nfor chancellor?';
+				+ ' for chancellor?';
 		}
 		else if(votes[vId].type === 'join'){
 			questionText = votes[vId].data + '\nto join?';

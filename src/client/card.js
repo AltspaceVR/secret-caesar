@@ -19,65 +19,89 @@ let Types = Object.freeze({
 	CREDITS: 10
 });
 
-let temp = new Float32Array([
-	0.3575, 0.5, 0.0005,
-	-.3575, 0.5, 0.0005,
-	-.3575, -.5, 0.0005,
-	0.3575, -.5, 0.0005,
-	0.3575, 0.5, -.0005,
-	-.3575, 0.5, -.0005,
-	-.3575, -.5, -.0005,
-	0.3575, -.5, -.0005
-]);
-let cardPosPortrait = new THREE.BufferAttribute(temp, 3);
+let geometry = null, material = null;
 
-temp = new Float32Array([
-	0.5, -.3575, 0.0005,
-	0.5, 0.3575, 0.0005,
-	-.5, 0.3575, 0.0005,
-	-.5, -.3575, 0.0005,
-	0.5, -.3575, -.0005,
-	0.5, 0.3575, -.0005,
-	-.5, 0.3575, -.0005,
-	-.5, -.3575, -.0005
-]);
-let cardPosLandscape = new THREE.BufferAttribute(temp, 3);
+function initCardData()
+{
+	let floatData = [
+		// position (portrait)
+		0.3575, 0.5, 0.0005,
+		-.3575, 0.5, 0.0005,
+		-.3575, -.5, 0.0005,
+		0.3575, -.5, 0.0005,
+		0.3575, 0.5, -.0005,
+		-.3575, 0.5, -.0005,
+		-.3575, -.5, -.0005,
+		0.3575, -.5, -.0005,
+	
+		// position (landscape)
+		0.5, -.3575, 0.0005,
+		0.5, 0.3575, 0.0005,
+		-.5, 0.3575, 0.0005,
+		-.5, -.3575, 0.0005,
+		0.5, -.3575, -.0005,
+		0.5, 0.3575, -.0005,
+		-.5, 0.3575, -.0005,
+		-.5, -.3575, -.0005,
+	
+		// UVs
+		/* -------------- card face ------------- */ /* ------------- card back --------------*/
+		.754,.996, .754,.834, .997,.834, .997,.996, .021,.022, .021,.269, .375,.269, .375,.022, // liberal policy
+		.754,.822, .754,.660, .996,.660, .996,.822, .021,.022, .021,.269, .375,.269, .375,.022, // fascist policy
+		.746,.996, .505,.996, .505,.650, .746,.650, .021,.022, .021,.269, .375,.269, .375,.022, // liberal role
+		.746,.645, .505,.645, .505,.300, .746,.300, .021,.022, .021,.269, .375,.269, .375,.022, // fascist role
+		.996,.645, .754,.645, .754,.300, .996,.300, .021,.022, .021,.269, .375,.269, .375,.022, // hitler role
+		.495,.996, .255,.996, .255,.650, .495,.650, .021,.022, .021,.269, .375,.269, .375,.022, // liberal party
+		.495,.645, .255,.645, .255,.300, .495,.300, .021,.022, .021,.269, .375,.269, .375,.022, // fascist party
+		.244,.992, .005,.992, .005,.653, .244,.653, .021,.022, .021,.269, .375,.269, .375,.022, // ja
+		.243,.642, .006,.642, .006,.302, .243,.302, .021,.022, .021,.269, .375,.269, .375,.022, // nein
+		.021,.022, .021,.269, .375,.269, .375,.022, .021,.022, .021,.269, .375,.269, .375,.022, // blank
+		.397,.276, .397,.015, .765,.015, .765,.276, .021,.022, .021,.269, .375,.269, .375,.022, // credits
+	];
+	
+	let intData = [
+		// triangle index
+		0,1,2, 0,2,3, 4,7,5, 5,7,6
+	];
+	
+	// two position sets, 11 UV sets, 1 index set
+	let geoBuffer = new ArrayBuffer(4*floatData.length + 2*intData.length);
+	let temp = new Float32Array(geoBuffer, 0, floatData.length);
+	temp.set(floatData);
+	temp = new Uint16Array(geoBuffer, 4*floatData.length, intData.length);
+	temp.set(intData);
+	
+	// chop up buffer into vertex attributes
+	let posLength = 8*3, uvLength = 8*2, indexLength = 12;
+	let posPortrait = new THREE.BufferAttribute(new Float32Array(geoBuffer, 0, posLength), 3),
+		posLandscape = new THREE.BufferAttribute(new Float32Array(geoBuffer, 4*posLength, posLength), 3);
+	let uvs = [];
+	for(let i=0; i<11; i++){
+		uvs.push( new THREE.BufferAttribute(new Float32Array(geoBuffer, 8*posLength + 4*i*uvLength, uvLength), 2) );
+	}
+	let index = new THREE.BufferAttribute(new Uint16Array(geoBuffer, 4*floatData.length, indexLength), 1);
+	
+	geometry = Object.keys(Types).map((key, i) =>
+	{
+		let geo = new THREE.BufferGeometry();
+		geo.addAttribute('position', i==Types.JA || i==Types.NEIN ? posLandscape : posPortrait);
+		geo.addAttribute('uv', uvs[i]);
+		geo.setIndex(index);
+		return geo;
+	});
 
-let cardIndex = new THREE.BufferAttribute(new Uint16Array([0,1,2, 0,2,3, 4,7,5, 5,7,6]), 1);
-let cardUVs = {
-	[Types.POLICY_LIBERAL]: [.754,.996, .754,.834, .997,.834, .997,.996],
-	[Types.POLICY_FASCIST]: [.754,.822, .754,.660, .996,.660, .996,.822],
-	[Types.ROLE_LIBERAL]:   [.746,.996, .505,.996, .505,.650, .746,.650],
-	[Types.ROLE_FASCIST]:   [.746,.645, .505,.645, .505,.300, .746,.300],
-	[Types.ROLE_HITLER]:    [.996,.645, .754,.645, .754,.300, .996,.300],
-	[Types.PARTY_LIBERAL]:  [.495,.996, .255,.996, .255,.650, .495,.650],
-	[Types.PARTY_FASCIST]:  [.495,.645, .255,.645, .255,.300, .495,.300],
-	[Types.JA]:             [.244,.992, .005,.992, .005,.653, .244,.653],
-	[Types.NEIN]:           [.243,.642, .006,.642, .006,.302, .243,.302],
-	[Types.BLANK]:          [.021,.022, .021,.269, .375,.269, .375,.022],
-	[Types.CREDITS]:        [.397,.276, .397,.015, .765,.015, .765,.276]
-};
+	material = new THREE.MeshBasicMaterial({map: AssetManager.cache.textures.cards});
+}
 
-let cardMat = new THREE.MeshBasicMaterial();
 
 class Card extends THREE.Mesh
 {
 	constructor(type = Types.BLANK)
 	{
-		let geo = new THREE.BufferGeometry();
-		if(type === Types.JA || type === Types.NEIN)
-			geo.addAttribute('position', cardPosLandscape);
-		else
-			geo.addAttribute('position', cardPosPortrait);
-		
-		let uvs = new THREE.BufferAttribute(
-			new Float32Array(cardUVs[type].concat(cardUVs[Types.BLANK])),
-			2);
-		geo.addAttribute('uv', uvs);
-		geo.setIndex(cardIndex);
+		if(!geometry || !material) initCardData();
 
-		cardMat.map = AssetManager.cache.textures.cards;
-		super(geo, cardMat);
+		let geo = geometry[type];
+		super(geo, material);
 		this.scale.setScalar(0.7);
 	}
 }

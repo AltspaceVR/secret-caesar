@@ -44,12 +44,12 @@ class Ballot extends THREE.Object3D
 		//let mat = new THREE.MeshBasicMaterial({transparent: true, side: THREE.DoubleSide});
 		this.question = PlaceholderMesh.clone();
 		this.question.position.set(0, 0.05, 0);
-		this.question.scale.setScalar(.6);
+		this.question.scale.setScalar(.5);
 		this.question.visible = false;
 		this.add(this.question);
 
 		this.textComponent = new NText(this.question);
-		this.textComponent.update({width: 1, height: .5, fontSize: 1, verticalAlign: 'top'});
+		this.textComponent.update({width: 1.1, height: .4, fontSize: 1, verticalAlign: 'top'});
 
 		SH.addEventListener('update_votesInProgress', BP.updateVotesInProgress.bind(this));
 		SH.addEventListener('update_state', lateUpdate(BP.updateState.bind(this)));

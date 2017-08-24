@@ -3,6 +3,7 @@
 import SH from './secrethitler';
 import {FascistRoleCard, HitlerRoleCard, LiberalRoleCard, FascistPartyCard, LiberalPartyCard, JaCard, NeinCard} from './card';
 import {lateUpdate} from './utils';
+import {NBillboard} from './nativecomponents';
 
 export default class PlayerInfo extends THREE.Object3D
 {
@@ -16,7 +17,7 @@ export default class PlayerInfo extends THREE.Object3D
 		seat.add(this);
 
 		SH.addEventListener('update_state', lateUpdate(this.updateState.bind(this)));
-		SH.addEventListener('update_turnOrder', this.updateTurnOrder.bind(this));
+		//SH.addEventListener('update_turnOrder', this.updateTurnOrder.bind(this));
 	}
 
 	updateTurnOrder({data: {game, players}})
@@ -67,6 +68,7 @@ export default class PlayerInfo extends THREE.Object3D
 			}
 
 			this.add(this.card);
+			let bb = new NBillboard(this.card);
 		}
 	}
 
@@ -76,6 +78,8 @@ export default class PlayerInfo extends THREE.Object3D
 
 		let playerVote = vote.yesVoters.includes(this.seat.owner);
 		this.card = playerVote ? new JaCard() : new NeinCard();
+
 		this.add(this.card);
+		let bb = new NBillboard(this.card);
 	}
 };
