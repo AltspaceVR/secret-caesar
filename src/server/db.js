@@ -169,7 +169,8 @@ class GameState extends GameObject
 			discard: 0x1, // bpba
 			hand: 0x1, // bpba
 			specialElection: false,
-			failedVotes: 0
+			failedVotes: 0,
+			victory: ''
 		};
 
 		Object.assign(this.propTypes, {
@@ -188,7 +189,8 @@ class GameState extends GameObject
 			discard: 'int',
 			hand: 'int',
 			specialElection: 'bool',
-			failedVotes: 'int'
+			failedVotes: 'int',
+			victory: 'string'
 		});
 
 		this.properties.push(...Object.keys(defaults));

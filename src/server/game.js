@@ -29,6 +29,8 @@ async function handleContinue()
 		start(socket, game);
 	else if(game.get('state') === 'lameDuck')
 		drawPolicies(socket, game);
+	else if(game.get('state') === 'aftermath')
+		execPowers(socket, game);
 }
 
 async function start(socket, game)
@@ -174,6 +176,83 @@ async function discardPolicy2(val)
 	
 	game.set('state', 'aftermath');
 		
+	let diff = await game.save();
+	socket.server.to(socket.gameId).emit('update', diff);
+}
+
+async function execPowers(socket, game)
+{
+	let fascistPolicies = game.get('fascistPolicies'),
+		playerCount = game.get('turnOrder').length,
+		specialPhase = true;
+
+	/*if(fascistPolicies === 1 && playerCount >= 9 ||
+		fascistPolicies === 2 && game.turnOrder.length >= 7
+	){
+		// president investigates party membership
+	}
+	else if(fascistPolicies === 3 && playerCount <= 6){
+		// president peeks at top of policy stack
+	}
+	else if(fascistPolicies === 3 && playerCount >= 7){
+		// president names successor
+	}
+	else if(fascistPolicies >= 4 && fascistPolicies < 6){
+		// president assassinates 
+	}
+	else */ if(await evaluateVictory(socket, game)){
+		console.log(`victory detected: "${game.get('victory')}"`);
+		game.set('state', 'done');
+	}
+	else {
+		specialPhase = false;
+	}
+
+	if(specialPhase){
+		let diff = await game.save();
+		socket.server.to(socket.gameId).emit('update', diff);
+	}
+	else {
+		advanceRound(socket, game);
+	}
+}
+
+async function evaluateVictory(socket, game)
+{
+	await game.loadPlayers();
+	let hitlerId = Object.keys(game.players).find(pid => game.players[pid].get('role') === 'hitler');
+	let turnOrder = game.get('turnOrder');
+
+	if(game.get('liberalPolicies') === 5){
+		Utls.log(game, 'liberal policy victory');
+		game.set('victory', 'liberal-policy');
+	}
+	else if(game.players[hitlerId].get('state') === 'dead'){
+		Utls.log(game, 'hitler assassinated');
+		game.set('victory', 'liberal-assassination');
+	}
+	else if(game.get('fascistPolicies') === 6){
+		Utls.log(game, 'fascist policy victory');
+		game.set('victory', 'fascist-policy');
+	}
+	else if(game.get('fascistPolicies') >= 3 && game.get('lastChancellor') === hitlerId){
+		Utls.log(game, 'hitler elected');
+		game.set('victory', 'fascist-election');
+	}
+
+	return game.get('victory');
+}
+
+async function advanceRound(socket, game)
+{
+	// no executive powers gained, continue
+	let turnOrder = game.get('turnOrder');
+	let oldPresident = game.get('president');
+	let newIndex = (turnOrder.indexOf(oldPresident)+1) % turnOrder.length;
+	game.set('president', turnOrder[newIndex]);
+	game.set('chancellor', '');
+	game.set('state', 'nominate');
+
 	let diff = await game.save();
 	socket.server.to(socket.gameId).emit('update', diff);
 }

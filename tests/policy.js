@@ -17,7 +17,8 @@ game.delta = {
 	"discard": 1,
 	"hand": 8,
 	"specialElection": "false",
-	"failedVotes": 0
+	"failedVotes": 0,
+	"victory": ""
 };
 
 var players = [
@@ -68,19 +69,5 @@ players[4].delta = {
 	"state": "normal"
 };
 
-let vote = new DB.Vote('29223324');
-vote.delta = {
-	"id": "29223324",
-	"type": "elect",
-	"target1": "",
-	"target2": "",
-	"data": "",
-	"toPass": "3",
-	"requires": "5",
-	"yesVoters": ["1111111","3333333"],
-	"noVoters": ["2222222","4444444"],
-	"nonVoters": []
-};
-
-Promise.all([game.save(), Promise.all(players.map(p => p.save())), vote.save()])
+Promise.all([game.save(), Promise.all(players.map(p => p.save()))])
 .then(() => {console.log('Saved'); DB.client.quit();}, e => {console.error(e); DB.client.quit();});
