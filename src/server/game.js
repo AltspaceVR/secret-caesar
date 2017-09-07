@@ -127,7 +127,24 @@ async function drawPolicies(socket, game)
 	
 	game.set('lastElection', '');
 	game.set('state', 'policy1');
-	let [deck, hand] = BPBA.drawThree(game.get('deck'));
+
+	// guarantee deck has enough cards to draw
+	let deck = game.get('deck'), discard = game.get('discard');
+	if(BPBA.length(deck) < 3)
+	{
+		// discard whole remaining deck
+		while(deck > 1){
+			let card = 0;
+			[deck, card] = BPBA.discardOne(deck, 0);
+			discard = BPBA.appendCard(discard, card);
+		}
+
+		// shuffle discard, it's new deck
+		deck = BPBA.shuffle(discard);
+		game.set('discard', 1);
+	}
+
+	let [deck, hand] = BPBA.drawThree(deck);
 	game.set('deck', deck);
 	game.set('hand', hand);
 
@@ -146,7 +163,7 @@ async function discardPolicy1(val)
 
 	// transfer selected card from hand to discard
 	let [hand, discard] = BPBA.discardOne(game.get('hand'), val);
-	discard = BPBA.append(game.get('discard'), discard);
+	discard = BPBA.appendCard(game.get('discard'), discard);
 	game.set('hand', hand);
 	game.set('discard', discard);
 
@@ -165,7 +182,7 @@ async function discardPolicy2(val)
 
 	// transfer selected card from hand to discard
 	let [hand, discard] = BPBA.discardOne(game.get('hand'), val);
-	discard = BPBA.append(game.get('discard'), discard);
+	discard = BPBA.appendCard(game.get('discard'), discard);
 	game.set('hand', 1);
 	game.set('discard', discard);
 
@@ -247,7 +264,7 @@ async function advanceRound(socket, game)
 {
 	// no executive powers gained, continue
 	let turnOrder = game.get('turnOrder');
-	let oldPresident = game.get('president');
+	let oldPresident = game.get('lastPresident');
 	let newIndex = (turnOrder.indexOf(oldPresident)+1) % turnOrder.length;
 	game.set('president', turnOrder[newIndex]);
 	game.set('chancellor', '');

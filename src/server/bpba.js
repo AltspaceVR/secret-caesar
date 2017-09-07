@@ -26,11 +26,22 @@ function shuffle(deck)
 	return deck;
 }
 
+/**
+ * Draw the top three cards from the given deck as another BPBA
+ * @param {BPBA} d 
+ * @returns [BPBA, BPBA] updated deck, hand
+ */
 function drawThree(d)
 {
 	return d < 8 ? [1, d] : [d >>> 3, 8 | d & 7];
 }
 
+/**
+ * Remove the card at the given position from the given deck
+ * @param {BPBA} deck 
+ * @param {int} pos 
+ * @returns {BPBA, int} updated deck, discarded card
+ */
 function discardOne(deck, pos)
 {
 	let bottomHalf = deck & (1 << pos)-1;
@@ -43,9 +54,15 @@ function discardOne(deck, pos)
 	return [newDeck, val];
 }
 
-function append(deck, val)
+/**
+ * Add the given card to the top of the deck
+ * @param {BPBA} deck 
+ * @param {int} val 
+ * @returns {BPBA} updated deck
+ */
+function appendCard(deck, val)
 {
 	return deck << 1 | val;
 }
 
-module.exports = {length, shuffle, drawThree, discardOne, append, FULL_DECK: 0x2003f};
+module.exports = {length, shuffle, drawThree, discardOne, appendCard, FULL_DECK: 0x2003f};

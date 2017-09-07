@@ -31,15 +31,16 @@ export default class Hitbox extends THREE.Mesh
 			});
 		});
 
-		SH.addEventListener('update_state', lateUpdate(({data: {game}}) =>
+		SH.addEventListener('update_state', lateUpdate(({data: {game, players}}) =>
 		{
+			let livingPlayers = game.turnOrder.filter(p => players[p].state !== 'dead');
 			this.visible =
 				game.state === 'nominate' &&
 				SH.localUser.id === game.president &&
 				this.seat.owner !== '' &&
 				this.seat.owner !== SH.localUser.id &&
 				this.seat.owner !== game.lastChancellor &&
-				(game.turnOrder.length === 5 || this.seat.owner !== game.lastPresident);
+				(livingPlayers.length <= 5 || this.seat.owner !== game.lastPresident);
 		}));
 	}
 }
