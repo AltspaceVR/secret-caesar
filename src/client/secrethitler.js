@@ -88,13 +88,18 @@ class SecretHitler extends THREE.Object3D
 		// create victory banner
 		this.victoryBanner = PlaceholderMesh.clone();
 		this.victoryBanner.text = new NText(this.victoryBanner);
-		this.victoryBanner.billboard = new NBillboard(bannerMesh);
+		this.victoryBanner.text.update({fontSize: 2});
+		this.victoryBanner.billboard = new NBillboard(this.victoryBanner);
 		this.add(this.victoryBanner);
 
 		// update credits/victory
-		this.addEventListener('update_state', e => {
-			this.credits.visible = e.data.game.state === 'setup';
-			if(e.data.game.state === 'done'){
+		this.addEventListener('update_state', ({data: {game}}) => {
+			this.credits.visible = game.state === 'setup';
+			if(game.state === 'done'){
+				let party = /^liberal/.test(game.victory) ? 'Liberals' : 'Fascists';
+				this.victoryBanner.text.color = /^liberal/.test(game.victory) ? 'blue' : 'red';
+				this.victoryBanner.text.update({text: `${party} win!`});
+				
 				this.victoryBanner.position.set(0,0.8,0);
 				this.victoryBanner.scale.setScalar(.001);
 				this.victoryBanner.visible = true;
