@@ -28,9 +28,27 @@ async function handleContinue()
 	if(game.get('state') === 'setup')
 		start(socket, game);
 	else if(game.get('state') === 'lameDuck')
-		drawPolicies(socket, game);
+	{
+		let victory = await evaluateVictory(socket, game);
+		if(!victory)
+			drawPolicies(socket, game);
+		else {
+			game.set('state', 'done');
+			let diff = await game.save();
+			socket.server.to(socket.gameId).emit('update', diff);
+		}
+	}
 	else if(game.get('state') === 'aftermath')
-		execPowers(socket, game);
+	{
+		let victory = await evaluateVictory(socket, game);
+		if(!victory)
+			execPowers(socket, game);
+		else {
+			game.set('state', 'done');
+			let diff = await game.save();
+			socket.server.to(socket.gameId).emit('update', diff);
+		}
+	}
 }
 
 async function start(socket, game)
@@ -129,7 +147,7 @@ async function drawPolicies(socket, game)
 	game.set('state', 'policy1');
 
 	// guarantee deck has enough cards to draw
-	let deck = game.get('deck'), discard = game.get('discard');
+	let deck = game.get('deck'), discard = game.get('discard'), hand = 1;
 	if(BPBA.length(deck) < 3)
 	{
 		// discard whole remaining deck
@@ -144,7 +162,7 @@ async function drawPolicies(socket, game)
 		game.set('discard', 1);
 	}
 
-	let [deck, hand] = BPBA.drawThree(deck);
+	[deck, hand] = BPBA.drawThree(deck);
 	game.set('deck', deck);
 	game.set('hand', hand);
 
@@ -217,13 +235,9 @@ async function execPowers(socket, game)
 	else if(fascistPolicies >= 4 && fascistPolicies < 6){
 		// president assassinates 
 	}
-	else */ if(await evaluateVictory(socket, game)){
-		console.log(`victory detected: "${game.get('victory')}"`);
-		game.set('state', 'done');
-	}
-	else {
+	else {*/
 		specialPhase = false;
-	}
+	//}
 
 	if(specialPhase){
 		let diff = await game.save();
@@ -241,19 +255,19 @@ async function evaluateVictory(socket, game)
 	let turnOrder = game.get('turnOrder');
 
 	if(game.get('liberalPolicies') === 5){
-		Utls.log(game, 'liberal policy victory');
+		Utils.log(game, 'liberal policy victory');
 		game.set('victory', 'liberal-policy');
 	}
 	else if(game.players[hitlerId].get('state') === 'dead'){
-		Utls.log(game, 'hitler assassinated');
+		Utils.log(game, 'hitler assassinated');
 		game.set('victory', 'liberal-assassination');
 	}
 	else if(game.get('fascistPolicies') === 6){
-		Utls.log(game, 'fascist policy victory');
+		Utils.log(game, 'fascist policy victory');
 		game.set('victory', 'fascist-policy');
 	}
 	else if(game.get('fascistPolicies') >= 3 && game.get('lastChancellor') === hitlerId){
-		Utls.log(game, 'hitler elected');
+		Utils.log(game, 'hitler elected');
 		game.set('victory', 'fascist-election');
 	}
 
