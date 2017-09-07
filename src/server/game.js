@@ -34,15 +34,21 @@ async function handleContinue()
 			if(!victory)
 				drawPolicies(socket, game);
 			else {
+				let vote = new DB.Vote(game.get('lastElection'));
+				game.set('lastElection', '');
+
 				game.set('state', 'done');
-				let diff = await game.save();
-				socket.server.to(socket.gameId).emit('update', diff);
+				let [diff] = await Promise.all([game.save(), vote.destroy()]);
+				socket.server.to(socket.gameId).emit('update', diff, null, {[vote.get('id')]: null});
 			}
 		}
 		else {
+			let vote = new DB.Vote(game.get('lastElection'));
+			game.set('lastElection', '');
+
 			game.set('state', 'nominate');
-			let diff = await game.save();
-			socket.server.to(socket.gameId).emit('update', diff);
+			let [diff] = await Promise.all([game.save(), vote.destroy()]);
+			socket.server.to(socket.gameId).emit('update', diff, null, {[vote.get('id')]: null});
 		}
 	}
 	else if(state === 'aftermath')
@@ -224,6 +230,7 @@ async function discardPolicy2(val)
 		// shuffle discard, it's new deck
 		deck = BPBA.shuffle(discard);
 		game.set('discard', 1);
+		game.set('deck', deck);
 	}
 
 	let diff = await game.save();

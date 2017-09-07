@@ -226,8 +226,9 @@ function evaluateElectionVote(game, vote, passed)
 		game.set('failedVotes', game.get('failedVotes') + 1);
 
 		let players = game.get('turnOrder');
-		let nextPres = (players.indexOf(game.get('lastPresident')) + 1) % players.length;
-		game.set('president', nextPres);
+		let sitting = game.get('lastPresident') || game.get('president');
+		let nextPres = (players.indexOf(sitting) + 1) % players.length;
+		game.set('president', players[nextPres]);
 		game.set('chancellor', '');
 		game.set('specialElection', false);
 	}
