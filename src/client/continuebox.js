@@ -32,6 +32,12 @@ export default class ContinueBox extends THREE.Object3D
 		SH.addEventListener('update_state', this.onstatechange.bind(this));
 		SH.addEventListener('update_turnOrder', this.playerSetup.bind(this));
 		this.addEventListener('cursorup', this.onclick.bind(this));
+
+		SH.addEventListener('investigate', ({data: userId}) => {
+			this.icon.visible = true;
+			this.text.visible = true;
+			this.textComponent.update({text: 'Click to continue'});
+		});
 	}
 
 	onclick(evt)
@@ -42,7 +48,9 @@ export default class ContinueBox extends THREE.Object3D
 
 	onstatechange({data: {game}})
 	{
-		if(game.state === 'lameDuck' || game.state === 'aftermath'){
+		if(game.state === 'lameDuck' || game.state === 'aftermath' ||
+			(game.state === 'peek' && game.president === SH.localUser.id))
+		{
 			this.icon.visible = true;
 			this.text.visible = true;
 			this.textComponent.update({text: 'Click to continue'});

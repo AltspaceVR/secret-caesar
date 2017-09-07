@@ -65,25 +65,25 @@ function updateState({data: {game, players}})
 {
 	let ballot = this;
 
-	function chooseChancellor()
+	function choosePlayer(question, confirmQuestion, id)
 	{
-		return ballot.askQuestion('Choose your\nchancellor!', 'local_nominate', {choices: BallotType.PLAYERSELECT})
-		.then(confirmChancellor);
-	}
+		function confirmPlayer(userId)
+		{
+			let username = SH.players[userId].displayName;
+			let text = confirmQuestion.replace('{}', username);
+			return ballot.askQuestion(text, 'local_'+id+'_confirm')
+			.then(confirmed => {
+				if(confirmed){
+					return Promise.resolve(userId);
+				}
+				else {
+					return choosePlayer(question, confirmQuestion, id);
+				}
+			});
+		}
 
-	function confirmChancellor(userId)
-	{
-		let username = SH.players[userId].displayName;
-		let text = `Name ${username}\nas chancellor?`;
-		return ballot.askQuestion(text, 'local_nominate_confirm')
-		.then(confirmed => {
-			if(confirmed){
-				return Promise.resolve(userId);
-			}
-			else {
-				return chooseChancellor();
-			}
-		});
+		return ballot.askQuestion(question, 'local_'+id, {choices: BallotType.PLAYERSELECT})
+		.then(confirmPlayer);
 	}
 
 	function hideNominatePlaceholder({data: {game}})
@@ -107,7 +107,8 @@ function updateState({data: {game, players}})
 	if(game.state === 'nominate' && ballot.seat.owner === game.president)
 	{
 		if(SH.localUser.id === game.president){
-			chooseChancellor().then(userId => {
+			choosePlayer('Choose your\nchancellor!', 'Name {}\nas chancellor?', 'nominate')
+			.then(userId => {
 				SH.socket.emit('nominate', userId);
 			});
 		}
@@ -145,6 +146,49 @@ function updateState({data: {game, players}})
 			SH.socket.emit('discard_policy2', discard);
 		}, err => console.error(err));
 		SH.addEventListener('update_state', hidePolicyPlaceholder);
+	}
+	else if(game.state === 'investigate' && ballot.seat.owner === game.president)
+	{
+		if(SH.localUser.id === game.president){
+			choosePlayer('Executive power:\nChoose one player\nto investigate!', 'Investigate\n{}?', 'investigate')
+			.then(userId => {
+				SH.dispatchEvent({
+					type: 'investigate',
+					data: userId
+				});
+			});
+		}
+		else {
+			ballot.askQuestion('Executive power:\nChoose one player\nto investigate!', 'wait_for_investigate', {
+				choices: BallotType.PLAYERSELECT,
+				fake: true,
+				isInvalid: () => SH.game.state !== 'investigate'
+			});
+			let cleanUpFakeVote = ({data: {game: {state}}}) => {
+				if(state !== 'investigate' && ballot.displayed === 'wait_for_investigate')
+					ballot.dispatchEvent({type: 'cancelVote', bubbles: false});
+				SH.removeEventListener('update_state', cleanUpFakeVote);
+			};
+			SH.addEventListener('update_state', cleanUpFakeVote);
+		}
+	}
+	else if(game.state === 'peek' && ballot.seat.owner === game.president)
+	{
+		let opts = {choices: BallotType.POLICY, policyHand: 8 | (game.deck&7)};
+		if(SH.localUser.id !== game.president){
+			Object.assign(opts, {fake: true, isInvalid: () => SH.game.state !== 'peek'});
+		}
+
+		ballot.askQuestion('Executive power:\nThe next president\'s\n"random" policies.', 'local_peek', opts)
+		.then(discard => {
+			SH.socket.emit('continue');
+		});
+		let cleanUpFakeVote = ({data: {game: {state}}}) => {
+			if(state !== 'peek' && ballot.displayed === 'local_peek')
+				ballot.dispatchEvent({type: 'cancelVote', bubbles: false});
+			SH.removeEventListener('update_state', cleanUpFakeVote);
+		};
+		SH.addEventListener('update_state', cleanUpFakeVote);
 	}
 }
 

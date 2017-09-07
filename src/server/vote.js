@@ -215,7 +215,8 @@ function evaluateElectionVote(game, vote, passed)
 	if(passed)
 	{
 		// update government
-		game.set('lastPresident', game.get('president'));
+		if(!game.get('specialElection'))
+			game.set('lastPresident', game.get('president'));
 		game.set('lastChancellor', game.get('chancellor'));
 		game.set('failedVotes', 0);
 	}
@@ -225,9 +226,10 @@ function evaluateElectionVote(game, vote, passed)
 		game.set('failedVotes', game.get('failedVotes') + 1);
 
 		let players = game.get('turnOrder');
-		let nextPres = (players.indexOf(game.get('president')) + 1) % players.length;
+		let nextPres = (players.indexOf(game.get('lastPresident')) + 1) % players.length;
 		game.set('president', nextPres);
 		game.set('chancellor', '');
+		game.set('specialElection', false);
 	}
 
 	Promise.all([game.save(), vote.save()])

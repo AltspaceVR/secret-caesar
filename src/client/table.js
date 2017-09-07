@@ -40,14 +40,12 @@ export default class GameTable extends THREE.Object3D
 
 	changeMode({data: {game: {state, turnOrder}}})
 	{
-		if(state === 'setup'){
-			if(turnOrder.length >= 9)
-				this.setTexture(this.textures[2]);
-			else if(turnOrder.length >= 7)
-				this.setTexture(this.textures[1]);
-			else
-				this.setTexture(this.textures[0]);
-		}
+		if(turnOrder.length >= 9)
+			this.setTexture(this.textures[2]);
+		else if(turnOrder.length >= 7)
+			this.setTexture(this.textures[1]);
+		else
+			this.setTexture(this.textures[0]);
 	}
 
 	setTexture(newTex, switchLightmap)

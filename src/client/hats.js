@@ -66,8 +66,11 @@ class PresidentHat extends Hat
 		this.position.set(0, 0.144/SH.env.pixelsPerMeter, .038/SH.env.pixelsPerMeter);
 		this.scale.multiplyScalar(1.2/SH.env.pixelsPerMeter);
 		
-		SH.addEventListener('update_lastPresident', e => {
-			this.setOwner(e.data.game.lastPresident);
+		SH.addEventListener('update_state', ({data: {game}}) => {
+			if(game.state === 'lameDuck' && game.failedVotes === 0){
+				let sitting = game.specialElection ? game.president : game.lastPresident;
+				this.setOwner(sitting);
+			}
 		});
 	}
 };

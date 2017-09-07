@@ -28,11 +28,19 @@ async function handleContinue()
 		start(socket, game);
 	else if(state === 'lameDuck')
 	{
-		let victory = await evaluateVictory(socket, game);
-		if(!victory)
-			drawPolicies(socket, game);
+		if(game.get('failedVotes') === 0)
+		{
+			let victory = await evaluateVictory(socket, game);
+			if(!victory)
+				drawPolicies(socket, game);
+			else {
+				game.set('state', 'done');
+				let diff = await game.save();
+				socket.server.to(socket.gameId).emit('update', diff);
+			}
+		}
 		else {
-			game.set('state', 'done');
+			game.set('state', 'nominate');
 			let diff = await game.save();
 			socket.server.to(socket.gameId).emit('update', diff);
 		}
@@ -47,6 +55,10 @@ async function handleContinue()
 			let diff = await game.save();
 			socket.server.to(socket.gameId).emit('update', diff);
 		}
+	}
+	else if(state === 'investigate' || state === 'peek')
+	{
+		advanceRound(socket, game);
 	}
 	else if(state === 'done')
 	{
@@ -149,23 +161,7 @@ async function drawPolicies(socket, game)
 	game.set('lastElection', '');
 	game.set('state', 'policy1');
 
-	// guarantee deck has enough cards to draw
-	let deck = game.get('deck'), discard = game.get('discard'), hand = 1;
-	if(BPBA.length(deck) < 3)
-	{
-		// discard whole remaining deck
-		while(deck > 1){
-			let card = 0;
-			[deck, card] = BPBA.discardOne(deck, 0);
-			discard = BPBA.appendCard(discard, card);
-		}
-
-		// shuffle discard, it's new deck
-		deck = BPBA.shuffle(discard);
-		game.set('discard', 1);
-	}
-
-	[deck, hand] = BPBA.drawThree(deck);
+	let [deck, hand] = BPBA.drawThree(game.get('deck'));
 	game.set('deck', deck);
 	game.set('hand', hand);
 
@@ -213,7 +209,23 @@ async function discardPolicy2(val)
 		game.set('fascistPolicies', game.get('fascistPolicies')+1);
 	
 	game.set('state', 'aftermath');
-		
+	
+	// guarantee deck has enough cards to draw
+	let deck = game.get('deck');
+	if(BPBA.length(deck) < 3)
+	{
+		// discard whole remaining deck
+		while(deck > 1){
+			let card = 0;
+			[deck, card] = BPBA.discardOne(deck, 0);
+			discard = BPBA.appendCard(discard, card);
+		}
+
+		// shuffle discard, it's new deck
+		deck = BPBA.shuffle(discard);
+		game.set('discard', 1);
+	}
+
 	let diff = await game.save();
 	socket.server.to(socket.gameId).emit('update', diff);
 }
@@ -221,26 +233,36 @@ async function discardPolicy2(val)
 async function execPowers(socket, game)
 {
 	let fascistPolicies = game.get('fascistPolicies'),
+		lastCardIsFascist = (game.get('hand') & 1) === 0,
 		playerCount = game.get('turnOrder').length,
+		specialPhase = false;
+
+	if(lastCardIsFascist)
+	{
 		specialPhase = true;
 
-	/*if(fascistPolicies === 1 && playerCount >= 9 ||
-		fascistPolicies === 2 && game.turnOrder.length >= 7
-	){
-		// president investigates party membership
+		if(fascistPolicies === 1 && playerCount >= 9 ||
+			fascistPolicies === 2 && playerCount >= 7
+		){
+			// president investigates party membership
+			game.set('state', 'investigate');
+		}
+		else if(fascistPolicies === 3 && playerCount <= 6){
+			// president peeks at top of policy stack
+			game.set('state', 'peek');
+		}
+		/*else if(fascistPolicies === 3 && playerCount >= 7){
+			// president names successor
+			game.set('state', 'nameSuccessor');
+		}
+		else if(fascistPolicies >= 4 && fascistPolicies < 6){
+			// president executes player
+			game.set('state', 'execute');
+		}*/
+		else {
+			specialPhase = false;
+		}
 	}
-	else if(fascistPolicies === 3 && playerCount <= 6){
-		// president peeks at top of policy stack
-	}
-	else if(fascistPolicies === 3 && playerCount >= 7){
-		// president names successor
-	}
-	else if(fascistPolicies >= 4 && fascistPolicies < 6){
-		// president assassinates 
-	}
-	else {*/
-		specialPhase = false;
-	//}
 
 	if(specialPhase){
 		let diff = await game.save();
@@ -286,6 +308,7 @@ async function advanceRound(socket, game)
 	game.set('president', turnOrder[newIndex]);
 	game.set('chancellor', '');
 	game.set('state', 'nominate');
+	game.set('specialElection', false);
 
 	let diff = await game.save();
 	socket.server.to(socket.gameId).emit('update', diff);

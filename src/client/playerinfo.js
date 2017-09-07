@@ -18,6 +18,8 @@ export default class PlayerInfo extends THREE.Object3D
 
 		SH.addEventListener('update_state', lateUpdate(this.updateState.bind(this)));
 		//SH.addEventListener('update_turnOrder', this.updateTurnOrder.bind(this));
+
+		SH.addEventListener('investigate', this.presentParty.bind(this));
 	}
 
 	updateTurnOrder({data: {game, players}})
@@ -78,6 +80,17 @@ export default class PlayerInfo extends THREE.Object3D
 
 		let playerVote = vote.yesVoters.includes(this.seat.owner);
 		this.card = playerVote ? new JaCard() : new NeinCard();
+
+		this.add(this.card);
+		let bb = new NBillboard(this.card);
+	}
+
+	presentParty({data: userId})
+	{
+		if(!this.seat.owner || this.seat.owner !== userId) return;
+
+		let role = SH.players[this.seat.owner].role;
+		this.card =  role === 'liberal' ? new LiberalPartyCard() : new FascistPartyCard();
 
 		this.add(this.card);
 		let bb = new NBillboard(this.card);

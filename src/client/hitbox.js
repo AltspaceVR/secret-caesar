@@ -31,16 +31,27 @@ export default class Hitbox extends THREE.Mesh
 			});
 		});
 
-		SH.addEventListener('update_state', lateUpdate(({data: {game, players}}) =>
-		{
-			let livingPlayers = game.turnOrder.filter(p => players[p].state !== 'dead');
-			this.visible =
-				game.state === 'nominate' &&
-				SH.localUser.id === game.president &&
-				this.seat.owner !== '' &&
-				this.seat.owner !== SH.localUser.id &&
-				this.seat.owner !== game.lastChancellor &&
-				(livingPlayers.length <= 5 || this.seat.owner !== game.lastPresident);
-		}));
+		SH.addEventListener('update_state', lateUpdate(this.updateVisibility.bind(this)));
+	}
+
+	updateVisibility({data: {game, players}}, specialPlayer)
+	{
+		let livingPlayers = game.turnOrder.filter(p => players[p].state !== 'dead');
+		let nominateable =
+			game.state === 'nominate' &&
+			SH.localUser.id === game.president &&
+			this.seat.owner !== '' &&
+			this.seat.owner !== SH.localUser.id &&
+			this.seat.owner !== game.lastChancellor &&
+			(livingPlayers.length <= 5 || this.seat.owner !== game.lastPresident);
+
+		let investigateable =
+			game.state === 'investigate' &&
+			SH.localUser.id === game.president &&
+			this.seat.owner !== '' &&
+			this.seat.owner !== SH.localUser.id &&
+			players[this.seat.owner].state === 'normal';
+
+		this.visible = nominateable || investigateable;
 	}
 }
