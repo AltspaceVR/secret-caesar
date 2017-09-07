@@ -26,13 +26,13 @@ The majority of players are liberals. If they can learn to trust each other, the
 	- [x] Display vote results
 	- [ ] Special election
 	- [ ] Failed vote counter
-	- [ ] Check for election victory
+	- [x] Check for election victory
 - [ ] Pass policy
 	- [x] Deck cycling
 	- [x] President chooses from three top cards
 	- [x] Chancellor chooses from remaining two
 	- [x] Display chosen policy
-	- [ ] Check for policy victory
+	- [x] Check for policy victory
 	- [ ] Veto
 - [ ] Presidental powers
 	- [ ] Investigate player

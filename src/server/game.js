@@ -201,7 +201,7 @@ async function discardPolicy2(val)
 	// transfer selected card from hand to discard
 	let [hand, discard] = BPBA.discardOne(game.get('hand'), val);
 	discard = BPBA.appendCard(game.get('discard'), discard);
-	game.set('hand', 1);
+	game.set('hand', hand);
 	game.set('discard', discard);
 
 	if(hand & 1)

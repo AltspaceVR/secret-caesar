@@ -11,6 +11,8 @@ import Nameplate from './nameplate';
 import Seat from './seat';
 import PlayerMeter from './playermeter';
 import ContinueBox from './continuebox';
+import { NText, NBillboard, PlaceholderMesh } from './nativecomponents';
+import Animate from './animate';
 
 class SecretHitler extends THREE.Object3D
 {
@@ -78,14 +80,33 @@ class SecretHitler extends THREE.Object3D
 		this.table.add(this.resetButton);
 
 		// create idle display
-		this.idleRoot = new THREE.Object3D();
-		this.idleRoot.position.set(0, 1.85, 0);
-		this.idleRoot.addBehavior(new altspace.utilities.behaviors.Spin({speed: 0.0002}));
-		this.add(this.idleRoot);
+		this.credits = new Cards.CreditsCard();
+		this.credits.position.set(0, 1.85, 0);
+		this.credits.addBehavior(new altspace.utilities.behaviors.Spin({speed: 0.0002}));
+		this.add(this.credits);
 
-		// create idle slideshow
-		let credits = new Cards.CreditsCard();
-		this.idleRoot.add(credits);
+		// create victory banner
+		this.victoryBanner = PlaceholderMesh.clone();
+		this.victoryBanner.text = new NText(this.victoryBanner);
+		this.victoryBanner.billboard = new NBillboard(bannerMesh);
+		this.add(this.victoryBanner);
+
+		// update credits/victory
+		this.addEventListener('update_state', e => {
+			this.credits.visible = e.data.game.state === 'setup';
+			if(e.data.game.state === 'done'){
+				this.victoryBanner.position.set(0,0.8,0);
+				this.victoryBanner.scale.setScalar(.001);
+				this.victoryBanner.visible = true;
+				Animate.start(this.victoryBanner, {
+					pos: new THREE.Vector3(0, 1.85, 0),
+					scale: new THREE.Vector3(1,1,1)
+				});
+			}
+			else {
+				this.victoryBanner.visible = false;
+			}
+		});
 
 		// create hats
 		this.presidentHat = new PresidentHat();

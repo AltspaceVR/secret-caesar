@@ -113,7 +113,6 @@ class BlankCard extends Card {
 class CreditsCard extends Card {
 	constructor(){
 		super(Types.CREDITS);
-		SH.addEventListener('update_state', e => this.visible = e.data.game.state === 'setup');
 	}
 }
 
