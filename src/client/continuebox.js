@@ -50,6 +50,11 @@ export default class ContinueBox extends THREE.Object3D
 		else if(game.state === 'setup'){
 			this.playerSetup({data: {game}});
 		}
+		else if(game.state === 'done'){
+			this.icon.visible = true;
+			this.text.visible = true;
+			this.textComponent.update({text: 'New game'});
+		}
 		else {
 			this.icon.visible = false;
 			this.text.visible = false;

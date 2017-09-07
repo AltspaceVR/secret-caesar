@@ -59,8 +59,6 @@ export default class Nameplate extends THREE.Object3D
 		this.model.material.map.needsUpdate = true;
 	}
 
-
-
 	click(e)
 	{
 		if(SH.game.state !== 'setup') return;

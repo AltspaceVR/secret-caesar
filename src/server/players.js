@@ -189,7 +189,7 @@ function checkIn(user)
 		socket.on('disconnect', onDisconnect.bind(socket));
 
 		p.save().then((diff) => {
-			socket.server.to(socket.gameId).emit('checkedIn',
+			socket.server.to(socket.gameId).emit('checked_in',
 				Object.assign({id: user.id, connected: !!DB.socketForPlayer[user.id]}, diff)
 			);
 		})

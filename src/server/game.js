@@ -7,13 +7,11 @@ const DB = require('./db'),
 function reset()
 {
 	let socket = this;
-	socket.server.to(socket.gameId).emit('reset');
+	//socket.server.to(socket.gameId).emit('reset');
 
 	let game = new DB.GameState(socket.gameId);
-
-	game.destroy().then(() => {
-		let cleanGame = new DB.GameState();
-		socket.server.to(socket.gameId).emit('update', cleanGame.serialize(), {});
+	game.save().then(() => {
+		socket.server.to(socket.gameId).emit('reset', game.serialize(), {}, {});
 	})
 	.catch(err => console.error(err));
 }
@@ -25,9 +23,10 @@ async function handleContinue()
 
 	await game.load();
 
-	if(game.get('state') === 'setup')
+	let state = game.get('state');
+	if(state === 'setup')
 		start(socket, game);
-	else if(game.get('state') === 'lameDuck')
+	else if(state === 'lameDuck')
 	{
 		let victory = await evaluateVictory(socket, game);
 		if(!victory)
@@ -38,7 +37,7 @@ async function handleContinue()
 			socket.server.to(socket.gameId).emit('update', diff);
 		}
 	}
-	else if(game.get('state') === 'aftermath')
+	else if(state === 'aftermath')
 	{
 		let victory = await evaluateVictory(socket, game);
 		if(!victory)
@@ -48,6 +47,10 @@ async function handleContinue()
 			let diff = await game.save();
 			socket.server.to(socket.gameId).emit('update', diff);
 		}
+	}
+	else if(state === 'done')
+	{
+		reset.call(socket);
 	}
 }
 

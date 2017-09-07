@@ -41,7 +41,7 @@ export default class Seat extends THREE.Object3D
 		}
 
 		SH.addEventListener('update_turnOrder', this.updateOwnership.bind(this));
-		SH.addEventListener('checkedIn', id => {
+		SH.addEventListener('checked_in', ({data: id}) => {
 			if(this.owner === id)
 				this.updateOwnership({data: {game: SH.game, players: SH.players}});
 		});
@@ -74,6 +74,7 @@ export default class Seat extends THREE.Object3D
 			this.owner = '';
 			if(game.state === 'setup'){
 				this.nameplate.updateText('<Join>');
+				this.nameplate.model.material.color.setHex(0xffffff);
 			}
 		}
 

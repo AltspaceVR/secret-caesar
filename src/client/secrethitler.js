@@ -96,9 +96,14 @@ class SecretHitler extends THREE.Object3D
 		this.addEventListener('update_state', ({data: {game}}) => {
 			this.credits.visible = game.state === 'setup';
 			if(game.state === 'done'){
-				let party = /^liberal/.test(game.victory) ? 'Liberals' : 'Fascists';
-				this.victoryBanner.text.color = /^liberal/.test(game.victory) ? 'blue' : 'red';
-				this.victoryBanner.text.update({text: `${party} win!`});
+				if(/^liberal/.test(game.victory)){
+					this.victoryBanner.text.color = 'blue';
+					this.victoryBanner.text.update({text: 'Liberals win!'});
+				}
+				else {
+					this.victoryBanner.text.color = 'red';
+					this.victoryBanner.text.update({text: 'Fascists win!'});
+				}
 				
 				this.victoryBanner.position.set(0,0.8,0);
 				this.victoryBanner.scale.setScalar(.001);
@@ -135,10 +140,10 @@ class SecretHitler extends THREE.Object3D
 		this.add(assets.models.dummy);*/
 
 		this.socket.on('update', this.updateFromServer.bind(this));
-		this.socket.on('checkedIn', this.checkedIn.bind(this));
+		this.socket.on('checked_in', this.checkedIn.bind(this));
 
 		this.socket.on('reset', this.doReset.bind(this));
-		this.socket.on('disconnect', this.doReset.bind(this));
+		//this.socket.on('disconnect', this.doReset.bind(this));
 	}
 
 	updateFromServer(gd, pd, vd)
@@ -177,7 +182,7 @@ class SecretHitler extends THREE.Object3D
 	{
 		Object.assign(this.players[p.id], p);
 		this.dispatchEvent({
-			type: 'checkedIn',
+			type: 'checked_in',
 			bubbles: false,
 			data: p.id
 		});
@@ -190,14 +195,19 @@ class SecretHitler extends THREE.Object3D
 		}
 	}
 
-	doReset()
+	doReset(game, players, votes)
 	{
-		if( /&cacheBust=\d+$/.test(window.location.search) ){
+		/*if( /&cacheBust=\d+$/.test(window.location.search) ){
 			window.location.search += '1';
 		}
 		else {
 			window.location.search += '&cacheBust=1';
-		}
+		}*/
+
+		this.game = {};
+		this.players = {};
+		this.votes = {};
+		this.updateFromServer(game, players, votes);
 	}
 }
 
