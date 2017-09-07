@@ -14,9 +14,9 @@ export default {
 			board_large: 'static/img/board-large.jpg',
 			board_med: 'static/img/board-medium.jpg',
 			board_small: 'static/img/board-small.jpg',
-			cards: 'static/img/cards.png',
+			cards: 'static/img/cards.jpg',
 			reset: 'static/img/bomb.png',
-			text: 'static/img/text.png'
+			//text: 'static/img/text.png'
 		}
 	},
 	cache: {},
