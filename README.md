@@ -41,6 +41,7 @@ The majority of players are liberals. If they can learn to trust each other, the
 	- [x] Assassinate
 	- [x] Check for assassination victory
 - [ ] Polish
+	- [ ] Instructions
 	- [ ] Animations/transitions
 	- [ ] Action sound effects
 	- [ ] Consequence sound effects
@@ -48,8 +49,8 @@ The majority of players are liberals. If they can learn to trust each other, the
 
 ## Credits and License
 
-The game [Secret Hitler](http://secrethitler.com/) was created by Mike Boxleiter, Tommy Maranges, Max Temkin, and Mac Schubert. Mackenzie Schubert did the illustrations. It was adapted for VR by Steven Vergenz. The original board game and this derivative work are licensed under a Creative Commons BY-NC-SA 4.0 license.
+The game [Secret Hitler](http://secrethitler.com/) was created by Mike Boxleiter, Tommy Maranges, Max Temkin, and Mac Schubert. Mackenzie Schubert did the illustrations. It was adapted for VR by Steven Vergenz. The original board game and this derivative work are licensed under a [Creative Commons BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/) license.
 
-The recording of Wagner's *Ride of the Valkyries* used in this game was recorded by the University of Chicago Orchestra, and is under a Creative Commons BY-NC-ND 3.0 license.
+The recording of Wagner's *Die Walküre - Ride of the Valkyries* used in this game was recorded by the University of Chicago Orchestra, and is under a [Creative Commons BY-NC-ND 3.0](https://creativecommons.org/licenses/by-nc-nd/3.0/) license.
 
-The recording of Beethoven's *Symphony No. 5 in Cm - Andante con moto* used in this game was recorded by the Fulda Symphonic Orchestra, and is under a Creative Commons BY-SA 3.0 license.
+The recording of Beethoven's *Symphony No. 5 in Cm - Andante con moto* used in this game was recorded by the Fulda Symphonic Orchestra, and is under a [Creative Commons BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/) license.
