@@ -38,7 +38,7 @@ export default class PlayerInfo extends THREE.Object3D
 		if(!this.seat.owner)
 			return;
 
-		if(game.state === 'night' && players[SH.localUser.id])
+		if((game.state === 'night' || game.state === 'done') && players[SH.localUser.id])
 			this.presentRole(game, players, votes);
 
 		else if(game.state === 'lameDuck')
@@ -57,6 +57,7 @@ export default class PlayerInfo extends THREE.Object3D
 		let seatedPlayer = players[this.seat.owner];
 
 		let seatedRoleShouldBeVisible =
+			game.state === 'done' ||
 			SH.localUser.id === this.seat.owner ||
 			localPlayer.role === 'fascist' && (seatedPlayer.role === 'fascist' || seatedPlayer.role === 'hitler') ||
 			localPlayer.role === 'hitler' && seatedPlayer.role === 'fascist' && game.turnOrder.length < 7;
