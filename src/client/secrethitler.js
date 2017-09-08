@@ -201,7 +201,7 @@ class SecretHitler extends THREE.Object3D
 			window.location.search += '1';
 		}
 		else {
-			window.location.search += '&cacheBust=1';
+			window.location.reload();
 		}
 	}
 }

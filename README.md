@@ -46,10 +46,10 @@ The majority of players are liberals. If they can learn to trust each other, the
 	- [ ] Consequence sound effects
 	- [ ] Music?
 
-## Credits
+## Credits and License
 
-[Secret Hitler](http://secrethitler.com/) was created by Mike Boxleiter, Tommy Maranges, Max Temkin, and Mac Schubert.
+The game [Secret Hitler](http://secrethitler.com/) was created by Mike Boxleiter, Tommy Maranges, Max Temkin, and Mac Schubert. Mackenzie Schubert did the illustrations. It was adapted for VR by Steven Vergenz. The original board game and this derivative work are licensed under a Creative Commons BY-NC-SA 4.0 license.
 
-Art by Mackenzie Schubert.
+The recording of Wagner's *Ride of the Valkyries* used in this game was recorded by the University of Chicago Orchestra, and is under a Creative Commons BY-NC-ND 3.0 license.
 
-Adapted for VR by Steven Vergenz.
+The recording of Beethoven's *Symphony No. 5 in Cm - Andante con moto* used in this game was recorded by the Fulda Symphonic Orchestra, and is under a Creative Commons BY-SA 3.0 license.
