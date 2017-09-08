@@ -199,7 +199,7 @@ function evaluateConfirmVote(game, vote, passed)
 	.catch(e => console.error(e));
 }
 
-function evaluateElectionVote(game, vote, passed)
+async function evaluateElectionVote(game, vote, passed)
 {
 	let socket = this;
 
@@ -225,10 +225,19 @@ function evaluateElectionVote(game, vote, passed)
 		// continue to reaction, but increment fail count
 		game.set('failedVotes', game.get('failedVotes') + 1);
 
-		let players = game.get('turnOrder');
-		let sitting = game.get('lastPresident') || game.get('president');
-		let nextPres = (players.indexOf(sitting) + 1) % players.length;
-		game.set('president', players[nextPres]);
+		await game.loadPlayers();
+
+		let living = game.get('turnOrder').filter(id => game.players[id].get('state') !== 'dead');
+		let sitting = null;
+		if(game.get('specialElection')){
+			sitting = game.get('lastPresident');
+		}
+		else {
+			sitting = game.get('president');
+		}
+
+		let nextPres = (living.indexOf(sitting) + 1) % living.length;
+		game.set('president', living[nextPres]);
 		game.set('chancellor', '');
 		game.set('specialElection', false);
 	}

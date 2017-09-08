@@ -7,11 +7,9 @@ const DB = require('./db'),
 function reset()
 {
 	let socket = this;
-	//socket.server.to(socket.gameId).emit('reset');
-
 	let game = new DB.GameState(socket.gameId);
 	game.save().then(() => {
-		socket.server.to(socket.gameId).emit('reset', game.serialize(), {}, {});
+		socket.server.to(socket.gameId).emit('reset');
 	})
 	.catch(err => console.error(err));
 }
@@ -292,19 +290,19 @@ async function evaluateVictory(socket, game)
 	let hitlerId = Object.keys(game.players).find(pid => game.players[pid].get('role') === 'hitler');
 	let turnOrder = game.get('turnOrder');
 
-	if(game.get('liberalPolicies') === 5){
+	if(game.get('state') === 'aftermath' && game.get('liberalPolicies') === 5){
 		Utils.log(game, 'liberal policy victory');
 		game.set('victory', 'liberal-policy');
 	}
-	else if(game.players[hitlerId].get('state') === 'dead'){
+	else if(game.get('state') === 'execute' && game.players[hitlerId].get('state') === 'dead'){
 		Utils.log(game, 'hitler assassinated');
 		game.set('victory', 'liberal-assassination');
 	}
-	else if(game.get('fascistPolicies') === 6){
+	else if(game.get('state') === 'aftermath' && game.get('fascistPolicies') === 6){
 		Utils.log(game, 'fascist policy victory');
 		game.set('victory', 'fascist-policy');
 	}
-	else if(game.get('fascistPolicies') >= 3 && game.get('lastChancellor') === hitlerId){
+	else if(game.get('state') === 'lameDuck' && game.get('fascistPolicies') >= 3 && game.get('lastChancellor') === hitlerId){
 		Utils.log(game, 'hitler elected');
 		game.set('victory', 'fascist-election');
 	}

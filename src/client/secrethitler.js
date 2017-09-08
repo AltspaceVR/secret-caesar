@@ -143,7 +143,7 @@ class SecretHitler extends THREE.Object3D
 		this.socket.on('checked_in', this.checkedIn.bind(this));
 
 		this.socket.on('reset', this.doReset.bind(this));
-		//this.socket.on('disconnect', this.doReset.bind(this));
+		this.socket.on('disconnect', this.doReset.bind(this));
 	}
 
 	updateFromServer(gd, pd, vd)
@@ -197,17 +197,12 @@ class SecretHitler extends THREE.Object3D
 
 	doReset(game, players, votes)
 	{
-		/*if( /&cacheBust=\d+$/.test(window.location.search) ){
+		if( /&cacheBust=\d+$/.test(window.location.search) ){
 			window.location.search += '1';
 		}
 		else {
 			window.location.search += '&cacheBust=1';
-		}*/
-
-		this.game = {};
-		this.players = {};
-		this.votes = {};
-		this.updateFromServer(game, players, votes);
+		}
 	}
 }
 

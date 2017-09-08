@@ -8,16 +8,16 @@ game.delta = {
 	"votesInProgress": ["29223324"],
 	"president": "1111111",
 	"chancellor": "2222222",
-	"lastPresident": "",
-	"lastChancellor": "",
+	"lastPresident": "2222222",
+	"lastChancellor": "4444444",
 	"lastElection": "",
-	"liberalPolicies": "0",
-	"fascistPolicies": "0",
-	"deck": "164808",
-	"discard": "1",
-	"hand": "1",
-	"specialElection": "false",
-	"failedVotes": "0"
+	"liberalPolicies": 0,
+	"fascistPolicies": 0,
+	"deck": 164808,
+	"discard": 1,
+	"hand": 1,
+	"specialElection": false,
+	"failedVotes": 0
 };
 
 var players = [

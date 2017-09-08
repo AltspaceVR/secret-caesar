@@ -11,13 +11,13 @@ game.delta = {
 	"lastPresident": "",
 	"lastChancellor": "",
 	"lastElection": "",
-	"liberalPolicies": "0",
-	"fascistPolicies": "3",
-	"deck": "164808",
-	"discard": "1",
-	"hand": "1",
-	"specialElection": "false",
-	"failedVotes": "0"
+	"liberalPolicies": 0,
+	"fascistPolicies": 3,
+	"deck": 164808,
+	"discard": 1,
+	"hand": 1,
+	"specialElection": false,
+	"failedVotes": 0
 };
 
 var players = [
