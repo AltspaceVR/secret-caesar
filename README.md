@@ -24,7 +24,7 @@ The majority of players are liberals. If they can learn to trust each other, the
 	- [x] Enforce term limits
 	- [x] Vote
 	- [x] Display vote results
-	- [ ] Special election
+	- [x] Special election
 	- [ ] Failed vote counter
 	- [x] Check for election victory
 - [ ] Pass policy
@@ -34,16 +34,21 @@ The majority of players are liberals. If they can learn to trust each other, the
 	- [x] Display chosen policy
 	- [x] Check for policy victory
 	- [ ] Veto
-- [ ] Presidental powers
-	- [ ] Investigate player
-	- [ ] Peek at policy deck
-	- [ ] Choose successor
-	- [ ] Assassinate
-	- [ ] Check for assassination victory
+- [x] Presidental powers
+	- [x] Investigate player
+	- [x] Peek at policy deck
+	- [x] Choose successor
+	- [x] Assassinate
+	- [x] Check for assassination victory
+- [ ] Polish
+	- [ ] Animations/transitions
+	- [ ] Action sound effects
+	- [ ] Consequence sound effects
+	- [ ] Music?
 
 ## Credits
 
-Secret Hitler was created by Mike Boxleiter, Tommy Maranges, Max Temkin, and Mac Schubert.
+[Secret Hitler](http://secrethitler.com/) was created by Mike Boxleiter, Tommy Maranges, Max Temkin, and Mac Schubert.
 
 Art by Mackenzie Schubert.
 
