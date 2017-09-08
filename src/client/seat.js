@@ -46,6 +46,12 @@ export default class Seat extends THREE.Object3D
 				this.updateOwnership({data: {game: SH.game, players: SH.players}});
 		});
 
+		SH.addEventListener('update_state', ({data: {game, players}}) => {
+			if(this.owner && players[this.owner].state === 'dead'){
+				this.nameplate.model.material.color.set(0x3d2789);
+			}
+		});
+
 		this.nameplate = new Nameplate(this);
 		this.ballot = new Ballot(this);
 		this.playerInfo = new PlayerInfo(this);

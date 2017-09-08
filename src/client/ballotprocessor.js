@@ -150,7 +150,7 @@ function updateState({data: {game, players}})
 	else if(game.state === 'investigate' && ballot.seat.owner === game.president)
 	{
 		if(SH.localUser.id === game.president){
-			choosePlayer('Executive power:\nChoose one player\nto investigate!', 'Investigate\n{}?', 'investigate')
+			choosePlayer('Executive power: Choose one player to investigate!', 'Investigate {}?', 'investigate')
 			.then(userId => {
 				SH.dispatchEvent({
 					type: 'investigate',
@@ -159,7 +159,7 @@ function updateState({data: {game, players}})
 			});
 		}
 		else {
-			ballot.askQuestion('Executive power:\nChoose one player\nto investigate!', 'wait_for_investigate', {
+			ballot.askQuestion('Executive power: Choose one player to investigate!', 'wait_for_investigate', {
 				choices: BallotType.PLAYERSELECT,
 				fake: true,
 				isInvalid: () => SH.game.state !== 'investigate'
@@ -179,7 +179,7 @@ function updateState({data: {game, players}})
 			Object.assign(opts, {fake: true, isInvalid: () => SH.game.state !== 'peek'});
 		}
 
-		ballot.askQuestion('Executive power:\nThe next president\'s\n"random" policies.', 'local_peek', opts)
+		ballot.askQuestion('Executive power: The next president\'s "random" policies', 'local_peek', opts)
 		.then(discard => {
 			SH.socket.emit('continue');
 		});
@@ -189,6 +189,50 @@ function updateState({data: {game, players}})
 			SH.removeEventListener('update_state', cleanUpFakeVote);
 		};
 		SH.addEventListener('update_state', cleanUpFakeVote);
+	}
+	else if(game.state === 'nameSuccessor' && ballot.seat.owner === game.president)
+	{
+		if(SH.localUser.id === game.president){
+			choosePlayer('Executive power: Choose the next president!', '{} for president?', 'nameSuccessor')
+			.then(userId => {
+				SH.socket.emit('name_successor', userId);
+			});
+		}
+		else {
+			ballot.askQuestion('Executive power: Choose the next president!', 'wait_for_successor', {
+				choices: BallotType.PLAYERSELECT,
+				fake: true,
+				isInvalid: () => SH.game.state !== 'nameSuccessor'
+			});
+			let cleanUpFakeVote = ({data: {game: {state}}}) => {
+				if(state !== 'nameSuccessor' && ballot.displayed === 'wait_for_successor')
+					ballot.dispatchEvent({type: 'cancelVote', bubbles: false});
+				SH.removeEventListener('update_state', cleanUpFakeVote);
+			};
+			SH.addEventListener('update_state', cleanUpFakeVote);
+		}
+	}
+	else if(game.state === 'execute' && ballot.seat.owner === game.president)
+	{
+		if(SH.localUser.id === game.president){
+			choosePlayer('Executive power: Choose a player to execute!', 'Execute {}?', 'execute')
+			.then(userId => {
+				SH.socket.emit('execute', userId);
+			});
+		}
+		else {
+			ballot.askQuestion('Executive power: Choose a player to execute!', 'wait_for_execute', {
+				choices: BallotType.PLAYERSELECT,
+				fake: true,
+				isInvalid: () => SH.game.state !== 'execute'
+			});
+			let cleanUpFakeVote = ({data: {game: {state}}}) => {
+				if(state !== 'execute' && ballot.displayed === 'wait_for_execute')
+					ballot.dispatchEvent({type: 'cancelVote', bubbles: false});
+				SH.removeEventListener('update_state', cleanUpFakeVote);
+			};
+			SH.addEventListener('update_state', cleanUpFakeVote);
+		}
 	}
 }
 

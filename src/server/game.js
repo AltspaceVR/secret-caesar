@@ -30,6 +30,7 @@ async function handleContinue()
 	{
 		if(game.get('failedVotes') === 0)
 		{
+			await game.loadPlayers();
 			let victory = await evaluateVictory(socket, game);
 			if(!victory)
 				drawPolicies(socket, game);
@@ -53,6 +54,7 @@ async function handleContinue()
 	}
 	else if(state === 'aftermath')
 	{
+		await game.loadPlayers();
 		let victory = await evaluateVictory(socket, game);
 		if(!victory)
 			execPowers(socket, game);
@@ -64,6 +66,7 @@ async function handleContinue()
 	}
 	else if(state === 'investigate' || state === 'peek')
 	{
+		await game.loadPlayers();
 		advanceRound(socket, game);
 	}
 	else if(state === 'done')
@@ -123,9 +126,11 @@ function nominate(chancellor)
 	let socket = this;
 	let game = new DB.GameState(socket.gameId);
 
-	game.load().then(() =>
+	game.load().then(() => game.loadPlayers()).then(() =>
 	{
-		let pc = game.get('turnOrder').length;
+		let turnOrder = game.get('turnOrder');
+		let living = turnOrder.filter(id => game.players[id].get('state') !== 'dead');
+		let dead = turnOrder.filter(id => game.players[id].get('state') === 'dead');
 
 		if(game.get('state') !== 'nominate')
 			return Promise.reject('Nomination out of turn');
@@ -133,7 +138,7 @@ function nominate(chancellor)
 		else if(game.get('president') !== DB.playerForSocket[socket.id])
 			return Promise.reject('Nomination not by president elect');
 
-		else if(game.get('lastChancellor') === chancellor || pc > 5 && game.get('lastPresident') === chancellor)
+		else if(game.get('lastChancellor') === chancellor || living.length > 5 && game.get('lastPresident') === chancellor)
 			return Promise.reject('Chancellor elect is term-limited');
 
 		else
@@ -145,8 +150,9 @@ function nominate(chancellor)
 			// set up election vote
 			let vote = new DB.Vote(Utils.generateId());
 			vote.set('type', 'elect');
-			vote.set('toPass', Math.ceil(pc/2 + 0.1));
-			vote.set('requires', pc);
+			vote.set('toPass', Math.ceil(living.length/2 + 0.1));
+			vote.set('requires', living.length);
+			vote.set('nonVoters', dead);
 			game.set('votesInProgress', [...game.get('votesInProgress'), vote.get('id')]);
 
 			return Promise.all([game.save(), vote.save()]);
@@ -258,14 +264,14 @@ async function execPowers(socket, game)
 			// president peeks at top of policy stack
 			game.set('state', 'peek');
 		}
-		/*else if(fascistPolicies === 3 && playerCount >= 7){
+		else if(fascistPolicies === 3 && playerCount >= 7){
 			// president names successor
 			game.set('state', 'nameSuccessor');
 		}
 		else if(fascistPolicies >= 4 && fascistPolicies < 6){
 			// president executes player
 			game.set('state', 'execute');
-		}*/
+		}
 		else {
 			specialPhase = false;
 		}
@@ -276,13 +282,13 @@ async function execPowers(socket, game)
 		socket.server.to(socket.gameId).emit('update', diff);
 	}
 	else {
+		await game.loadPlayers();
 		advanceRound(socket, game);
 	}
 }
 
 async function evaluateVictory(socket, game)
 {
-	await game.loadPlayers();
 	let hitlerId = Object.keys(game.players).find(pid => game.players[pid].get('role') === 'hitler');
 	let turnOrder = game.get('turnOrder');
 
@@ -306,19 +312,58 @@ async function evaluateVictory(socket, game)
 	return game.get('victory');
 }
 
-async function advanceRound(socket, game)
+async function advanceRound(socket, game, player)
 {
 	// no executive powers gained, continue
-	let turnOrder = game.get('turnOrder');
+	let living = game.get('turnOrder').filter(id => game.players[id].get('state') !== 'dead');
 	let oldPresident = game.get('lastPresident');
-	let newIndex = (turnOrder.indexOf(oldPresident)+1) % turnOrder.length;
-	game.set('president', turnOrder[newIndex]);
+	let newIndex = (living.indexOf(oldPresident)+1) % living.length;
+	game.set('president', living[newIndex]);
 	game.set('chancellor', '');
-	game.set('state', 'nominate');
 	game.set('specialElection', false);
+	game.set('state', 'nominate');
+
+	let diff = await game.save();
+	let pdiff = {};
+	if(player)
+		pdiff[player.get('id')] = await player.save();
+	socket.server.to(socket.gameId).emit('update', diff, pdiff);
+}
+
+async function nameSuccessor(userId)
+{
+	let socket = this;
+	let game = new DB.GameState(socket.gameId);
+	await game.load();
+
+	game.set('president', userId);
+	game.set('chancellor', '');
+	game.set('specialElection', true);
+	game.set('state', 'nominate');
 
 	let diff = await game.save();
 	socket.server.to(socket.gameId).emit('update', diff);
+}
+
+async function execute(userId)
+{
+	let socket = this;
+	let game = new DB.GameState(socket.gameId);
+	await game.load();
+	await game.loadPlayers();
+
+	let player = game.players[userId];
+	player.set('state', 'dead');
+
+	let victory = await evaluateVictory(socket, game);
+	if(!victory)
+		advanceRound(socket, game, player);
+	else {
+		game.set('state', 'done');
+		let diff = await game.save();
+		let pdiff = await player.save();
+		socket.server.to(socket.gameId).emit('update', diff, {[player.get('id')]: pdiff});
+	}
 }
 
 exports.reset = reset;
@@ -326,3 +371,5 @@ exports.handleContinue = handleContinue;
 exports.nominate = nominate;
 exports.discardPolicy1 = discardPolicy1;
 exports.discardPolicy2 = discardPolicy2;
+exports.nameSuccessor = nameSuccessor;
+exports.execute = execute;

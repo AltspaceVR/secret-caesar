@@ -37,21 +37,24 @@ export default class Hitbox extends THREE.Mesh
 	updateVisibility({data: {game, players}}, specialPlayer)
 	{
 		let livingPlayers = game.turnOrder.filter(p => players[p].state !== 'dead');
-		let nominateable =
-			game.state === 'nominate' &&
+		let preconditions =
 			SH.localUser.id === game.president &&
 			this.seat.owner !== '' &&
 			this.seat.owner !== SH.localUser.id &&
+			livingPlayers.includes(this.seat.owner);
+
+		let nominateable =
+			game.state === 'nominate' &&
 			this.seat.owner !== game.lastChancellor &&
 			(livingPlayers.length <= 5 || this.seat.owner !== game.lastPresident);
 
 		let investigateable =
 			game.state === 'investigate' &&
-			SH.localUser.id === game.president &&
-			this.seat.owner !== '' &&
-			this.seat.owner !== SH.localUser.id &&
 			players[this.seat.owner].state === 'normal';
+		
+		let succeedable = game.state === 'nameSuccessor';
+		let executable = game.state === 'execute';
 
-		this.visible = nominateable || investigateable;
+		this.visible = preconditions && (nominateable || investigateable || succeedable || executable);
 	}
 }
