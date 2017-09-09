@@ -18,22 +18,22 @@ The majority of players are liberals. If they can learn to trust each other, the
 - [x] Night phase
 	- [x] Assign roles
 	- [x] Player roles revealed (discreetly)
-- [ ] Election
+- [x] Election
 	- [x] Presidential candidate chosen
 	- [x] Nominate chancellor candidate
 	- [x] Enforce term limits
 	- [x] Vote
 	- [x] Display vote results
 	- [x] Special election
-	- [ ] Failed vote counter
+	- [x] Failed vote counter
 	- [x] Check for election victory
-- [ ] Pass policy
+- [x] Pass policy
 	- [x] Deck cycling
 	- [x] President chooses from three top cards
 	- [x] Chancellor chooses from remaining two
 	- [x] Display chosen policy
 	- [x] Check for policy victory
-	- [ ] Veto
+	- [x] Veto
 - [x] Presidental powers
 	- [x] Investigate player
 	- [x] Peek at policy deck
