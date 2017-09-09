@@ -33,11 +33,9 @@ export default class ContinueBox extends THREE.Object3D
 		SH.addEventListener('update_turnOrder', this.playerSetup.bind(this));
 		this.addEventListener('cursorup', this.onclick.bind(this));
 
-		SH.addEventListener('investigate', ({data: userId}) => {
-			this.icon.visible = true;
-			this.text.visible = true;
-			this.textComponent.update({text: 'Click to continue'});
-		});
+		let show = () => this.show();
+		SH.addEventListener('investigate', show);
+		SH.addEventListener('policyAnimDone', show);
 	}
 
 	onclick(evt)
@@ -48,24 +46,18 @@ export default class ContinueBox extends THREE.Object3D
 
 	onstatechange({data: {game}})
 	{
-		if(game.state === 'lameDuck' || game.state === 'aftermath' ||
-			(game.state === 'peek' && game.president === SH.localUser.id))
+		if(game.state === 'lameDuck' || (game.state === 'peek' && game.president === SH.localUser.id))
 		{
-			this.icon.visible = true;
-			this.text.visible = true;
-			this.textComponent.update({text: 'Click to continue'});
+			this.show();
 		}
 		else if(game.state === 'setup'){
 			this.playerSetup({data: {game}});
 		}
 		else if(game.state === 'done'){
-			this.icon.visible = true;
-			this.text.visible = true;
-			this.textComponent.update({text: 'New game'});
+			this.show('New game');
 		}
 		else {
-			this.icon.visible = false;
-			this.text.visible = false;
+			this.hide();
 		}
 	}
 
@@ -85,5 +77,16 @@ export default class ContinueBox extends THREE.Object3D
 				});
 			}
 		}
+	}
+
+	show(message = 'Click to continue'){
+		this.icon.visible = true;
+		this.text.visible = true;
+		this.textComponent.update({text: message});
+	}
+
+	hide(){
+		this.icon.visible = false;
+		this.text.visible = false;
 	}
 };

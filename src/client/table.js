@@ -2,7 +2,8 @@
 
 import AM from './assetmanager';
 import SH from './secrethitler';
-import {LiberalPolicyCard, FascistPolicyCard} from './card';
+import Animate from './animate';
+import {LiberalPolicyCard, FascistPolicyCard, VetoCard} from './card';
 
 export default class GameTable extends THREE.Object3D
 {
@@ -36,6 +37,7 @@ export default class GameTable extends THREE.Object3D
 		SH.addEventListener('update_turnOrder', this.changeMode.bind(this));
 		SH.addEventListener('update_liberalPolicies', this.updatePolicies.bind(this));
 		SH.addEventListener('update_fascistPolicies', this.updatePolicies.bind(this));
+		SH.addEventListener('update_failedVotes', this.updatePolicies.bind(this));
 	}
 
 	changeMode({data: {game: {state, turnOrder}}})
@@ -61,16 +63,18 @@ export default class GameTable extends THREE.Object3D
 		});
 	}
 
-	updatePolicies({data: {game: {liberalPolicies, fascistPolicies}}})
+	updatePolicies({data: {game: {liberalPolicies, fascistPolicies, failedVotes, hand, state}}})
 	{
 		let cardsInUpdate = liberalPolicies + fascistPolicies - this.liberalCards - this.fascistCards;
 		let animate = cardsInUpdate === 1;
+
+		let promises = [];
 
 		for(var i=this.liberalCards; i<liberalPolicies; i++){
 			let card = new LiberalPolicyCard();
 			this.cards.push(card);
 			this.add(card);
-			card.goToPosition(i, animate);
+			promises.push(card.goToPosition(i, animate));
 		}
 		this.liberalCards = liberalPolicies;
 
@@ -78,9 +82,27 @@ export default class GameTable extends THREE.Object3D
 			let card = new FascistPolicyCard();
 			this.cards.push(card);
 			this.add(card);
-			card.goToPosition(i, animate);
+			promises.push(card.goToPosition(i, animate));
 		}
 		this.fascistCards = fascistPolicies;
+
+		if(state === 'aftermath' && hand === 1){
+			let card = new VetoCard();
+			card.position.set(0,1,0);
+			this.add(card);
+			promises.push(Animate.wait(1000).then(() => {
+				this.remove(card);
+			}));
+		}
+
+		if(state === 'aftermath'){
+			Promise.all(promises).then(() => {
+				SH.dispatchEvent({
+					type: 'policyAnimDone',
+					bubbles: false
+				});
+			});
+		}
 
 		if(liberalPolicies === 0 && fascistPolicies === 0){
 			this.cards.forEach(c => this.remove(c));

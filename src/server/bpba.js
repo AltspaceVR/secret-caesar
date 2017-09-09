@@ -65,4 +65,17 @@ function appendCard(deck, val)
 	return deck << 1 | val;
 }
 
-module.exports = {length, shuffle, drawThree, discardOne, appendCard, FULL_DECK: 0x2003f, LIBERAL: 1, FASCIST: 0};
+/**
+ * Combine two decks into one
+ * @param {BPBA} deck1
+ * @param {BPBA} deck2
+ * @returns {BPBA}
+ */
+function concat(deck1, deck2)
+{
+	let d2len = length(deck2);
+	let d2cards = deck2 & ((1<<d2len) - 1);
+	return (deck1 << d2len) | d2cards;
+}
+
+module.exports = {length, shuffle, drawThree, discardOne, appendCard, concat, FULL_DECK: 0x2003f, LIBERAL: 1, FASCIST: 0};

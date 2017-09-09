@@ -34,7 +34,7 @@ export default class ElectionTracker extends THREE.Mesh
 		this.highSide = failedVotes > 0;
 		this.spot = failedVotes%3 || this.highSide && 3 || 0;
 
-		Animate.start(this, {
+		this.anim = Animate.simple(this, {
 			pos: positions[this.spot],
 			scale: new THREE.Vector3(1, 1+this.spot, 1),
 			duration: 1200

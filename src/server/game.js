@@ -212,21 +212,28 @@ async function discardPolicy2(val)
 
 	await game.load();
 
-	// transfer selected card from hand to discard
-	let [hand, discard] = BPBA.discardOne(game.get('hand'), val);
-	discard = BPBA.appendCard(game.get('discard'), discard);
-	game.set('hand', hand);
-	game.set('discard', discard);
-
-	if(hand & 1 === BPBA.LIBERAL)
-		game.set('liberalPolicies', game.get('liberalPolicies')+1);
+	if(val === -1)
+	{
+		game.set('state', 'veto');
+	}
 	else
-		game.set('fascistPolicies', game.get('fascistPolicies')+1);
-	
-	game.set('state', 'aftermath');
-	
-	// guarantee deck has enough cards to draw
-	guaranteeDeckSizeMinimum(game);
+	{
+		// transfer selected card from hand to discard
+		let [hand, discard] = BPBA.discardOne(game.get('hand'), val);
+		discard = BPBA.appendCard(game.get('discard'), discard);
+		game.set('hand', hand);
+		game.set('discard', discard);
+
+		if(hand & 1 === BPBA.LIBERAL)
+			game.set('liberalPolicies', game.get('liberalPolicies')+1);
+		else
+			game.set('fascistPolicies', game.get('fascistPolicies')+1);
+
+		game.set('state', 'aftermath');
+
+		// guarantee deck has enough cards to draw
+		guaranteeDeckSizeMinimum(game);
+	}
 
 	let diff = await game.save();
 	socket.server.to(socket.gameId).emit('update', diff);
@@ -357,21 +364,42 @@ async function execute(userId)
 
 function guaranteeDeckSizeMinimum(game)
 {
-	let deck = game.get('deck');
+	let deck = game.get('deck'), discard = game.get('discard');
 	if(BPBA.length(deck) < 3)
 	{
-		// discard whole remaining deck
-		while(deck > 1){
-			let card = 0;
-			[deck, card] = BPBA.discardOne(deck, 0);
-			discard = BPBA.appendCard(discard, card);
-		}
+		discard = BPBA.concat(discard, deck);
 
 		// shuffle discard, it's new deck
 		deck = BPBA.shuffle(discard);
 		game.set('discard', 1);
 		game.set('deck', deck);
 	}
+}
+
+async function confirmVeto(confirmed)
+{
+	let socket = this;
+	let game = new DB.GameState(socket.gameId);
+	await game.load();
+
+	if(confirmed)
+	{
+		// discard both policies
+		let hand = game.get('hand'), discard = game.get('discard');
+		discard = BPBA.concat(discard, hand);
+		game.set('hand', 1);
+		game.set('discard', discard);
+
+		game.set('failedVotes', game.get('failedVotes')+1);
+		game.set('state', 'aftermath');
+	}
+	else
+	{
+		game.set('state', 'policy2');
+	}
+
+	let diff = await game.save();
+	socket.server.to(socket.gameId).emit('update', diff);
 }
 
 exports.reset = reset;
@@ -382,3 +410,4 @@ exports.discardPolicy2 = discardPolicy2;
 exports.nameSuccessor = nameSuccessor;
 exports.execute = execute;
 exports.guaranteeDeckSizeMinimum = guaranteeDeckSizeMinimum;
+exports.confirmVeto = confirmVeto;

@@ -1,87 +1,93 @@
-'use strict';
-
 import { Behavior } from './behavior';
 
-class Animate extends Behavior
+export default class Animate extends Behavior
 {
-	constructor(//{parent, pos, quat, scale, matrix, duration, callback}
-		{parent=null, pos=null, quat=null, scale=null, matrix=null, duration=600, callback=()=>{}})
-	{
+	constructor(){
 		super('Animate');
-		
+		this.group = new TWEEN.Group();
+	}
+	update(){
+		this.group.update(performance.now());
+	}
+
+	/**
+	 * Move an object from A to B
+	 * @param {THREE.Object3D} target 
+	 * @param {Object} options
+	 */
+	static simple(target, {parent=null, pos=null, quat=null, scale=null, matrix=null, duration=600} = {})
+	{
+		// extract position/rotation/scale from matrix
 		if(matrix)
 		{
-			// extract position/rotation/scale from matrix
 			pos = new THREE.Vector3();
 			quat = new THREE.Quaternion();
 			scale = new THREE.Vector3();
 			matrix.decompose(pos, quat, scale);
 		}
 
-		Object.assign(this, {parent, pos, quat, scale, duration, callback});
-	}
-
-	awake(obj)
-	{
-		super.awake(obj);
-
 		// shuffle hierarchy, but keep world transform the same
-		if(this.parent && this.parent !== obj.parent)
+		if(parent && this.parent !== target.parent)
 		{
-			obj.applyMatrix(obj.parent.matrixWorld);
-			let mat = new THREE.Matrix4().getInverse(this.parent.matrixWorld);
-			obj.applyMatrix(mat);
-
-			this.parent.add(obj);
+			target.applyMatrix(target.parent.matrixWorld);
+			target.applyMatrix(new THREE.Matrix4().getInverse(parent.matrixWorld));
+			parent.add(obj);
 		}
 
-		// read initial positions
-		this.initialPos = obj.position.clone();
-		this.initialQuat = obj.quaternion.clone();
-		this.initialScale = obj.scale.clone();
-		this.startTime = Date.now();
+		let initialQuat = target.quaternion.clone();
+
+		let anim = target.getBehaviorByType('Animate');
+		if(!anim){
+			target.addBehavior( anim = new Animate() );
+		}
+
+		function executor(resolve, reject)
+		{
+			let toComplete = 0;
+			if(pos)
+			{
+				new TWEEN.Tween(target.position, anim.group)
+				.to({x: pos.x, y: pos.y, z: pos.z}, duration)
+				.easing(TWEEN.Easing.Quadratic.Out)
+				.onComplete(groupIsDone)
+				.start();
+				toComplete++;
+			}
+
+			if(quat)
+			{
+				new TWEEN.Tween({t:0}, anim.group)
+				.to({t:1}, duration)
+				.easing(TWEEN.Easing.Quadratic.Out)
+				.onUpdate(t => THREE.Quaternion.slerp(initialQuat, quat, target.quaternion, t.t))
+				.onComplete(groupIsDone)
+				.start();
+				toComplete++;
+			}
+
+			if(scale)
+			{
+				new TWEEN.Tween(target.scale, anim.group)
+				.to({x: scale.x, y: scale.y, z: scale.z}, duration)
+				.easing(TWEEN.Easing.Quadratic.Out)
+				.onComplete(groupIsDone)
+				.start();
+				toComplete++;
+			}
+
+			function groupIsDone(){
+				if(--toComplete === 0){
+					resolve();
+				}
+			}
+		}
+
+		return new Promise(executor);
 	}
 
-	update()
-	{
-		// compute ease-out based on duration
-		let mix = (Date.now()-this.startTime) / this.duration;
-		let ease = TWEEN ? TWEEN.Easing.Quadratic.Out : n => n*(2-n);
-		mix = mix < 1 ? ease(mix) : 1;
-
-		// animate position if requested
-		if( this.pos ){
-			this.object3D.position.lerpVectors(this.initialPos, this.pos, mix);
-		}
-
-		// animate rotation if requested
-		if( this.quat ){
-			THREE.Quaternion.slerp(this.initialQuat, this.quat, this.object3D.quaternion, mix)
-		}
-
-		// animate scale if requested
-		if( this.scale ){
-			this.object3D.scale.lerpVectors(this.initialScale, this.scale, mix);
-		}
-
-		// terminate animation when done
-		if(mix >= 1){
-			this.object3D.removeBehavior(this);
-			this.callback.call(this.object3D);
-		}
+	static wait(duration){
+		return new Promise((resolve, reject) => {
+			setTimeout(resolve, duration);
+		});
 	}
 }
-
-Animate.start = (target, opts) =>
-{
-	let oldAnim = target.getBehaviorByType('Animate');
-	if(oldAnim){
-		oldAnim.constructor(opts);
-		oldAnim.awake(target);
-	}
-	else {
-		target.addBehavior( new Animate(opts) );
-	}
-}
-
-export default Animate;

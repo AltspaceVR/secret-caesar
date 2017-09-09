@@ -91,6 +91,7 @@ io.on('connection', socket =>
 	socket.on('discard_policy2', Game.discardPolicy2);
 	socket.on('name_successor', Game.nameSuccessor);
 	socket.on('execute', Game.execute);
+	socket.on('confirm_veto', Game.confirmVeto);
 
 	// send the catchup signal
 	let game = new DB.GameState(socket.gameId);

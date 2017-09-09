@@ -7,7 +7,9 @@
 * E.g. 0b101001 represents a deck with 2 liberal and 3 fascist cards
 */
 
-let FULL_DECK = 0x2003f;
+let FULL_DECK = 0x2003f,
+	FASCIST = 0,
+	LIBERAL = 1;
 
 let positions = [
 	0x1, 0x2, 0x4, 0x8,
@@ -69,4 +71,4 @@ function toArray(deck)
 	return arr;
 }
 
-export {length, shuffle, drawThree, discardOne, append, toArray, FULL_DECK};
+export {length, shuffle, drawThree, discardOne, append, toArray, FULL_DECK, LIBERAL, FASCIST};

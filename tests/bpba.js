@@ -13,3 +13,6 @@ console.log('top three:', hand.toString(16), 'rest of deck:', test1.toString(16)
 
 [hand, val] = BPBA.discardOne(hand, 1);
 console.log('second value:', val, 'rest of hand:', hand);
+
+test1 = BPBA.concat(test1, hand);
+console.log('deck + hand:', test1.toString(16));

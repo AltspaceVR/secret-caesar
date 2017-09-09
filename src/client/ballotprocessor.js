@@ -136,7 +136,11 @@ function updateState({data: {game, players}})
 	}
 	else if(game.state === 'policy2' && ballot.seat.owner === game.chancellor)
 	{
-		let opts = {choices: BallotType.POLICY, policyHand: game.hand};
+		let opts = {
+			choices: BallotType.POLICY,
+			policyHand: game.hand,
+			includeVeto: game.fascistPolicies === 5 && !ballot.blockVeto
+		};
 		if(SH.localUser.id !== game.chancellor){
 			Object.assign(opts, {fake: true, isInvalid: () => SH.game.state !== 'policy2'});
 		}
@@ -233,6 +237,32 @@ function updateState({data: {game, players}})
 			};
 			SH.addEventListener('update_state', cleanUpFakeVote);
 		}
+	}
+	else if(game.state === 'veto' && ballot.seat.owner === game.president)
+	{
+		if(SH.localUser.id === game.president){
+			ballot.askQuestion('Approve veto?', 'local_veto').then(approved => {
+				SH.socket.emit('confirm_veto', approved);
+			});
+		}
+		else {
+			ballot.askQuestion('Approve veto?', 'wait_for_veto', {
+				fake: true,
+				isInvalid: () => SH.game.state !== 'veto'
+			});
+			let cleanUpFakeVote = ({data: {game: {state}}}) => {
+				if(state !== 'veto' && ballot.displayed === 'wait_for_veto')
+					ballot.dispatchEvent({type: 'cancelVote', bubbles: false});
+				SH.removeEventListener('update_state', cleanUpFakeVote);
+			}
+			SH.addEventListener('update_state', cleanUpFakeVote);
+		}
+	}
+	else if(game.state === 'veto'){
+		ballot.blockVeto = true;
+	}
+	else if(game.state === 'aftermath'){
+		ballot.blockVeto = false;
 	}
 }
 

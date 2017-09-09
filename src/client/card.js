@@ -16,7 +16,8 @@ let Types = Object.freeze({
 	JA: 7,
 	NEIN: 8,
 	BLANK: 9,
-	CREDITS: 10
+	CREDITS: 10,
+	VETO: 11
 });
 
 let geometry = null, material = null;
@@ -46,8 +47,8 @@ function initCardData()
 	
 		// UVs
 		/* -------------- card face ------------- */ /* ------------- card back --------------*/
-		.754,.996, .754,.834, .997,.834, .997,.996, .021,.022, .021,.269, .375,.269, .375,.022, // liberal policy
-		.754,.822, .754,.660, .996,.660, .996,.822, .021,.022, .021,.269, .375,.269, .375,.022, // fascist policy
+		.754,.996, .754,.834, .997,.834, .997,.996, .754,.996, .754,.834, .997,.834, .997,.996, // liberal policy
+		.754,.822, .754,.660, .996,.660, .996,.822, .754,.822, .754,.660, .996,.660, .996,.822, // fascist policy
 		.746,.996, .505,.996, .505,.650, .746,.650, .021,.022, .021,.269, .375,.269, .375,.022, // liberal role
 		.746,.645, .505,.645, .505,.300, .746,.300, .021,.022, .021,.269, .375,.269, .375,.022, // fascist role
 		.996,.645, .754,.645, .754,.300, .996,.300, .021,.022, .021,.269, .375,.269, .375,.022, // hitler role
@@ -57,6 +58,8 @@ function initCardData()
 		.243,.642, .006,.642, .006,.302, .243,.302, .021,.022, .021,.269, .375,.269, .375,.022, // nein
 		.021,.022, .021,.269, .375,.269, .375,.022, .021,.022, .021,.269, .375,.269, .375,.022, // blank
 		.397,.276, .397,.015, .765,.015, .765,.276, .021,.022, .021,.269, .375,.269, .375,.022, // credits
+		.963,.270, .804,.270, .804,.029, .963,.029, .804,.270, .963,.270, .963,.029, .804,.029, // veto
+
 	];
 	
 	let intData = [
@@ -76,7 +79,7 @@ function initCardData()
 	let posPortrait = new THREE.BufferAttribute(new Float32Array(geoBuffer, 0, posLength), 3),
 		posLandscape = new THREE.BufferAttribute(new Float32Array(geoBuffer, 4*posLength, posLength), 3);
 	let uvs = [];
-	for(let i=0; i<11; i++){
+	for(let i=0; i<12; i++){
 		uvs.push( new THREE.BufferAttribute(new Float32Array(geoBuffer, 8*posLength + 4*i*uvLength, uvLength), 2) );
 	}
 	let index = new THREE.BufferAttribute(new Uint16Array(geoBuffer, 4*floatData.length, indexLength), 1);
@@ -125,7 +128,7 @@ class LiberalPolicyCard extends Card {
 		spot = Math.max(0, Math.min(4, spot));
 		let s = LiberalPolicyCard.spots;
 		if(animate){
-			Animate.start(this, {
+			return Animate.simple(this, {
 				pos: s['pos_'+spot],
 				quat: s.quat,
 				scale: s.scale
@@ -135,6 +138,7 @@ class LiberalPolicyCard extends Card {
 			this.position.copy(s['pos_'+spot]);
 			this.quaternion.copy(s.quat);
 			this.scale.copy(s.scale);
+			return Promise.resolve();
 		}
 	}
 }
@@ -158,7 +162,7 @@ class FascistPolicyCard extends Card {
 		spot = Math.max(0, Math.min(5, spot));
 		let s = FascistPolicyCard.spots;
 		if(animate){
-			Animate.start(this, {
+			return Animate.simple(this, {
 				pos: s['pos_'+spot],
 				quat: s.quat,
 				scale: s.scale
@@ -168,6 +172,7 @@ class FascistPolicyCard extends Card {
 			this.position.copy(s['pos_'+spot]);
 			this.quaternion.copy(s.quat);
 			this.scale.copy(s.scale);
+			return Promise.resolve();
 		}
 	}
 }
@@ -183,6 +188,11 @@ FascistPolicyCard.spots = {
 	scale: new THREE.Vector3(0.4, 0.4, 0.4)
 }
 
+class VetoCard extends Card {
+	constructor(){
+		super(Types.VETO);
+	}
+}
 class LiberalRoleCard extends Card {
 	constructor(){
 		super(Types.ROLE_LIBERAL);
@@ -227,7 +237,7 @@ class NeinCard extends Card {
 
 
 export {
-	Card, Types, BlankCard, CreditsCard,
+	Card, Types, BlankCard, CreditsCard, VetoCard,
 	LiberalPolicyCard, FascistPolicyCard, LiberalRoleCard, FascistRoleCard,
 	HitlerRoleCard, LiberalPartyCard, FascistPartyCard, JaCard, NeinCard
 };

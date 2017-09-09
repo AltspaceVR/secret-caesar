@@ -152,7 +152,11 @@ class GameState extends GameObject
 	{
 		super('game', id);
 		let defaults = {
-			state: 'setup', // setup, night, nominate, election, lameDuck, policy1, policy2, aftermath, power, done
+			/*
+			State one of: setup, night, nominate, election, lameDuck, policy1, policy2,
+			veto, aftermath, investigate, peek, nameSuccessor, execute, done
+			*/
+			state: 'setup',
 			turnOrder: [], // CSV of userIds
 			votesInProgress: [], // CSV of voteIds
 			president: '', // userId

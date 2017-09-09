@@ -109,7 +109,7 @@ class SecretHitler extends THREE.Object3D
 				this.victoryBanner.position.set(0,0.8,0);
 				this.victoryBanner.scale.setScalar(.001);
 				this.victoryBanner.visible = true;
-				Animate.start(this.victoryBanner, {
+				Animate.simple(this.victoryBanner, {
 					pos: new THREE.Vector3(0, 1.85, 0),
 					scale: new THREE.Vector3(1,1,1)
 				});

@@ -1,7 +1,7 @@
 'use strict;'
 
 import SH from './secrethitler';
-import { BlankCard, JaCard, NeinCard, FascistPolicyCard, LiberalPolicyCard } from './card';
+import { BlankCard, JaCard, NeinCard, FascistPolicyCard, LiberalPolicyCard, VetoCard } from './card';
 import { generateQuestion, lateUpdate } from './utils';
 import * as BP from './ballotprocessor';
 import * as BPBA from './bpba';
@@ -24,6 +24,7 @@ class Ballot extends THREE.Object3D
 
 		this.lastQueued = Promise.resolve();
 		this.displayed = null;
+		this.blockVeto = false;
 
 		this._yesClickHandler = null;
 		this._noClickHandler = null;
@@ -55,7 +56,7 @@ class Ballot extends THREE.Object3D
 		SH.addEventListener('update_state', lateUpdate(BP.updateState.bind(this)));
 	}
 
-	askQuestion(qText, id, {choices = BINARY, policyHand = 0x1, fake = false, isInvalid = () => true} = {})
+	askQuestion(qText, id, {choices = BINARY, policyHand = 0x1, includeVeto = false, fake = false, isInvalid = () => true} = {})
 	{
 		let self = this;
 
@@ -101,12 +102,16 @@ class Ballot extends THREE.Object3D
 				SH.addEventListener('playerSelect', respond('player', resolve, reject));
 			}
 			else if(choices === POLICY){
-				BPBA.toArray(policyHand).forEach((val, i, arr) =>
+				let cards = BPBA.toArray(policyHand);
+				if(includeVeto) cards.push(-1);
+				cards.forEach((val, i, arr) =>
 				{
 					let card = null;
 					if(fake)
 						card = new BlankCard();
-					else if(val)
+					else if(val === -1)
+						card = new VetoCard();
+					else if(val === BPBA.LIBERAL)
 						card = new LiberalPolicyCard();
 					else
 						card = new FascistPolicyCard();
@@ -120,7 +125,7 @@ class Ballot extends THREE.Object3D
 					self.policies.push(card);
 
 					if(!fake)
-						card.addEventListener('cursorup', respond(i, resolve, reject));
+						card.addEventListener('cursorup', respond(val === -1 ? -1 : i, resolve, reject));
 				});
 			}
 
