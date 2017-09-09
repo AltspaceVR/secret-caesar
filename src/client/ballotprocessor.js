@@ -38,11 +38,17 @@ function updateVotesInProgress({data: {game, players, votes}})
 				+ players[votes[vId].target1].displayName
 				+ '?';
 		}
-		else if(votes[vId].type === 'confirmRole' && ballot.seat.owner === SH.localUser.id)
+		else if(votes[vId].type === 'confirmRole')
 		{
-			opts = {choices: BallotType.CONFIRM};
-			let role = players[SH.localUser.id].role;
-			role = role.charAt(0).toUpperCase() + role.slice(1);
+			opts.choices = BallotType.CONFIRM;
+			let role;
+			if(ballot.seat.owner === SH.localUser.id){
+				role = players[SH.localUser.id].role;
+				role = role.charAt(0).toUpperCase() + role.slice(1);
+			}
+			else {
+				role = '<REDACTED>';
+			}
 			questionText = 'Your role:\n' + role;
 		}
 
