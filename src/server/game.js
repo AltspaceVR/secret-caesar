@@ -26,6 +26,11 @@ async function handleContinue()
 		start(socket, game);
 	else if(state === 'lameDuck')
 	{
+		// election successful, continue
+		// election successful, victory
+		// election fail, continue
+		// election fail, policy victory
+
 		if(game.get('failedVotes') === 0)
 		{
 			await game.loadPlayers();
@@ -213,7 +218,7 @@ async function discardPolicy2(val)
 	game.set('hand', hand);
 	game.set('discard', discard);
 
-	if(hand & 1)
+	if(hand & 1 === BPBA.LIBERAL)
 		game.set('liberalPolicies', game.get('liberalPolicies')+1);
 	else
 		game.set('fascistPolicies', game.get('fascistPolicies')+1);
@@ -221,21 +226,7 @@ async function discardPolicy2(val)
 	game.set('state', 'aftermath');
 	
 	// guarantee deck has enough cards to draw
-	let deck = game.get('deck');
-	if(BPBA.length(deck) < 3)
-	{
-		// discard whole remaining deck
-		while(deck > 1){
-			let card = 0;
-			[deck, card] = BPBA.discardOne(deck, 0);
-			discard = BPBA.appendCard(discard, card);
-		}
-
-		// shuffle discard, it's new deck
-		deck = BPBA.shuffle(discard);
-		game.set('discard', 1);
-		game.set('deck', deck);
-	}
+	guaranteeDeckSizeMinimum(game);
 
 	let diff = await game.save();
 	socket.server.to(socket.gameId).emit('update', diff);
@@ -244,7 +235,7 @@ async function discardPolicy2(val)
 async function execPowers(socket, game)
 {
 	let fascistPolicies = game.get('fascistPolicies'),
-		lastCardIsFascist = (game.get('hand') & 1) === 0,
+		lastCardIsFascist = (game.get('hand') & 1) === BPBA.FASCIST,
 		playerCount = game.get('turnOrder').length,
 		specialPhase = false;
 
@@ -290,7 +281,7 @@ async function evaluateVictory(socket, game)
 	let hitlerId = Object.keys(game.players).find(pid => game.players[pid].get('role') === 'hitler');
 	let turnOrder = game.get('turnOrder');
 
-	if(game.get('state') === 'aftermath' && game.get('liberalPolicies') === 5){
+	if(game.get('liberalPolicies') === 5){
 		Utils.log(game, 'liberal policy victory');
 		game.set('victory', 'liberal-policy');
 	}
@@ -298,7 +289,7 @@ async function evaluateVictory(socket, game)
 		Utils.log(game, 'hitler assassinated');
 		game.set('victory', 'liberal-assassination');
 	}
-	else if(game.get('state') === 'aftermath' && game.get('fascistPolicies') === 6){
+	else if(game.get('fascistPolicies') === 6){
 		Utils.log(game, 'fascist policy victory');
 		game.set('victory', 'fascist-policy');
 	}
@@ -364,6 +355,25 @@ async function execute(userId)
 	}
 }
 
+function guaranteeDeckSizeMinimum(game)
+{
+	let deck = game.get('deck');
+	if(BPBA.length(deck) < 3)
+	{
+		// discard whole remaining deck
+		while(deck > 1){
+			let card = 0;
+			[deck, card] = BPBA.discardOne(deck, 0);
+			discard = BPBA.appendCard(discard, card);
+		}
+
+		// shuffle discard, it's new deck
+		deck = BPBA.shuffle(discard);
+		game.set('discard', 1);
+		game.set('deck', deck);
+	}
+}
+
 exports.reset = reset;
 exports.handleContinue = handleContinue;
 exports.nominate = nominate;
@@ -371,3 +381,4 @@ exports.discardPolicy1 = discardPolicy1;
 exports.discardPolicy2 = discardPolicy2;
 exports.nameSuccessor = nameSuccessor;
 exports.execute = execute;
+exports.guaranteeDeckSizeMinimum = guaranteeDeckSizeMinimum;

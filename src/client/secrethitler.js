@@ -13,6 +13,7 @@ import PlayerMeter from './playermeter';
 import ContinueBox from './continuebox';
 import { NText, NBillboard, PlaceholderMesh } from './nativecomponents';
 import Animate from './animate';
+import ElectionTracker from './electiontracker';
 
 class SecretHitler extends THREE.Object3D
 {
@@ -134,10 +135,7 @@ class SecretHitler extends THREE.Object3D
 		//this.table.add(this.playerMeter);
 		this.continueBox = new ContinueBox(this.table);
 
-		// add avatar for scale
-		/*assets.models.dummy.position.set(0, -0.12, 1.1);
-		assets.models.dummy.rotateZ(Math.PI);
-		this.add(assets.models.dummy);*/
+		this.electionTracker = new ElectionTracker();
 
 		this.socket.on('update', this.updateFromServer.bind(this));
 		this.socket.on('checked_in', this.checkedIn.bind(this));

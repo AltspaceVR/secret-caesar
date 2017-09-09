@@ -2,7 +2,9 @@
 
 const DB = require('./db'),
 	Utils = require('./utils'),
-	Players = require('./players');
+	Players = require('./players'),
+	Game = require('./game'),
+	BPBA = require('./bpba');
 
 function tallyVote(voteId, userId, answer)
 {
@@ -223,7 +225,24 @@ async function evaluateElectionVote(game, vote, passed)
 	else
 	{
 		// continue to reaction, but increment fail count
-		game.set('failedVotes', game.get('failedVotes') + 1);
+		let failedVotes = game.get('failedVotes') + 1;
+		game.set('failedVotes', failedVotes);
+
+		// every third failed vote, enact a policy
+		if(failedVotes >= 3 && failedVotes%3 === 0)
+		{
+			let [deck, card] = BPBA.discardOne(game.get('deck'), 0);
+			game.set('deck', deck);
+			if(card === BPBA.LIBERAL){
+				game.set('liberalPolicies', game.get('liberalPolicies')+1);
+			}
+			else {
+				game.set('fascistPolicies', game.get('fascistPolicies')+1);
+			}
+
+			// guarantee deck has enough cards to draw
+			Game.guaranteeDeckSizeMinimum(game);
+		}
 
 		await game.loadPlayers();
 
@@ -242,15 +261,10 @@ async function evaluateElectionVote(game, vote, passed)
 		game.set('specialElection', false);
 	}
 
-	Promise.all([game.save(), vote.save()])
-	.then(([gdiff, vdiff]) => {
-		console.log('election saved');
-		socket.server.to(socket.gameId).emit('update',
-			gdiff, null, {[vote.get('id')]: vdiff}
-		);
-
-	}, err => Utils.log(game, err))
-	.catch(err => console.log(err.stack));
+	let [gdiff, vdiff] = await Promise.all([game.save(), vote.save()])
+	socket.server.to(socket.gameId).emit('update',
+		gdiff, null, {[vote.get('id')]: vdiff}
+	);
 }
 
 exports.tallyVote = tallyVote;

@@ -63,11 +63,14 @@ export default class GameTable extends THREE.Object3D
 
 	updatePolicies({data: {game: {liberalPolicies, fascistPolicies}}})
 	{
+		let cardsInUpdate = liberalPolicies + fascistPolicies - this.liberalCards - this.fascistCards;
+		let animate = cardsInUpdate === 1;
+
 		for(var i=this.liberalCards; i<liberalPolicies; i++){
 			let card = new LiberalPolicyCard();
 			this.cards.push(card);
 			this.add(card);
-			card.goToPosition(i);
+			card.goToPosition(i, animate);
 		}
 		this.liberalCards = liberalPolicies;
 
@@ -75,7 +78,7 @@ export default class GameTable extends THREE.Object3D
 			let card = new FascistPolicyCard();
 			this.cards.push(card);
 			this.add(card);
-			card.goToPosition(i);
+			card.goToPosition(i, animate);
 		}
 		this.fascistCards = fascistPolicies;
 

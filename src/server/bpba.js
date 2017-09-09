@@ -65,4 +65,4 @@ function appendCard(deck, val)
 	return deck << 1 | val;
 }
 
-module.exports = {length, shuffle, drawThree, discardOne, appendCard, FULL_DECK: 0x2003f};
+module.exports = {length, shuffle, drawThree, discardOne, appendCard, FULL_DECK: 0x2003f, LIBERAL: 1, FASCIST: 0};

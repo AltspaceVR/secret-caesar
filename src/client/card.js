@@ -120,11 +120,22 @@ class LiberalPolicyCard extends Card {
 	constructor(){
 		super(Types.POLICY_LIBERAL, false);
 	}
-	goToPosition(spot = 0)
+	goToPosition(spot = 0, animate = false)
 	{
 		spot = Math.max(0, Math.min(4, spot));
 		let s = LiberalPolicyCard.spots;
-		Animate.start(this, {parent: AssetManager.root, pos: s['pos_'+spot], quat: s.quat, scale: s.scale});
+		if(animate){
+			Animate.start(this, {
+				pos: s['pos_'+spot],
+				quat: s.quat,
+				scale: s.scale
+			});
+		}
+		else {
+			this.position.copy(s['pos_'+spot]);
+			this.quaternion.copy(s.quat);
+			this.scale.copy(s.scale);
+		}
 	}
 }
 
@@ -142,11 +153,22 @@ class FascistPolicyCard extends Card {
 	constructor(){
 		super(Types.POLICY_FASCIST);
 	}
-	goToPosition(spot = 0)
+	goToPosition(spot = 0, animate = false)
 	{
 		spot = Math.max(0, Math.min(5, spot));
 		let s = FascistPolicyCard.spots;
-		Animate.start(this, {parent: AssetManager.root, pos: s['pos_'+spot], quat: s.quat, scale: s.scale});
+		if(animate){
+			Animate.start(this, {
+				pos: s['pos_'+spot],
+				quat: s.quat,
+				scale: s.scale
+			});
+		}
+		else {
+			this.position.copy(s['pos_'+spot]);
+			this.quaternion.copy(s.quat);
+			this.scale.copy(s.scale);
+		}
 	}
 }
 
