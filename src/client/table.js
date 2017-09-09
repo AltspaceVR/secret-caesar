@@ -92,6 +92,7 @@ export default class GameTable extends THREE.Object3D
 			this.add(card);
 			promises.push(Animate.wait(1000).then(() => {
 				this.remove(card);
+				return SH.electionTracker.anim;
 			}));
 		}
 
