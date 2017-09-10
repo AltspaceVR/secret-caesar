@@ -23,7 +23,7 @@ export default class Presentation extends THREE.Object3D
 		this.add(this.banner);
 
 		// update stuff
-		this.addEventListener('update_state', this.updateOnState.bind(this));
+		SH.addEventListener('update_state', this.updateOnState.bind(this));
 	}
 
 	updateOnState({data: {game, players}})

@@ -123,69 +123,12 @@ class LiberalPolicyCard extends Card {
 	constructor(){
 		super(Types.POLICY_LIBERAL, false);
 	}
-	goToPosition(spot = 0, animate = false)
-	{
-		spot = Math.max(0, Math.min(4, spot));
-		let s = LiberalPolicyCard.spots;
-		if(animate){
-			return Animate.simple(this, {
-				pos: s['pos_'+spot],
-				quat: s.quat,
-				scale: s.scale
-			});
-		}
-		else {
-			this.position.copy(s['pos_'+spot]);
-			this.quaternion.copy(s.quat);
-			this.scale.copy(s.scale);
-			return Promise.resolve();
-		}
-	}
-}
-
-LiberalPolicyCard.spots = {
-	pos_0: new THREE.Vector3(0.69, 0.001, -0.42),
-	pos_1: new THREE.Vector3(0.345, 0.001, -0.42),
-	pos_2: new THREE.Vector3(0.002, 0.001, -0.42),
-	pos_3: new THREE.Vector3(-.34, 0.001, -0.42),
-	pos_4: new THREE.Vector3(-.69, 0.001, -0.42),
-	quat: new THREE.Quaternion(0, 0.7071067811865475, 0.7071067811865475, 0),
-	scale: new THREE.Vector3(0.4, 0.4, 0.4)
 }
 
 class FascistPolicyCard extends Card {
 	constructor(){
 		super(Types.POLICY_FASCIST);
 	}
-	goToPosition(spot = 0, animate = false)
-	{
-		spot = Math.max(0, Math.min(5, spot));
-		let s = FascistPolicyCard.spots;
-		if(animate){
-			return Animate.simple(this, {
-				pos: s['pos_'+spot],
-				quat: s.quat,
-				scale: s.scale
-			});
-		}
-		else {
-			this.position.copy(s['pos_'+spot]);
-			this.quaternion.copy(s.quat);
-			this.scale.copy(s.scale);
-			return Promise.resolve();
-		}
-	}
-}
-
-FascistPolicyCard.spots = {
-	pos_0: new THREE.Vector3(-.86, 0.001, .425),
-	pos_1: new THREE.Vector3(-.515, 0.001, .425),
-	pos_2: new THREE.Vector3(-.17, 0.001, .425),
-	pos_3: new THREE.Vector3(0.17, 0.001, .425),
-	pos_4: new THREE.Vector3(.518, 0.001, .425),
-	pos_5: new THREE.Vector3(0.87, 0.001, .425),
-	quat: new THREE.Quaternion(-0.7071067811865475, 0, 0, 0.7071067811865475),
-	scale: new THREE.Vector3(0.4, 0.4, 0.4)
 }
 
 class VetoCard extends Card {

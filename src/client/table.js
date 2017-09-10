@@ -5,6 +5,30 @@ import SH from './secrethitler';
 import Animate from './animate';
 import {LiberalPolicyCard, FascistPolicyCard, VetoCard} from './card';
 
+let LiberalSpots = {
+	positions: [
+		new THREE.Vector3(0.690, 0.001, -0.42),
+		new THREE.Vector3(0.345, 0.001, -0.42),
+		new THREE.Vector3(0.002, 0.001, -0.42),
+		new THREE.Vector3(-.340, 0.001, -0.42),
+		new THREE.Vector3(-.690, 0.001, -0.42)
+	],
+	quaternion: new THREE.Quaternion(0, 0.7071067811865475, 0.7071067811865475, 0),
+	scale: new THREE.Vector3(0.4, 0.4, 0.4)
+},
+FascistSpots = {
+	positions: [
+		new THREE.Vector3(-.860, 0.001, .425),
+		new THREE.Vector3(-.515, 0.001, .425),
+		new THREE.Vector3(-.170, 0.001, .425),
+		new THREE.Vector3(0.170, 0.001, .425),
+		new THREE.Vector3(0.518, 0.001, .425),
+		new THREE.Vector3(0.870, 0.001, .425),	
+	],
+	quaternion: new THREE.Quaternion(-0.7071067811865475, 0, 0, 0.7071067811865475),
+	scale: new THREE.Vector3(0.4, 0.4, 0.4)
+};
+
 export default class GameTable extends THREE.Object3D
 {
 	constructor()
@@ -14,8 +38,13 @@ export default class GameTable extends THREE.Object3D
 		// table state
 		this.liberalCards = 0;
 		this.fascistCards = 0;
-		this.failedVotes = 0;
 		this.cards = [];
+
+		this.vetoCard = new VetoCard();
+		this.vetoCard.scale.setScalar(.5);
+		this.vetoCard.visible = false;
+		this.vetoCard.material.transparent = true;
+		this.add(this.vetoCard);
 
 		// add table asset
 		this.model = AM.cache.models.table;
@@ -63,41 +92,70 @@ export default class GameTable extends THREE.Object3D
 		});
 	}
 
-	updatePolicies({data: {game: {liberalPolicies, fascistPolicies, failedVotes, hand, state}}})
+	updatePolicies({data: {game: {liberalPolicies, fascistPolicies, hand, state}}})
 	{
-		let cardsInUpdate = liberalPolicies + fascistPolicies - this.liberalCards - this.fascistCards;
-		let animate = cardsInUpdate === 1;
+		let updates = [];
 
-		let promises = [];
-
+		// queue up cards to be added to the table this update
 		for(var i=this.liberalCards; i<liberalPolicies; i++){
 			let card = new LiberalPolicyCard();
-			this.cards.push(card);
-			this.add(card);
-			promises.push(card.goToPosition(i, animate));
+			card.destination = {
+				pos: LiberalSpots.positions[i],
+				quat: LiberalSpots.quaternion,
+				scale: LiberalSpots.scale
+			};
+			updates.push(card);
 		}
-		this.liberalCards = liberalPolicies;
-
+		
 		for(var i=this.fascistCards; i<fascistPolicies; i++){
 			let card = new FascistPolicyCard();
-			this.cards.push(card);
-			this.add(card);
-			promises.push(card.goToPosition(i, animate));
+			card.destination = {
+				pos: FascistSpots.positions[i],
+				quat: FascistSpots.quaternion,
+				scale: FascistSpots.scale
+			};
+			updates.push(card);
 		}
-		this.fascistCards = fascistPolicies;
 
 		if(state === 'aftermath' && hand === 1){
-			let card = new VetoCard();
-			card.position.set(0,1,0);
-			this.add(card);
-			promises.push(Animate.wait(1000).then(() => {
-				this.remove(card);
-				return SH.electionTracker.anim;
-			}));
+			updates.push(this.vetoCard);
+		}
+
+		let animation = null;
+		if(updates.length === 1)
+		{
+			let card = updates[0];
+			if(card === this.vetoCard)
+			{
+				card.visible = true; card.material.opacity = 1;
+				animation = Animate.cardFlourish(card);
+				animation.then(() => Animate.vanish(card))
+				.then(() => { card.visible = false; });
+			}
+			else
+			{
+				this.add(card);
+				this.cards.push(card);
+				animation = Animate.cardFlourish(card);
+				animation.then(() => Animate.simple(card, card.destination));
+			}
+		}
+		else
+		{
+			// place on their spots
+			updates.forEach(card => {
+				card.position.copy(card.destination.pos);
+				card.quaternion.copy(card.destination.quat);
+				card.scale.copy(card.destination.scale);
+				this.add(card);
+				this.cards.push(card);
+			});
+
+			animation = Promise.resolve();
 		}
 
 		if(state === 'aftermath'){
-			Promise.all(promises).then(() => {
+			animation.then(() => {
 				SH.dispatchEvent({
 					type: 'policyAnimDone',
 					bubbles: false
@@ -108,5 +166,8 @@ export default class GameTable extends THREE.Object3D
 		if(liberalPolicies === 0 && fascistPolicies === 0){
 			this.cards.forEach(c => this.remove(c));
 		}
+
+		this.liberalCards = liberalPolicies;
+		this.fascistCards = fascistPolicies;
 	}
 };
