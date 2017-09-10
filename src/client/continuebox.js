@@ -46,15 +46,16 @@ export default class ContinueBox extends THREE.Object3D
 
 	onstatechange({data: {game}})
 	{
-		if(game.state === 'lameDuck' || (game.state === 'peek' && game.president === SH.localUser.id))
-		{
+		if(game.state === 'lameDuck' || (game.state === 'peek' && game.president === SH.localUser.id)){
 			this.show();
 		}
 		else if(game.state === 'setup'){
 			this.playerSetup({data: {game}});
 		}
 		else if(game.state === 'done'){
-			this.show('New game');
+			setTimeout(() => {
+				this.show('New game');
+			}, 4000);
 		}
 		else {
 			this.hide();
@@ -65,15 +66,17 @@ export default class ContinueBox extends THREE.Object3D
 	{
 		if(game.state === 'setup'){
 			this.text.visible = true;
-			
-			if(game.turnOrder.length >= 5){
+			let playerCount = game.turnOrder.length;
+			if(playerCount >= 5){
 				this.icon.visible = true;
-				this.textComponent.update({text: 'Click to start'});
+				this.textComponent.update({text:
+					`(${playerCount}/5) Click when ready`
+				});
 			}
 			else {
 				this.icon.visible = false;
 				this.textComponent.update({text:
-					`Need ${5-game.turnOrder.length} more player${game.turnOrder.length!=4 ? 's' : ''}!`
+					`(${playerCount}/5) Need more players`
 				});
 			}
 		}

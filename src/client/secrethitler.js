@@ -2,7 +2,6 @@
 
 import './polyfill';
 
-import * as Cards from './card';
 import { PresidentHat, ChancellorHat } from './hats';
 import GameTable from './table';
 import AssetManager from './assetmanager';
@@ -11,9 +10,8 @@ import Nameplate from './nameplate';
 import Seat from './seat';
 import PlayerMeter from './playermeter';
 import ContinueBox from './continuebox';
-import { NText, NBillboard, PlaceholderMesh } from './nativecomponents';
-import Animate from './animate';
 import ElectionTracker from './electiontracker';
+import Presentation from './presentation';
 
 class SecretHitler extends THREE.Object3D
 {
@@ -80,44 +78,7 @@ class SecretHitler extends THREE.Object3D
 		this.resetButton.addEventListener('cursorup', this.sendReset.bind(this));
 		this.table.add(this.resetButton);
 
-		// create idle display
-		this.credits = new Cards.CreditsCard();
-		this.credits.position.set(0, 1.85, 0);
-		this.credits.addBehavior(new altspace.utilities.behaviors.Spin({speed: 0.0002}));
-		this.add(this.credits);
-
-		// create victory banner
-		this.victoryBanner = PlaceholderMesh.clone();
-		this.victoryBanner.text = new NText(this.victoryBanner);
-		this.victoryBanner.text.update({fontSize: 2});
-		this.victoryBanner.billboard = new NBillboard(this.victoryBanner);
-		this.add(this.victoryBanner);
-
-		// update credits/victory
-		this.addEventListener('update_state', ({data: {game}}) => {
-			this.credits.visible = game.state === 'setup';
-			if(game.state === 'done'){
-				if(/^liberal/.test(game.victory)){
-					this.victoryBanner.text.color = 'blue';
-					this.victoryBanner.text.update({text: 'Liberals win!'});
-				}
-				else {
-					this.victoryBanner.text.color = 'red';
-					this.victoryBanner.text.update({text: 'Fascists win!'});
-				}
-				
-				this.victoryBanner.position.set(0,0.8,0);
-				this.victoryBanner.scale.setScalar(.001);
-				this.victoryBanner.visible = true;
-				Animate.simple(this.victoryBanner, {
-					pos: new THREE.Vector3(0, 1.85, 0),
-					scale: new THREE.Vector3(1,1,1)
-				});
-			}
-			else {
-				this.victoryBanner.visible = false;
-			}
-		});
+		this.presentation = new Presentation();
 
 		// create hats
 		this.presidentHat = new PresidentHat();

@@ -102,15 +102,19 @@ async function start(socket, game)
 	game.set('deck', BPBA.shuffle(BPBA.FULL_DECK));
 	game.set('state', 'night');
 
+	// cancel all join/kick votes in progress
+	let oldVotes = game.get('votesInProgress').map(id => new DB.Vote(id));
+
 	// start role confirmation vote
 	let vote = new DB.Vote(Utils.generateId());
 	vote.set('type', 'confirmRole');
 	vote.set('toPass', pc);
 	vote.set('requires', pc);
-	game.set('votesInProgress', [...game.get('votesInProgress'), vote.get('id')]);
+	game.set('votesInProgress', [vote.get('id')]);
 
-	let diffs = await Promise.all([game.save(), vote.save(),
-		Promise.all(game.get('turnOrder').map(u => game.players[u].save()))
+	let [gdiff, vdiff] = await Promise.all([game.save(), vote.save(),
+		Promise.all(game.get('turnOrder').map(u => game.players[u].save())),
+		Promise.all(oldVotes.map(v => v.destroy()))
 	]);
 
 	// format array of player info changes to identify players
@@ -119,9 +123,8 @@ async function start(socket, game)
 		pdiff[i] = {role: game.players[i].get('role')};
 	}
 
-	let vdiffs = {};
-	vdiffs[diffs[1].id] = diffs[1];
-	socket.server.to(socket.gameId).emit('update', diffs[0], pdiff, vdiffs);
+	vdiff = {[vdiff.id]: vdiff};
+	socket.server.to(socket.gameId).emit('update', gdiff, pdiff, vdiff);
 }
 
 function nominate(chancellor)

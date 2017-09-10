@@ -1,5 +1,22 @@
 import { Behavior } from './behavior';
 
+class QuaternionTween extends TWEEN.Tween
+{
+	constructor(state, group){
+		super({t: 0}, group);
+		this.state = state;
+		this.start = state.clone();
+	}
+	to(end, duration){
+		super.to({t: 1}, duration);
+		this.end = end;
+	}
+	start(){
+		this.onUpdate(t => THREE.Quaternion.slerp(this.start, this.end, this.state, t.t));
+		super.start();
+	}
+}
+
 export default class Animate extends Behavior
 {
 	constructor(){
@@ -56,10 +73,9 @@ export default class Animate extends Behavior
 
 			if(quat)
 			{
-				new TWEEN.Tween({t:0}, anim.group)
-				.to({t:1}, duration)
+				new QuaternionTween(target.quaternion, anim.group)
+				.to(quat, duration)
 				.easing(TWEEN.Easing.Quadratic.Out)
-				.onUpdate(t => THREE.Quaternion.slerp(initialQuat, quat, target.quaternion, t.t))
 				.onComplete(groupIsDone)
 				.start();
 				toComplete++;
