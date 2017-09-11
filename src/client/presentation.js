@@ -13,7 +13,7 @@ export default class Presentation extends THREE.Object3D
 		// create idle display
 		this.credits = new CreditsCard();
 		this.credits.position.set(0, 1.85, 0);
-		this.credits.addBehavior(new altspace.utilities.behaviors.Spin({speed: 0.0002}));
+		Animate.spin(this.credits, 30000);
 		this.add(this.credits);
 		
 		// create victory banner
@@ -21,6 +21,7 @@ export default class Presentation extends THREE.Object3D
 		this.banner.text = new NText(this.banner);
 		this.banner.text.update({fontSize: 2});
 		this.banner.billboard = new NBillboard(this.banner);
+		this.banner.bob = null;
 		this.add(this.banner);
 
 		// update stuff
@@ -34,7 +35,7 @@ export default class Presentation extends THREE.Object3D
 		if(game.state === 'done')
 		{
 			if(/^liberal/.test(game.victory)){
-				this.banner.text.color = 'blue';
+				this.banner.text.color = '#1919ff';
 				this.banner.text.update({text: 'Liberals win!'});
 				SH.audio.liberalFanfare.play();
 			}
@@ -48,10 +49,11 @@ export default class Presentation extends THREE.Object3D
 			this.banner.scale.setScalar(.001);
 			this.banner.visible = true;
 			Animate.simple(this.banner, {
-				pos: new THREE.Vector3(0, 1.85, 0),
+				pos: new THREE.Vector3(0, 1.8, 0),
 				scale: new THREE.Vector3(1,1,1),
 				duration: 1000
-			});
+			})
+			.then(() => this.banner.bob = Animate.bob(this.banner));
 		}
 		else if(game.state === 'policy1' && game.fascistPolicies >= 3)
 		{
@@ -63,12 +65,15 @@ export default class Presentation extends THREE.Object3D
 			this.banner.scale.setScalar(.001);
 			this.banner.visible = true;
 			Animate.simple(this.banner, {
-				pos: new THREE.Vector3(0, 1.85, 0),
+				pos: new THREE.Vector3(0, 1.8, 0),
 				scale: new THREE.Vector3(1,1,1)
-			});
+			})
+			.then(() => this.banner.bob = Animate.bob(this.banner));
 		}
 		else if(game.state === 'aftermath') {
 			this.banner.visible = false;
+			this.banner.bob.stop();
+			this.banner.bob = null;
 		}
 	}
 }

@@ -2,6 +2,7 @@
 
 import SH from './secrethitler';
 import {PlaceholderMesh, NBillboard, NText} from './nativecomponents';
+import Animate from './animate';
 
 export default class ContinueBox extends THREE.Object3D
 {
@@ -9,10 +10,10 @@ export default class ContinueBox extends THREE.Object3D
 	{
 		super();
 		this.icon = new THREE.Mesh(
-			new THREE.BoxBufferGeometry(.2, .1, .2),
-			new THREE.MeshBasicMaterial({color: 0x00c000})
+			new THREE.BoxBufferGeometry(.15, .15, .15),
+			new THREE.MeshBasicMaterial({color: 0x10a010})
 		);
-		this.icon.addBehavior(new altspace.utilities.behaviors.Spin());
+		Animate.spin(this.icon);
 		this.add(this.icon);
 
 		this.text = PlaceholderMesh.clone();

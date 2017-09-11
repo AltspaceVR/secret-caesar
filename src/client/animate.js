@@ -38,6 +38,13 @@ function WaitForAnims(tweens)
 	});
 }
 
+const spinPoints = [
+	new THREE.Quaternion(0, Math.sqrt(2)/2, 0, Math.sqrt(2)/2),
+	new THREE.Quaternion(0, 1, 0, 0),
+	new THREE.Quaternion(0, Math.sqrt(2)/2, 0, -Math.sqrt(2)/2),
+	new THREE.Quaternion(0, 0, 0, 1)
+];
+
 export default class Animate
 {
 	/**
@@ -112,13 +119,6 @@ export default class Animate
 			.easing(TWEEN.Easing.Elastic.Out)
 		);
 
-		const spinPoints = [
-			new THREE.Quaternion(0, Math.sqrt(2)/2, 0, Math.sqrt(2)/2),
-			new THREE.Quaternion(0, 1, 0, 0),
-			new THREE.Quaternion(0, Math.sqrt(2)/2, 0, -Math.sqrt(2)/2),
-			new THREE.Quaternion(0, 0, 0, 1)
-		];
-
 		// add spin animation
 		anims.push(new QuaternionTween(card.quaternion)
 			.to(spinPoints, 2500)
@@ -148,5 +148,23 @@ export default class Animate
 		);
 
 		return WaitForAnims(anims);
+	}
+
+	static bob(obj, amplitude = .08, period = 4000)
+	{
+		return new TWEEN.Tween(obj.position)
+			.to({y: obj.position.y-amplitude}, period)
+			.easing(TWEEN.Easing.Sinusoidal.InOut)
+			.repeat(Infinity)
+			.yoyo(true)
+			.start();
+	}
+
+	static spin(obj, period = 10000)
+	{
+		return new QuaternionTween(obj.quaternion)
+			.to(spinPoints, period)
+			.repeat(Infinity)
+			.start();
 	}
 }
