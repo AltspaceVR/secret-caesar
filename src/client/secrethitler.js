@@ -12,6 +12,7 @@ import PlayerMeter from './playermeter';
 import ContinueBox from './continuebox';
 import ElectionTracker from './electiontracker';
 import Presentation from './presentation';
+import AudioController from './audiocontroller';
 
 class SecretHitler extends THREE.Object3D
 {
@@ -65,6 +66,8 @@ class SecretHitler extends THREE.Object3D
 
 		// connect to server
 		this.socket = io.connect('/', {query: 'gameId='+getGameId()});
+
+		this.audio = new AudioController();
 
 		// create the table
 		this.table = new GameTable();

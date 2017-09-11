@@ -34,7 +34,7 @@ export default class Hitbox extends THREE.Mesh
 		SH.addEventListener('update_state', lateUpdate(this.updateVisibility.bind(this)));
 	}
 
-	updateVisibility({data: {game, players}}, specialPlayer)
+	updateVisibility({data: {game, players}})
 	{
 		let livingPlayers = game.turnOrder.filter(p => players[p].state !== 'dead');
 		let preconditions =

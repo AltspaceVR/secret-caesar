@@ -22,11 +22,11 @@ export default class ContinueBox extends THREE.Object3D
 		let bb = new NBillboard(this.text);
 
 		this.textComponent = new NText(this.text);
-		this.textComponent.update({fontSize: 1, width: 1, height: 1, horizontalAlign: 'middle', verticalAlign: 'middle'});
+		this.textComponent.update({fontSize: 1, width: 2, height: 1, horizontalAlign: 'middle', verticalAlign: 'middle'});
 
 		this.add(this.text);
 
-		this.position.set(0, 0.3, 0);
+		this.position.set(0, 0.25, 0);
 		parent.add(this);
 
 		SH.addEventListener('update_state', this.onstatechange.bind(this));

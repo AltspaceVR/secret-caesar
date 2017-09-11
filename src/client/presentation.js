@@ -1,6 +1,7 @@
 import SH from './secrethitler';
 import {CreditsCard} from './card';
 import {PlaceholderMesh, NBillboard, NText} from './nativecomponents';
+import Animate from './animate';
 
 export default class Presentation extends THREE.Object3D
 {
@@ -35,10 +36,12 @@ export default class Presentation extends THREE.Object3D
 			if(/^liberal/.test(game.victory)){
 				this.banner.text.color = 'blue';
 				this.banner.text.update({text: 'Liberals win!'});
+				SH.audio.liberalFanfare.play();
 			}
 			else {
 				this.banner.text.color = 'red';
 				this.banner.text.update({text: 'Fascists win!'});
+				SH.audio.fascistFanfare.play();
 			}
 			
 			this.banner.position.set(0,0.8,0);
@@ -46,7 +49,8 @@ export default class Presentation extends THREE.Object3D
 			this.banner.visible = true;
 			Animate.simple(this.banner, {
 				pos: new THREE.Vector3(0, 1.85, 0),
-				scale: new THREE.Vector3(1,1,1)
+				scale: new THREE.Vector3(1,1,1),
+				duration: 1000
 			});
 		}
 		else if(game.state === 'policy1' && game.fascistPolicies >= 3)

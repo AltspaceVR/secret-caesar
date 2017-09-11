@@ -99,21 +99,23 @@ export default class GameTable extends THREE.Object3D
 		// queue up cards to be added to the table this update
 		for(var i=this.liberalCards; i<liberalPolicies; i++){
 			let card = new LiberalPolicyCard();
-			card.destination = {
+			card.animate = () => Animate.simple(card, {
 				pos: LiberalSpots.positions[i],
 				quat: LiberalSpots.quaternion,
 				scale: LiberalSpots.scale
-			};
+			}).then(() => Animate.wait(500));
+			card.playSound = () => SH.audio.liberalSting.play();
 			updates.push(card);
 		}
 		
 		for(var i=this.fascistCards; i<fascistPolicies; i++){
 			let card = new FascistPolicyCard();
-			card.destination = {
+			card.animate = () => Animate.simple(card, {
 				pos: FascistSpots.positions[i],
 				quat: FascistSpots.quaternion,
 				scale: FascistSpots.scale
-			};
+			});
+			card.playSound = () => SH.audio.fascistSting.play();
 			updates.push(card);
 		}
 
@@ -136,8 +138,9 @@ export default class GameTable extends THREE.Object3D
 			{
 				this.add(card);
 				this.cards.push(card);
-				animation = Animate.cardFlourish(card);
-				animation.then(() => Animate.simple(card, card.destination));
+				card.playSound();
+				animation = Animate.cardFlourish(card)
+				.then(() => card.animate());
 			}
 		}
 		else
