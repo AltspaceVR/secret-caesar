@@ -53,6 +53,11 @@ export default class PlayerInfo extends THREE.Object3D
 
 	presentRole(game, players)
 	{
+		if(this.card !== null){
+			this.remove(this.card);
+			this.card = null;
+		}
+
 		let localPlayer = players[SH.localUser.id];
 		let seatedPlayer = players[this.seat.owner];
 
@@ -77,6 +82,11 @@ export default class PlayerInfo extends THREE.Object3D
 
 	presentVote(game, _, votes)
 	{
+		if(this.card !== null){
+			this.remove(this.card);
+			this.card = null;
+		}
+		
 		let vote = votes[game.lastElection];
 
 		let playerVote = vote.yesVoters.includes(this.seat.owner);

@@ -72,8 +72,10 @@ export default class Presentation extends THREE.Object3D
 		}
 		else if(game.state === 'aftermath') {
 			this.banner.visible = false;
-			this.banner.bob.stop();
-			this.banner.bob = null;
+			if(this.banner.bob){
+				this.banner.bob.stop();
+				this.banner.bob = null;
+			}
 		}
 	}
 }

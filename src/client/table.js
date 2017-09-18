@@ -147,11 +147,9 @@ export default class GameTable extends THREE.Object3D
 		{
 			// place on their spots
 			updates.forEach(card => {
-				card.position.copy(card.destination.pos);
-				card.quaternion.copy(card.destination.quat);
-				card.scale.copy(card.destination.scale);
 				this.add(card);
 				this.cards.push(card);
+				card.animate();
 			});
 
 			animation = Promise.resolve();

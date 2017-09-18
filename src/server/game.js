@@ -4,6 +4,8 @@ const DB = require('./db'),
 	Utils = require('./utils'),
 	BPBA = require('./bpba');
 
+let winTime = {};
+
 function reset()
 {
 	let socket = this;
@@ -41,6 +43,7 @@ async function handleContinue()
 				let vote = new DB.Vote(game.get('lastElection'));
 				game.set('lastElection', '');
 
+				winTime[socket.gameId] = Date.now();
 				game.set('state', 'done');
 				let [diff] = await Promise.all([game.save(), vote.destroy()]);
 				socket.server.to(socket.gameId).emit('update', diff, null, {[vote.get('id')]: null});
@@ -62,6 +65,7 @@ async function handleContinue()
 		if(!victory)
 			execPowers(socket, game);
 		else {
+			winTime[socket.gameId] = Date.now();
 			game.set('state', 'done');
 			let diff = await game.save();
 			socket.server.to(socket.gameId).emit('update', diff);
@@ -74,7 +78,8 @@ async function handleContinue()
 	}
 	else if(state === 'done')
 	{
-		reset.call(socket);
+		if(Date.now() > winTime[socket.gameId] + 5000)
+			reset.call(socket);
 	}
 }
 
