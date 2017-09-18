@@ -3,3 +3,4 @@ node_modules/
 *.blend1
 *.blend2
 config.js
+src/assets/sounds/tutorial-steven

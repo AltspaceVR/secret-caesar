@@ -3,20 +3,18 @@ Tutorial flow and script
 
 [Game start signal is received. Players are asked to select if they want the tutorial. If at least one player answers yes, everything here is read.]
 
-**NARRATOR**: The game is afoot! I'm your narrator, I will be walking you through your first round of *Secret Hitler*.
+**NARRATOR**: Welcome players! I am <NAME>, and I will be walking you through your first game of *Secret Hitler*.
 
 [Role cards are presented to all players, with a confirmation card. The following dialog is skipped once everyone has checked the confirm card.]
 
-**NARRATOR**: Everyone, take a moment to review your secret role, and if revealed, the roles of your teammates. Look at the card in front of you, and remember, because your role will determine your play strategy. Liberals, your objective is to keep your fellow liberals in power long enough to pass five liberal policies, or if things aren't going well, by assassinating Hitler. Fascists, including Hitler, your objective is to convince the liberals that you are one of them, and to sow distrust among the liberals. The fascists win if they can pass three fascist policies and get Hitler elected as chancellor, or less likely, if they pass six fascist policies, but you can't do that if the liberal majority doesn't trust you.
-
-**NARRATOR**: Review your secret role, and click the Ja card [pronounced "yah"] to continue.
+**NARRATOR**: Everyone, take a moment to review your secret role, and if revealed, the roles of your teammates. Look at the card in front of you, and remember, because your role will determine your play strategy. Liberals, your objective is to keep your fellow liberals in power long enough to pass five liberal policies, or if things aren't going well, by assassinating Hitler. Fascists, including Hitler, your objective is to convince the liberals that you are one of them, and to sow distrust among the liberals. The fascists win if they can pass three fascist policies and get Hitler elected as chancellor, or less likely, if they pass six fascist policies, but you can't do that if the liberal majority doesn't trust you. Review your secret role now, and click the Ja card [pronounced "yah"] to continue.
 
 [Everyone has confirmed their roles, game continues.]
 
 
 [The randomly chosen presidental candidate is prompted to choose a chancellor.]
 
-**NARRATOR**: It's time for all of you to elect a new government, composed of a President and a Chancellor. Collectively, they are responsible for passing a policy. A presidential candidate has been selected at random. If that's you, choose a running mate, the chancellor candidate, by clicking on the player of your choosing. However, players that held office last round are term-limited and will be ineligible for nomination. In future rounds, the presidential candidacy will pass to the left. President, choose your Chancellor now.
+**NARRATOR**: It is time for all of you to elect a new government, composed of a President and a Chancellor. Collectively, they are responsible for passing a policy. A presidential candidate has been selected at random. If that's you, choose a running mate, the chancellor candidate, by clicking on the player of your choosing. However, players that held office last round are term-limited and will be ineligible for nomination. President, choose your Chancellor now.
 
 [The presidential candidate chooses a running mate by clicking on that player, then confirming. Every player is prompted to vote.]
 
@@ -24,11 +22,11 @@ Tutorial flow and script
 
 [Wait for the vote. If the vote fails, read the following immediately. If it does not fail, read this the first time it does.]
 
-**NARRATOR**: The vote has failed! As a result, new candidates are chosen and the election process begins again. However, if the group fails to elect a government three rounds in a row, the top card in the policy deck is automatically enacted. This favors the fascists, as there are nearly twice as many fascist policies in the deck as liberal. Vote carefully!
+**NARRATOR**: The vote has failed! As a result, new candidates are chosen and the election process begins again. However, if the group fails to elect a government three rounds in a row, the top card in the policy deck is automatically enacted. This favors the fascists, so vote carefully!
 
 [If the vote succeeds, read the following:]
 
-**NARRATOR**: The vote has passed. Ladies and gentlemen, your new government!
+**NARRATOR**: The vote has passed! Take a moment to look around and see how people voted. It might help you deduce hidden agendas.
 
 [Wait for election results to be confirmed. Then:]
 
@@ -52,9 +50,17 @@ Tutorial flow and script
 
 **NARRATOR**: So consider carefully which of these options you think most likely. Discuss. Cast your accusations. When you're ready to continue, click the prompt.
 
-[Wait for continue signal. When the first executive power is unlocked:]
+[Wait for continue signal to start new round.]
 
-**NARRATOR**: Your increasingly fascist government has granted themselves an executive power! These are unlocked only by passing fascist policies.
+**NARRATOR**: The first round is complete. The player to the President's left is now the presidental candidate for a new election, and the new government will pass another policy. And so the game continues until either the fascists or the liberals prevail. This is <NAME>, your helpful narrator. I hope you enjoy the remainder of your game of Secret Hitler!
+
+[An executive power is unlocked:]
+
+**NARRATOR**: Your increasingly fascist government has granted themselves an executive power!
+
+[The first executive power also plays this:]
+
+**NARRATOR**: These are unlocked only by passing fascist policies.
 
 [If investigate:]
 
@@ -66,7 +72,7 @@ Tutorial flow and script
 
 [If name successor:]
 
-**NARRATOR**: Mister or Madame President, use your new executive powers to choose your successor. This player will be the next presidental candidate instead of the player to your left. After the next round, the chain of succession returns to normal.
+**NARRATOR**: Mister or Madame President, use your new executive powers to choose your successor. This player will be the next presidental candidate instead of the player to your left. After the next round, the chain of succession returns back to normal.
 
 [If execute:]
 

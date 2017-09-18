@@ -2,6 +2,8 @@
 
 The new board game, adapted for AltspaceVR.
 
+![Secret Hitler](static/img/screenshot.jpg)
+
 ## What is Secret Hitler?
 
 Secret Hitler is a social deduction game for 5–10 people about finding and stopping the Secret Hitler.
@@ -44,7 +46,7 @@ The majority of players are liberals. If they can learn to trust each other, the
 	- [ ] Instructions
 	- [ ] Animations/transitions
 	- [ ] Action sound effects
-	- [ ] Consequence sound effects
+	- [x] Consequence sound effects
 	- [ ] Music?
 
 ## Credits and License
