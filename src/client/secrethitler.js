@@ -13,6 +13,7 @@ import ContinueBox from './continuebox';
 import ElectionTracker from './electiontracker';
 import Presentation from './presentation';
 import AudioController from './audiocontroller';
+import Tutorial from './tutorial';
 
 class SecretHitler extends THREE.Object3D
 {
@@ -68,6 +69,7 @@ class SecretHitler extends THREE.Object3D
 		this.socket = io.connect('/', {query: 'gameId='+getGameId()});
 
 		this.audio = new AudioController();
+		this.tutorial = new Tutorial();
 
 		// create the table
 		this.table = new GameTable();
@@ -115,6 +117,9 @@ class SecretHitler extends THREE.Object3D
 		let game = Object.assign({}, this.game, gd);
 		let players = mergeObjects(this.players, pd || {});
 		let votes = mergeObjects(this.votes, vd || {});
+
+		if(gd.state)
+			this.tutorial.stateUpdate(game);
 
 		for(let field in gd)
 		{

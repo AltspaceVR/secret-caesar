@@ -93,6 +93,10 @@ function evaluateVote(game, vote, passed)
 	{
 		evaluateElectionVote.call(this, game, vote, passed);
 	}
+	else if(vote.get('type') === 'tutorial' && game.get('state') === 'tutorial')
+	{
+		evaluateTutorialVote.call(this, game, vote, passed);
+	}
 }
 
 function evaluateJoinVote(game, vote, passed)
@@ -265,6 +269,12 @@ async function evaluateElectionVote(game, vote, passed)
 	socket.server.to(socket.gameId).emit('update',
 		gdiff, null, {[vote.get('id')]: vdiff}
 	);
+}
+
+async function evaluateTutorialVote(game, vote, passed)
+{
+	game.set('tutorial', passed);
+	Game.start(this, game);
 }
 
 exports.tallyVote = tallyVote;

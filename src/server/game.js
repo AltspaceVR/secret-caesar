@@ -25,7 +25,18 @@ async function handleContinue()
 
 	let state = game.get('state');
 	if(state === 'setup')
-		start(socket, game);
+	{
+		// kick off tutorial vote
+		let vote = new DB.Vote(Utils.generateId());
+		game.set('state', 'tutorial');		
+		vote.set('type', 'tutorial');
+		game.set('votesInProgress', [vote.get('id')]);
+		
+		let diff = await game.save();
+		await vote.save();
+
+		socket.server.to(socket.gameId).emit('update', diff, null, {[vote.get('id')]: vote.serialize()});
+	}
 	else if(state === 'lameDuck')
 	{
 		// election successful, continue
@@ -411,6 +422,7 @@ async function confirmVeto(confirmed)
 }
 
 exports.reset = reset;
+exports.start = start;
 exports.handleContinue = handleContinue;
 exports.nominate = nominate;
 exports.discardPolicy1 = discardPolicy1;

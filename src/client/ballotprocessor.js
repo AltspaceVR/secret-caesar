@@ -38,6 +38,9 @@ function updateVotesInProgress({data: {game, players, votes}})
 				+ players[votes[vId].target1].displayName
 				+ '?';
 		}
+		else if(votes[vId].type === 'tutorial'){
+			questionText = 'Play tutorial?';
+		}
 		else if(votes[vId].type === 'confirmRole')
 		{
 			opts.choices = BallotType.CONFIRM;
@@ -54,7 +57,8 @@ function updateVotesInProgress({data: {game, players, votes}})
 
 		if(questionText)
 		{
-			ballot.askQuestion(questionText, vId, opts)
+			SH.tutorial.wait
+			.then(() => ballot.askQuestion(questionText, vId, opts))
 			.then(answer => {
 				SH.socket.emit('vote', vId, SH.localUser.id, answer);
 			})

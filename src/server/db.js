@@ -153,7 +153,7 @@ class GameState extends GameObject
 		super('game', id);
 		let defaults = {
 			/*
-			State one of: setup, night, nominate, election, lameDuck, policy1, policy2,
+			State one of: setup, tutorial, night, nominate, election, lameDuck, policy1, policy2,
 			veto, aftermath, investigate, peek, nameSuccessor, execute, done
 			*/
 			state: 'setup',
@@ -174,7 +174,8 @@ class GameState extends GameObject
 			hand: 0x1, // bpba
 			specialElection: false,
 			failedVotes: 0,
-			victory: ''
+			victory: '',
+			tutorial: true
 		};
 
 		Object.assign(this.propTypes, {
@@ -194,7 +195,8 @@ class GameState extends GameObject
 			hand: 'int',
 			specialElection: 'bool',
 			failedVotes: 'int',
-			victory: 'string'
+			victory: 'string',
+			tutorial: 'bool'
 		});
 
 		this.properties.push(...Object.keys(defaults));
@@ -291,7 +293,7 @@ class Vote extends GameObject
 		super('vote', id);
 
 		let defaults = {
-			type: 'elect', // one of 'elect', 'join', 'kick', 'reset', 'confirmRole'
+			type: 'elect', // one of 'elect', 'join', 'kick', 'reset', 'confirmRole', 'tutorial'
 			target1: '', // userId of president/joiner/kicker
 			target2: '', // userId of chancellor
 			data: '', // display name of join requester
