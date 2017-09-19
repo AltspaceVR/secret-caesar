@@ -104,7 +104,7 @@ export default class GameTable extends THREE.Object3D
 				quat: LiberalSpots.quaternion,
 				scale: LiberalSpots.scale
 			}).then(() => Animate.wait(500));
-			card.playSound = () => SH.audio.liberalSting.play();
+			card.playSound = () => SH.audio.liberalSting.loaded.then(() => SH.audio.liberalSting.play());
 			updates.push(card);
 		}
 		
@@ -115,7 +115,7 @@ export default class GameTable extends THREE.Object3D
 				quat: FascistSpots.quaternion,
 				scale: FascistSpots.scale
 			});
-			card.playSound = () => SH.audio.fascistSting.play();
+			card.playSound = () => SH.audio.fascistSting.loaded.then(() => SH.audio.fascistSting.play());
 			updates.push(card);
 		}
 
@@ -130,9 +130,9 @@ export default class GameTable extends THREE.Object3D
 			if(card === this.vetoCard)
 			{
 				card.visible = true; card.material.opacity = 1;
-				animation = Animate.cardFlourish(card);
-				animation.then(() => Animate.vanish(card))
-				.then(() => { card.visible = false; });
+				animation = Animate.cardFlourish(card)
+					.then(() => Animate.vanish(card))
+					.then(() => { card.visible = false; });
 			}
 			else
 			{
@@ -140,7 +140,7 @@ export default class GameTable extends THREE.Object3D
 				this.cards.push(card);
 				card.playSound();
 				animation = Animate.cardFlourish(card)
-				.then(() => card.animate());
+					.then(() => card.animate());
 			}
 		}
 		else

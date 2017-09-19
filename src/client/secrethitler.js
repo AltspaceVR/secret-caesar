@@ -119,7 +119,7 @@ class SecretHitler extends THREE.Object3D
 		let votes = mergeObjects(this.votes, vd || {});
 
 		if(gd.state)
-			this.tutorial.stateUpdate(game);
+			this.tutorial.stateUpdate(game, votes);
 
 		for(let field in gd)
 		{

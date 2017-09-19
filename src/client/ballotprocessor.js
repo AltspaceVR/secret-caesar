@@ -193,7 +193,7 @@ function updateState({data: {game, players}})
 			Object.assign(opts, {fake: true, isInvalid: () => SH.game.state !== 'peek'});
 		}
 
-		ballot.askQuestion('Executive power: The next president\'s "random" policies', 'local_peek', opts)
+		ballot.askQuestion('Executive power: Top of policy deck', 'local_peek', opts)
 		.then(discard => {
 			SH.socket.emit('continue');
 		});

@@ -38,7 +38,7 @@ export default class PlayerInfo extends THREE.Object3D
 		if(!this.seat.owner)
 			return;
 
-		if((game.state === 'night' || game.state === 'done') && players[SH.localUser.id]){
+		if(game.state === 'night' && players[SH.localUser.id] || game.state === 'done'){
 			SH.tutorial.wait.then(() => this.presentRole(game, players, votes));
 		}
 
