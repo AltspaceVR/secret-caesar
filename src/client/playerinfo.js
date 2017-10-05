@@ -90,6 +90,9 @@ export default class PlayerInfo extends THREE.Object3D
 		
 		let vote = votes[game.lastElection];
 
+		if(vote.nonVoters.includes(this.seat.owner))
+			return;
+
 		let playerVote = vote.yesVoters.includes(this.seat.owner);
 		this.card = playerVote ? new JaCard() : new NeinCard();
 

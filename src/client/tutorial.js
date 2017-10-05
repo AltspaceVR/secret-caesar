@@ -25,9 +25,9 @@ export default class TutorialManager
 			return 'nomination';
 		else if(game.state === 'election' && !this.played.includes('voting'))
 			return 'voting';
-		else if(game.state === 'lameDuck' && lastElection.yesVoters.length < lastElection.requires && !this.played.includes('voteFails'))
+		else if(game.state === 'lameDuck' && lastElection.yesVoters.length < lastElection.toPass && !this.played.includes('voteFails'))
 			return 'voteFails';
-		else if(game.state === 'lameDuck' && lastElection.yesVoters.length >= lastElection.requires && !this.played.includes('votePasses'))
+		else if(game.state === 'lameDuck' && lastElection.yesVoters.length >= lastElection.toPass && !this.played.includes('votePasses'))
 			return 'votePasses';
 		else if(game.state === 'policy1' && !this.played.includes('policy1'))
 			return 'policy1';
@@ -48,9 +48,11 @@ export default class TutorialManager
 			let state = game.state;
 			if(game.fascistPolicies === 5)
 				state = 'veto';
-			this.played.push(state);
 
-			if(!this.played.includes('power')){
+			if(this.played.includes(state))
+				return null;
+
+			else if(!this.played.includes('power')){
 				state = 'first_'+state;
 				this.played.push('power');
 			}
@@ -125,6 +127,8 @@ export default class TutorialManager
 		}
 		else if(seamless[event])
 		{
+			let subevent = /^first_/.test(event) ? event.slice(6) : event;
+			this.played.push(subevent);
 			this.wait = Promise.resolve();
 			Promise.all([wait, ...seamless[event].map(c => SH.audio.tutorial[c].loaded)])
 			.then(() => {
