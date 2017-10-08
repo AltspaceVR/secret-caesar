@@ -3,11 +3,11 @@ Tutorial flow and script
 
 [Game start signal is received. Players are asked to select if they want the tutorial. If at least one player answers yes, everything here is read.]
 
-**NARRATOR**: Welcome players! I am <NAME>, and I will be walking you through your first game of *Secret Hitler*.
+**NARRATOR**: Welcome players! I am <NAME>, and I will be walking you through your first game of *Secret Trump*.
 
 [Role cards are presented to all players, with a confirmation card. The following dialog is skipped once everyone has checked the confirm card.]
 
-**NARRATOR**: Everyone, take a moment to review your secret role, and if revealed, the roles of your teammates. Look at the card in front of you, and remember, because your role will determine your play strategy. Liberals, your objective is to keep your fellow liberals in power long enough to pass five liberal policies, or if things aren't going well, by assassinating Hitler. Fascists, including Hitler, your objective is to convince the liberals that you are one of them, and to sow distrust among the liberals. The fascists win if they can pass three fascist policies and get Hitler elected as chancellor, or less likely, if they pass six fascist policies, but you can't do that if the liberal majority doesn't trust you. Review your secret role now, and click the Ja card [pronounced "yah"] to continue.
+**NARRATOR**: Everyone, take a moment to review your secret role, and if revealed, the roles of your teammates. Look at the card in front of you, and remember, because your role will determine your play strategy. Liberals, your objective is to keep your fellow liberals in power long enough to pass five liberal policies, or if things aren't going well, by assassinating Trump. Fascists, including Trump, your objective is to convince the liberals that you are one of them, and to sow distrust among the liberals. The fascists win if they can pass three fascist policies and get Trump elected as chancellor, or less likely, if they pass six fascist policies, but you can't do that if the liberal majority doesn't trust you. Review your secret role now, and click the Ja card [pronounced "yah"] to continue.
 
 [Everyone has confirmed their roles, game continues.]
 
@@ -52,7 +52,7 @@ Tutorial flow and script
 
 [Wait for continue signal to start new round.]
 
-**NARRATOR**: The first round is complete. The player to the President's left is now the presidental candidate for a new election, and the new government will pass another policy. And so the game continues until either the fascists or the liberals prevail. This is <NAME>, your helpful narrator. I hope you enjoy the remainder of your game of Secret Hitler!
+**NARRATOR**: The first round is complete. The player to the President's left is now the presidental candidate for a new election, and the new government will pass another policy. And so the game continues until either the fascists or the liberals prevail. This is <NAME>, your helpful narrator. I hope you enjoy the remainder of your game of Secret Trump!
 
 [An executive power is unlocked:]
 
@@ -76,7 +76,7 @@ Tutorial flow and script
 
 [If execute:]
 
-**NARRATOR**: Mister or Madame President, use your new executive powers to execute your political rivals. The player you choose will be killed, and thus ineligible to vote, hold office, or join in discussion. If you kill a liberal, the narrow liberal majority will be broken, and the fascists can vote in a block to push through whatever they want. If you kill a fascist, their minority grows smaller, and the liberals have an edge. If you kill Hitler, the liberals win outright. You will not know which of the above you chose until the end of the game, so choose carefully!
+**NARRATOR**: Mister or Madame President, use your new executive powers to execute your political rivals. The player you choose will be killed, and thus ineligible to vote, hold office, or join in discussion. If you kill a liberal, the narrow liberal majority will be broken, and the fascists can vote in a block to push through whatever they want. If you kill a fascist, their minority grows smaller, and the liberals have an edge. If you kill Trump, the liberals win outright. You will not know which of the above you chose until the end of the game, so choose carefully!
 
 [If veto:]
 
@@ -84,4 +84,4 @@ Tutorial flow and script
 
 [Later, during the first vote after the third fascist policy is passed:]
 
-**NARRATOR**: Careful! Now that three fascist policies have been passed, if Hitler is elected as chancellor, the fascists win! Conversely, if someone is elected chancellor and the fascists *don't* win, that person is certainly *not* Hitler.
+**NARRATOR**: Careful! Now that three fascist policies have been passed, if Trump is elected as chancellor, the fascists win! Conversely, if someone is elected chancellor and the fascists *don't* win, that person is certainly *not* Trump.

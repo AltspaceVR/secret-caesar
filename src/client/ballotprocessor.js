@@ -34,7 +34,7 @@ function updateVotesInProgress({data: {game, players, votes}})
 			questionText = votes[vId].data + '\nto join?';
 		}
 		else if(votes[vId].type === 'kick'){
-			questionText = 'Vote to kick\n'
+			questionText = 'Vote to kick '
 				+ players[votes[vId].target1].displayName
 				+ '?';
 		}
@@ -47,7 +47,7 @@ function updateVotesInProgress({data: {game, players, votes}})
 			let role;
 			if(ballot.seat.owner === SH.localUser.id){
 				role = players[SH.localUser.id].role;
-				role = role.charAt(0).toUpperCase() + role.slice(1);
+				role = role === 'hitler' ? 'Trump' : role.charAt(0).toUpperCase() + role.slice(1);
 			}
 			else {
 				role = '<REDACTED>';
