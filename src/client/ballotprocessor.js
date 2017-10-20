@@ -26,9 +26,9 @@ function updateVotesInProgress({data: {game, players, votes}})
 		let questionText, opts = {};
 		if(votes[vId].type === 'elect'){
 			questionText = players[game.president].displayName
-				+ ' for president and '
+				+ ' for consul and '
 				+ players[game.chancellor].displayName
-				+ ' for chancellor?';
+				+ ' for praetor?';
 		}
 		else if(votes[vId].type === 'join'){
 			questionText = votes[vId].data + '\nto join?';
@@ -47,7 +47,7 @@ function updateVotesInProgress({data: {game, players, votes}})
 			let role;
 			if(ballot.seat.owner === SH.localUser.id){
 				role = players[SH.localUser.id].role;
-				role = role === 'hitler' ? 'Trump' : role.charAt(0).toUpperCase() + role.slice(1);
+				role = role === 'hitler' ? 'Caesar' : role.charAt(0).toUpperCase() + role.slice(1);
 			}
 			else {
 				role = '<REDACTED>';
@@ -117,13 +117,13 @@ function updateState({data: {game, players}})
 	if(game.state === 'nominate' && ballot.seat.owner === game.president)
 	{
 		if(SH.localUser.id === game.president){
-			choosePlayer('Choose your\nchancellor!', 'Name {}\nas chancellor?', 'nominate')
+			choosePlayer('Choose your\npraetor!', 'Name {}\nas praetor?', 'nominate')
 			.then(userId => {
 				SH.socket.emit('nominate', userId);
 			});
 		}
 		else {
-			ballot.askQuestion('Choose your\nchancellor!', 'wait_for_chancellor', {
+			ballot.askQuestion('Choose your\npraetor!', 'wait_for_chancellor', {
 				choices: BallotType.PLAYERSELECT,
 				fake: true,
 				isInvalid: () => SH.game.state !== 'nominate'
@@ -207,13 +207,13 @@ function updateState({data: {game, players}})
 	else if(game.state === 'nameSuccessor' && ballot.seat.owner === game.president)
 	{
 		if(SH.localUser.id === game.president){
-			choosePlayer('Executive power: Choose the next president!', '{} for president?', 'nameSuccessor')
+			choosePlayer('Executive power: Choose the next consul!', '{} for consul?', 'nameSuccessor')
 			.then(userId => {
 				SH.socket.emit('name_successor', userId);
 			});
 		}
 		else {
-			ballot.askQuestion('Executive power: Choose the next president!', 'wait_for_successor', {
+			ballot.askQuestion('Executive power: Choose the next consul!', 'wait_for_successor', {
 				choices: BallotType.PLAYERSELECT,
 				fake: true,
 				isInvalid: () => SH.game.state !== 'nameSuccessor'
