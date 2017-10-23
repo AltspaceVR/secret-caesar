@@ -32,9 +32,14 @@ app.use(config.basePath+'/static', express.static(
 ) );
 
 let indexCache = '';
-app.get(config.basePath+'/', (req,res,next) => {
+app.get(config.basePath+'/:theme(hitler|caesar)/', (req,res,next) => {
 	if(!indexCache)
 	{
+		let theme = {
+			hitler: req.params.theme === 'hitler',
+			caesar: req.params.theme === 'caesar'
+		};
+
 		// load template
 		fs.readFile(
 			libpath.join(__dirname,'..','client','index.mustache'),
@@ -42,7 +47,7 @@ app.get(config.basePath+'/', (req,res,next) => {
 			(err,data) => {
 				if(err) return res.status(500).send(err);
 				else {
-					indexCache = mustache.render(data, config);
+					indexCache = mustache.render(data, {...config, ...theme});
 					res.send(indexCache);
 				}
 		});
