@@ -31,9 +31,9 @@ app.use(config.basePath+'/static', express.static(
 	libpath.join(__dirname,'..','..','static')
 ) );
 
-let indexCache = '';
+let indexCache = {};
 app.get(config.basePath+'/:theme(hitler|caesar)/', (req,res,next) => {
-	if(!indexCache)
+	if(!indexCache[req.params.theme])
 	{
 		let theme = {
 			hitler: req.params.theme === 'hitler',
@@ -47,13 +47,13 @@ app.get(config.basePath+'/:theme(hitler|caesar)/', (req,res,next) => {
 			(err,data) => {
 				if(err) return res.status(500).send(err);
 				else {
-					indexCache = mustache.render(data, {...config, ...theme});
-					res.send(indexCache);
+					indexCache[req.params.theme] = mustache.render(data, {...config, ...theme});
+					res.send(indexCache[req.params.theme]);
 				}
 		});
 	}
 	else
-		res.send(indexCache);
+		res.send(indexCache[req.params.theme]);
 });
 
 // generic 404

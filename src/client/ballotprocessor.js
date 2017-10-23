@@ -2,6 +2,7 @@
 
 import SH from './secrethitler';
 import * as BallotType from './ballot';
+import {translate as tr} from './theme';
 
 function updateVotesInProgress({data: {game, players, votes}})
 {
@@ -26,12 +27,12 @@ function updateVotesInProgress({data: {game, players, votes}})
 		let questionText, opts = {};
 		if(votes[vId].type === 'elect'){
 			questionText = players[game.president].displayName
-				+ ' for consul and '
+				+ ` for ${tr('president')} and `
 				+ players[game.chancellor].displayName
-				+ ' for praetor?';
+				+ ` for ${tr('chancellor')}?`;
 		}
 		else if(votes[vId].type === 'join'){
-			questionText = votes[vId].data + '\nto join?';
+			questionText = votes[vId].data + ' to join?';
 		}
 		else if(votes[vId].type === 'kick'){
 			questionText = 'Vote to kick '
@@ -47,7 +48,7 @@ function updateVotesInProgress({data: {game, players, votes}})
 			let role;
 			if(ballot.seat.owner === SH.localUser.id){
 				role = players[SH.localUser.id].role;
-				role = role === 'hitler' ? 'Caesar' : role.charAt(0).toUpperCase() + role.slice(1);
+				role = tr(role.charAt(0).toUpperCase() + role.slice(1));
 			}
 			else {
 				role = '<REDACTED>';
@@ -117,13 +118,13 @@ function updateState({data: {game, players}})
 	if(game.state === 'nominate' && ballot.seat.owner === game.president)
 	{
 		if(SH.localUser.id === game.president){
-			choosePlayer('Choose your\npraetor!', 'Name {}\nas praetor?', 'nominate')
+			choosePlayer(`Choose your ${tr('chancellor')}!`, `Name {} as ${tr('chancellor')}?`, 'nominate')
 			.then(userId => {
 				SH.socket.emit('nominate', userId);
 			});
 		}
 		else {
-			ballot.askQuestion('Choose your\npraetor!', 'wait_for_chancellor', {
+			ballot.askQuestion(`Choose your ${tr('chancellor')}!`, 'wait_for_chancellor', {
 				choices: BallotType.PLAYERSELECT,
 				fake: true,
 				isInvalid: () => SH.game.state !== 'nominate'
@@ -207,13 +208,13 @@ function updateState({data: {game, players}})
 	else if(game.state === 'nameSuccessor' && ballot.seat.owner === game.president)
 	{
 		if(SH.localUser.id === game.president){
-			choosePlayer('Executive power: Choose the next consul!', '{} for consul?', 'nameSuccessor')
+			choosePlayer(`Executive power: Choose the next ${tr('president')}!`, `{} for ${tr('president')}?`, 'nameSuccessor')
 			.then(userId => {
 				SH.socket.emit('name_successor', userId);
 			});
 		}
 		else {
-			ballot.askQuestion('Executive power: Choose the next consul!', 'wait_for_successor', {
+			ballot.askQuestion(`Executive power: Choose the next ${tr('president')}!`, 'wait_for_successor', {
 				choices: BallotType.PLAYERSELECT,
 				fake: true,
 				isInvalid: () => SH.game.state !== 'nameSuccessor'

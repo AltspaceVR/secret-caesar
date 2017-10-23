@@ -2,6 +2,7 @@ import SH from './secrethitler';
 import {CreditsCard} from './card';
 import {PlaceholderMesh, NBillboard, NText} from './nativecomponents';
 import Animate from './animate';
+import {translate as tr} from './theme';
 
 export default class Presentation extends THREE.Object3D
 {
@@ -59,7 +60,7 @@ export default class Presentation extends THREE.Object3D
 		{
 			let chancellor = players[game.chancellor].displayName;
 			this.banner.text.color = 'white';
-			this.banner.text.update({text: `${chancellor} is not Caesar!`});
+			this.banner.text.update({text: `${chancellor} is not ${tr('Hitler')}!`});
 
 			this.banner.position.set(0,0.8,0);
 			this.banner.scale.setScalar(.001);

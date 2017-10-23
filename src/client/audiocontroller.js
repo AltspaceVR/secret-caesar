@@ -1,4 +1,5 @@
 import SH from './secrethitler';
+import {activeTheme as theme} from './theme';
 
 class AudioStream
 {
@@ -53,19 +54,20 @@ export default class AudioController
 {
 	constructor()
 	{
-		let theme = 'hitler';
-		if(/caesar/.test(window.location.path))
-			theme = 'caesar';
-
 		let context = this.context = new AudioContext();
-		this.liberalSting = new AudioClip(this.context, `static/audio/hitler/liberal-sting.ogg`, 0.2);
-		this.liberalFanfare = new AudioClip(this.context, `static/audio/hitler/liberal-fanfare.ogg`, 0.2);
-		this.fascistSting = new AudioClip(this.context, `static/audio/hitler/fascist-sting.ogg`, 0.1);
-		this.fascistFanfare = new AudioClip(this.context, `static/audio/hitler/fascist-fanfare.ogg`, 0.1);
+		this.liberalSting = new AudioClip(this.context, `/static/audio/hitler/liberal-sting.ogg`, 0.2);
+		this.liberalFanfare = new AudioClip(this.context, `/static/audio/hitler/liberal-fanfare.ogg`, 0.2);
+		this.fascistSting = new AudioClip(this.context, `/static/audio/hitler/fascist-sting.ogg`, 0.1);
+		this.fascistFanfare = new AudioClip(this.context, `/static/audio/hitler/fascist-fanfare.ogg`, 0.1);
 
-		let readers = {hitler: ['steven']};
+		let readers = {hitler: ['steven'], caesar: []};
 		let reader = readers[theme][Math.floor(Math.random()*readers[theme].length)];
 		let volume = 0.3;
+
+		if(!reader){
+			this.tutorial = {};
+			return;
+		}
 
 		this.tutorial = {
 			welcome: new AudioClip(context, `/static/audio/${theme}/${reader}-tutorial/welcome.ogg`, volume),

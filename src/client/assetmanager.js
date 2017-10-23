@@ -1,9 +1,4 @@
-'use strict';
-
-let theme = 'hitler';
-if(/caesar/.test(window.location.path)){
-	theme = 'caesar';
-}
+import {activeTheme as theme} from './theme';
 
 export default {
 	manifest: {
