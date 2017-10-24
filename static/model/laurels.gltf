@@ -121,7 +121,7 @@
     ], 
     "images" : [
         {
-            "uri" : "laurels.png"
+            "uri" : "../img/caesar/laurels.png"
         }
     ], 
     "materials" : [

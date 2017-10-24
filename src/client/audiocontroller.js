@@ -50,6 +50,19 @@ class AudioClip
 	}
 }
 
+class FakeAudioClip
+{
+	constructor(){ this.fakestream = new FakeAudioStream(); }
+	play(){ return this.fakestream; }
+}
+
+class FakeAudioStream
+{
+	constructor(){ this.finishedPlaying = Promise.resolve(); }
+	play(){ }
+	stop(){ }
+}
+
 export default class AudioController
 {
 	constructor()
@@ -65,7 +78,11 @@ export default class AudioController
 		let volume = 0.3;
 
 		if(!reader){
+			let fake = new FakeAudioClip();
 			this.tutorial = {};
+			['welcome','night','nomination','voting','voteFails','votePasses','policy1','policy2','policyFascist',
+			'policyLiberal','policyAftermath','wrapup','power1','power2','investigate','peek','nameSuccessor','execute',
+			'veto','redzone'].forEach(x => this.tutorial[x] = fake);
 			return;
 		}
 
