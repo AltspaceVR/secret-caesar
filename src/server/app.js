@@ -31,6 +31,10 @@ app.use(config.basePath+'/static', express.static(
 	libpath.join(__dirname,'..','..','static')
 ) );
 
+app.get(config.basePath+'/', (req,res,next) => {
+	res.redirect('/caesar/');
+});
+
 let indexCache = {};
 app.get(config.basePath+'/:theme(hitler|caesar)/', (req,res,next) => {
 	if(!indexCache[req.params.theme])

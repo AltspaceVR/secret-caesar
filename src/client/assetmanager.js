@@ -1,15 +1,23 @@
 import {activeTheme as theme} from './theme';
 
-export default {
+let themeModels = {
+	caesar: {
+		laurels: '/static/model/laurels.gltf'
+	},
+	hitler: {
+		tophat: '/static/model/tophat.gltf',
+		visorcap: '/static/model/visor_cap.gltf'
+	}
+};
+
+let assets = {
 	manifest: {
-		models: {
+		models: Object.assign({
 			table: '/static/model/table.gltf',
 			nameplate: '/static/model/nameplate.dae',
-			tophat: '/static/model/tophat.gltf',
-			visorcap: '/static/model/visor_cap.gltf',
 			//dummy: '/static/model/dummy.gltf',
 			//playermeter: '/static/model/playermeter.gltf'
-		},
+		}, themeModels[theme]),
 		textures: {
 			board_large: `/static/img/${theme}/board-large.jpg`,
 			board_med: `/static/img/${theme}/board-medium.jpg`,
@@ -28,9 +36,13 @@ export default {
 					let newMat = new THREE.MeshBasicMaterial();
 					newMat.map = obj.material.map;
 					newMat.color.copy(obj.material.color);
+					newMat.transparent = obj.material.transparent;
+					newMat.side = obj.material.side;
 					obj.material = newMat;
 				}
 			});
 		});
 	}
 }
+
+export default assets;

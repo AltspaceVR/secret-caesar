@@ -3,6 +3,7 @@
 import AM from './assetmanager';
 import SH from './secrethitler';
 import {NSkeletonParent} from './nativecomponents';
+import {activeTheme as theme} from './theme';
 
 class Hat extends THREE.Object3D
 {
@@ -11,7 +12,7 @@ class Hat extends THREE.Object3D
 		super();
 		this.currentId = '';
 		this.components = {hat: null, text: null};
-
+		
 		if(model.parent)
 			model.parent.remove(model);
 		model.updateMatrixWorld(true);
@@ -19,20 +20,26 @@ class Hat extends THREE.Object3D
 		// grab meshes
 		let prop = '';
 		model.traverse(obj => {
-			if(obj.name === 'hat' || obj.name === 'text')
+			if(obj.name === 'hat' || obj.name === 'text'){
 				prop = obj.name;
-			else if(obj instanceof THREE.Mesh)
+			}
+			else if(obj instanceof THREE.Mesh){
 				this[prop] = obj;
+			}
 		});
 
 		// strip out middle nodes
-		this.hat.matrix.copy(this.hat.matrixWorld);
-		this.hat.matrix.decompose(this.hat.position, this.hat.quaternion, this.hat.scale);
-		this.add(this.hat);
+		if(this.hat){
+			this.hat.matrix.copy(this.hat.matrixWorld);
+			this.hat.matrix.decompose(this.hat.position, this.hat.quaternion, this.hat.scale);
+			this.add(this.hat);
+		}
 
-		this.text.matrix.copy(this.text.matrixWorld);
-		this.text.matrix.decompose(this.text.position, this.text.quaternion, this.text.scale);
-		this.add(this.text);
+		if(this.text){
+			this.text.matrix.copy(this.text.matrixWorld);
+			this.text.matrix.decompose(this.text.position, this.text.quaternion, this.text.scale);
+			this.add(this.text);
+		}
 
 		d.scene.add(this);
 	}
@@ -41,18 +48,24 @@ class Hat extends THREE.Object3D
 	{
 		if(!this.currentId && userId){
 			d.scene.add(this);
-			this.components.hat = new NSkeletonParent(this.hat);
-			this.components.text = new NSkeletonParent(this.text);
+			if(this.hat)
+				this.components.hat = new NSkeletonParent(this.hat);
+			if(this.text)
+				this.components.text = new NSkeletonParent(this.text);
 		}
 		else if(this.currentId && !userId){
-			this.components.hat.destroy();
-			this.components.text.destroy();
+			if(this.hat)
+				this.components.hat.destroy();
+			if(this.text)
+				this.components.text.destroy();
 			d.scene.remove(this);
 		}
 
 		if(userId){
-			this.components.hat.update({userId});
-			this.components.text.update({userId});
+			if(this.hat)
+				this.components.hat.update({userId});
+			if(this.text)
+				this.components.text.update({userId});
 		}
 
 		this.currentId = userId;
@@ -62,26 +75,46 @@ class Hat extends THREE.Object3D
 class PresidentHat extends Hat
 {
 	constructor(){
-		super(AM.cache.models.tophat);
-		this.position.set(0, 0.144/SH.env.pixelsPerMeter, .038/SH.env.pixelsPerMeter);
-		this.scale.multiplyScalar(1.2/SH.env.pixelsPerMeter);
+		if(theme === 'caesar')
+		{
+			super(AM.cache.models.laurels.clone());
+			this.position.set(0, .08/SH.env.pixelsPerMeter, .03/SH.env.pixelsPerMeter);
+			this.rotation.set(.5, 0, 0);
+			this.scale.multiplyScalar(0.8/SH.env.pixelsPerMeter);
+		}
+		else
+		{
+			super(AM.cache.models.tophat);
+			this.position.set(0, 0.144/SH.env.pixelsPerMeter, .038/SH.env.pixelsPerMeter);
+			this.scale.multiplyScalar(1.2/SH.env.pixelsPerMeter);
+		}
 		
-		SH.addEventListener('update_state', ({data: {game}}) => {
-			if(game.state === 'lameDuck' && game.failedVotes === 0){
-				let sitting = game.specialElection ? game.president : game.lastPresident;
-				this.setOwner(sitting);
-			}
-		});
+		let assignHat = ({data: {game}}) => {
+			let sitting = game.specialElection ? game.president : game.lastPresident;
+			this.setOwner(sitting);
+		}
+		SH.addEventListener('update_specialElection', assignHat);
+		SH.addEventListener('update_president', assignHat);
+		SH.addEventListener('update_lastPresident', assignHat);
 	}
 };
 
 class ChancellorHat extends Hat
 {
 	constructor(){
-		super(AM.cache.models.visorcap);
-		this.position.set(0, 0.07/SH.env.pixelsPerMeter, .038/SH.env.pixelsPerMeter);
-		this.scale.multiplyScalar(1.2/SH.env.pixelsPerMeter);
-		
+		if(theme === 'caesar'){
+			super(AM.cache.models.laurels.clone());
+			this.position.set(0, .08/SH.env.pixelsPerMeter, .03/SH.env.pixelsPerMeter);
+			this.rotation.set(.5, 0, 0);
+			this.scale.multiplyScalar(0.8/SH.env.pixelsPerMeter);
+		}
+		else
+		{
+			super(AM.cache.models.visorcap);
+			this.position.set(0, 0.07/SH.env.pixelsPerMeter, .038/SH.env.pixelsPerMeter);
+			this.scale.multiplyScalar(1.2/SH.env.pixelsPerMeter);
+		}
+
 		SH.addEventListener('update_lastChancellor', e => {
 			this.setOwner(e.data.game.lastChancellor);
 		});
