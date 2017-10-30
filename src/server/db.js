@@ -175,7 +175,7 @@ class GameState extends GameObject
 			specialElection: false,
 			failedVotes: 0,
 			victory: '',
-			tutorial: true
+			tutorial: ''
 		};
 
 		Object.assign(this.propTypes, {
@@ -196,7 +196,7 @@ class GameState extends GameObject
 			specialElection: 'bool',
 			failedVotes: 'int',
 			victory: 'string',
-			tutorial: 'bool'
+			tutorial: 'string'
 		});
 
 		this.properties.push(...Object.keys(defaults));

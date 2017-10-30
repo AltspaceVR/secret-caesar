@@ -78,6 +78,7 @@ io.on('connection', socket =>
 {
 	// check room id
 	socket.gameId = socket.handshake.query.gameId;
+	socket.theme = socket.handshake.query.theme;
 
 	// ignore sockets from undefined games
 	if(!socket.gameId)

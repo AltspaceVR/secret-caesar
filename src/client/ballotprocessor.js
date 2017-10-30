@@ -58,8 +58,7 @@ function updateVotesInProgress({data: {game, players, votes}})
 
 		if(questionText)
 		{
-			SH.tutorial.wait
-			.then(() => ballot.askQuestion(questionText, vId, opts))
+			ballot.askQuestion(questionText, vId, opts)
 			.then(answer => {
 				SH.socket.emit('vote', vId, SH.localUser.id, answer);
 			})

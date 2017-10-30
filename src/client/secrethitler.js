@@ -2,6 +2,8 @@
 
 import './polyfill';
 
+import {activeTheme as theme} from './theme';
+
 import { PresidentHat, ChancellorHat } from './hats';
 import GameTable from './table';
 import AssetManager from './assetmanager';
@@ -66,7 +68,7 @@ class SecretHitler extends THREE.Object3D
 		this.env = env;
 
 		// connect to server
-		this.socket = io.connect('/', {query: 'gameId='+getGameId()});
+		this.socket = io.connect('/', {query: `gameId=${getGameId()}&theme=${theme}`});
 
 		this.audio = new AudioController();
 		this.tutorial = new Tutorial();
@@ -117,6 +119,9 @@ class SecretHitler extends THREE.Object3D
 		let game = Object.assign({}, this.game, gd);
 		let players = mergeObjects(this.players, pd || {});
 		let votes = mergeObjects(this.votes, vd || {});
+
+		if(gd.tutorial)
+			this.audio.loadTutorial(game);
 
 		if(gd.state)
 			this.tutorial.stateUpdate(game, votes);

@@ -5,54 +5,56 @@ export default class TutorialManager
 	constructor()
 	{
 		this.enabled = false;
-		this.wait = Promise.resolve();
-		this.activeClip = null;
 		this.lastEvent = null;
 		this.played = [];
-		/*['welcome','night','nomination','voting','voteFails','votePasses','policy1','policy2',
-			'policyFascist','policyLiberal','policyAftermath','wrapup','power1','power2',
-			'investigate','peek','nameSuccessor','execute','veto','redzone']
-		.forEach(phase => this.hasPlayed[phase] = false);*/
 	}
 
 	detectEvent(game, votes)
 	{
 		let lastElection = votes[game.lastElection];
-		
-		if(game.state === 'night' && !this.played.includes('night'))
+		let firstRound = game.fascistPolicies + game.liberalPolicies === 0;
+
+		if(firstRound && game.state === 'night')
 			return 'night';
-		else if(game.state === 'nominate' && !this.played.includes('nomination'))
+		else if(firstRound && game.state === 'nominate')
 			return 'nomination';
-		else if(game.state === 'election' && !this.played.includes('voting'))
+		else if(firstRound && game.state === 'election')
 			return 'voting';
-		else if(game.state === 'lameDuck' && lastElection.yesVoters.length < lastElection.toPass && !this.played.includes('voteFails'))
+		else if(game.state === 'lameDuck' && lastElection.yesVoters.length < lastElection.toPass && !this.played.includes('voteFails')){
+			this.played.push('voteFails');
 			return 'voteFails';
-		else if(game.state === 'lameDuck' && lastElection.yesVoters.length >= lastElection.toPass && !this.played.includes('votePasses'))
+		}
+		else if(game.state === 'lameDuck' && lastElection.yesVoters.length >= lastElection.toPass && !this.played.includes('votePasses')){
+			this.played.push('votePasses');
 			return 'votePasses';
-		else if(game.state === 'policy1' && !this.played.includes('policy1'))
+		}
+		else if(firstRound && game.state === 'policy1')
 			return 'policy1';
-		else if(game.state === 'policy2' && !this.played.includes('policy2'))
+		else if(firstRound && game.state === 'policy2')
 			return 'policy2';
-		else if(game.state === 'aftermath' && game.hand === 2 && !this.played.includes('policyFascist'))
+		else if(game.state === 'aftermath' && game.fascistPolicies === 1 && game.hand === 2)
 			return 'policyFascist';
-		else if(game.state === 'aftermath' && game.hand === 3 && !this.played.includes('policyLiberal'))
+		else if(game.state === 'aftermath' && game.liberalPolicies === 1 && game.hand === 3)
 			return 'policyLiberal';
 
-		else if(game.state === 'nominate' && game.fascistPolicies+game.liberalPolicies === 1 && !this.played.includes('wrapup'))
+		else if(game.state === 'nominate' && game.fascistPolicies+game.liberalPolicies === 1)
 			return 'wrapup';
-		else if(game.state === 'nominate' && game.fascistPolicies === 3 && !this.played.includes('redzone'))
+		else if(game.state === 'nominate' && game.fascistPolicies === 3)
 			return 'redzone';
 
 		else if(['investigate','peek','nameSuccessor','execute'].includes(game.state))
 		{
-			let state = game.state;
-			if(game.fascistPolicies === 5)
-				state = 'veto';
-
-			if(this.played.includes(state))
+			if(this.played.includes(game.state))
 				return null;
 
-			else if(!this.played.includes('power')){
+			let state;
+			if(game.fascistPolicies === 5)
+				state = 'veto';
+			else
+				state = game.state;
+			this.played.push(state);
+
+			if(!this.played.includes('power')){
 				state = 'first_'+state;
 				this.played.push('power');
 			}
@@ -67,11 +69,6 @@ export default class TutorialManager
 		if(!game.tutorial || game.turnOrder.includes('1111111') && SH.localUser.id !== '1111111')
 			return;
 
-		if(this.activeClip){
-			this.activeClip.stop();
-			this.activeClip = null;
-		}
-
 		let seamless = {
 			policyFascist: ['policyFascist','policyAftermath'],
 			policyLiberal: ['policyLiberal','policyAftermath'],
@@ -84,9 +81,7 @@ export default class TutorialManager
 			peek: ['power1','peek'],
 			nameSuccessor: ['power1','nameSuccessor'],
 			execute: ['power1','execute'],
-			veto: ['power1','veto']
-		};
-		let gapped = {
+			veto: ['power1','veto'],
 			night: ['welcome','night']
 		};
 		let delayed = {
@@ -108,50 +103,16 @@ export default class TutorialManager
 			});
 		}
 
-		if(gapped[event])
-		{
-			this.played.push(event);
-			this.wait = Promise.all([wait, SH.audio.tutorial[gapped[event][0]].loaded])
-			.then(() => {
-				this.activeClip = SH.audio.tutorial[gapped[event][0]].play();
-				return this.activeClip.finishedPlaying;
-			});
-
-			this.wait
-			.then(() => SH.audio.tutorial[gapped[event][1]].loaded)
-			.then(() => {
-				this.activeClip = SH.audio.tutorial[gapped[event][1]].play();
-				return this.activeClip.finishedPlaying;
-			})
-			.then(() => this.activeClip = null);
-		}
-		else if(seamless[event])
+		if(seamless[event])
 		{
 			let subevent = /^first_/.test(event) ? event.slice(6) : event;
-			this.played.push(subevent);
-			this.wait = Promise.resolve();
-			Promise.all([wait, ...seamless[event].map(c => SH.audio.tutorial[c].loaded)])
-			.then(() => {
-				return seamless[event].reduce((promise,clip) => {
-					return promise.then(() => {
-						if(this.lastEvent === event)
-							this.activeClip = SH.audio.tutorial[clip].play();
-						return this.activeClip.finishedPlaying;
-					});
-				}, Promise.resolve());
-			})
-			.then(() => this.activeClip = null);
+			wait.then(() => {
+				seamless[event].forEach(clip => SH.audio.tutorial[clip].play(true));
+			});
 		}
 		else if(event !== null)
 		{
-			this.played.push(event);
-			this.wait = Promise.resolve();
-			Promise.all([wait, SH.audio.tutorial[event].loaded])
-			.then(() => {
-				this.activeClip = SH.audio.tutorial[event].play();
-				return this.activeClip.finishedPlaying;
-			})
-			.then(() => this.activeClip = null);
+			wait.then(() => SH.audio.tutorial[event].play(true));
 		}
 	}
 }

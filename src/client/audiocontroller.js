@@ -7,12 +7,12 @@ class AudioStream
 		this.source = context.createBufferSource();
 		this.source.buffer = buffer;
 		this.source.connect(output);
-	}
-
-	play(){
 		this.finishedPlaying = new Promise((resolve, reject) => {
 			this.source.onended = resolve;
 		});
+	}
+
+	play(){
 		this.source.start(0, 0);
 	}
 
@@ -21,9 +21,11 @@ class AudioStream
 	}
 }
 
+let queuedStreams = Promise.resolve();
+
 class AudioClip
 {
-	constructor(context, url, volume)
+	constructor(context, url, volume, queued = true)
 	{
 		this.context = context;
 		this.output = context.createGain();
@@ -42,18 +44,30 @@ class AudioClip
 		})
 	}
 
-	play()
+	play(queued = false)
 	{
-		let instance = new AudioStream(this.context, this.buffer, this.output);
-		instance.play();
-		return instance;
+		return this.loaded.then(() => {
+			let instance = new AudioStream(this.context, this.buffer, this.output);
+			
+			if(queued){
+				queuedStreams = queuedStreams.then(() => {
+					instance.play();
+					return instance.finishedPlaying;
+				});
+				return queuedStreams;
+			}
+			else {
+				instance.play();
+				return instance.finishedPlaying;
+			}
+		});
 	}
 }
 
 class FakeAudioClip
 {
 	constructor(){ this.fakestream = new FakeAudioStream(); }
-	play(){ return this.fakestream; }
+	play(){ return Promise.resolve(); }
 }
 
 class FakeAudioStream
@@ -73,20 +87,21 @@ export default class AudioController
 		this.fascistSting = new AudioClip(this.context, `/static/audio/hitler/fascist-sting.ogg`, 0.1);
 		this.fascistFanfare = new AudioClip(this.context, `/static/audio/hitler/fascist-fanfare.ogg`, 0.1);
 
-		let readers = {hitler: ['steven'], caesar: ['shoseki','resnauv']};
-		let reader = readers[theme][Math.floor(Math.random()*readers[theme].length)];
-		let volume = 0.3;
+		let fake = new FakeAudioClip();
+		this.tutorial = {loadStarted: false};
+		['welcome','night','nomination','voting','voteFails','votePasses','policy1','policy2','policyFascist',
+		'policyLiberal','policyAftermath','wrapup','power1','power2','investigate','peek','nameSuccessor','execute',
+		'veto','redzone'].forEach(x => this.tutorial[x] = fake);
+	}
 
-		if(!reader){
-			let fake = new FakeAudioClip();
-			this.tutorial = {};
-			['welcome','night','nomination','voting','voteFails','votePasses','policy1','policy2','policyFascist',
-			'policyLiberal','policyAftermath','wrapup','power1','power2','investigate','peek','nameSuccessor','execute',
-			'veto','redzone'].forEach(x => this.tutorial[x] = fake);
-			return;
-		}
+	loadTutorial(game)
+	{
+		if(!game.tutorial || this.tutorial.loadStarted) return;
 
-		this.tutorial = {
+		let reader = game.tutorial, context = this.context, volume = 0.3;
+
+		Object.assign(this.tutorial, {
+			loadStarted: true,
 			welcome: new AudioClip(context, `/static/audio/${theme}/${reader}-tutorial/welcome.ogg`, volume),
 			night: new AudioClip(context, `/static/audio/${theme}/${reader}-tutorial/night.ogg`, volume),
 			nomination: new AudioClip(context, `/static/audio/${theme}/${reader}-tutorial/nomination.ogg`, volume),
@@ -107,6 +122,6 @@ export default class AudioController
 			execute: new AudioClip(context, `/static/audio/${theme}/${reader}-tutorial/power-execute.ogg`, volume),
 			veto: new AudioClip(context, `/static/audio/${theme}/${reader}-tutorial/power-veto.ogg`, volume),
 			redzone: new AudioClip(context, `/static/audio/${theme}/${reader}-tutorial/redzone.ogg`, volume)
-		};
+		});
 	}
 }

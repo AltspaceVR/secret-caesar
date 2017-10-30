@@ -273,7 +273,18 @@ async function evaluateElectionVote(game, vote, passed)
 
 async function evaluateTutorialVote(game, vote, passed)
 {
-	game.set('tutorial', passed);
+	let activeTheme = this.theme;
+	const themes = {
+		hitler: ['steven'],
+		caesar: ['shoseki','resnauv']
+	};
+
+	if(passed){
+		let readers = themes[activeTheme];
+		let reader = readers[Math.floor(Math.random()*readers.length)];
+		game.set('tutorial', reader);
+	}
+	
 	Game.start(this, game);
 }
 
