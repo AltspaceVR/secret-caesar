@@ -73,7 +73,7 @@ export default class AudioController
 		this.fascistSting = new AudioClip(this.context, `/static/audio/hitler/fascist-sting.ogg`, 0.1);
 		this.fascistFanfare = new AudioClip(this.context, `/static/audio/hitler/fascist-fanfare.ogg`, 0.1);
 
-		let readers = {hitler: ['steven'], caesar: []};
+		let readers = {hitler: ['steven'], caesar: ['shoseki']};
 		let reader = readers[theme][Math.floor(Math.random()*readers[theme].length)];
 		let volume = 0.3;
 
