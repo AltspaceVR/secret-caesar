@@ -1,12 +1,12 @@
-# secret-hitler
+# secret-caesar
 
-The new board game, adapted for AltspaceVR.
+A social deduction board game, adapted for AltspaceVR.
 
-![Secret Hitler](static/img/screenshot.jpg)
+![Secret Caesar](static/img/screenshot-caesar.jpg)
 
-## What is Secret Hitler?
+## What is Secret Caesar?
 
-Secret Hitler is a social deduction game for 5–10 people about finding and stopping the Secret Hitler.
+Secret Caesar is a social deduction game for 5–10 people about finding and stopping the rise of a dictator.
 
 The majority of players are liberals. If they can learn to trust each other, they have enough votes to control the table and win the game. But some players are fascists. They will say whatever it takes to get elected, enact their agenda, and blame others for the fallout. The liberals must work together to discover the truth before the fascists install their cold-blooded leader and win the game.
 
@@ -43,15 +43,15 @@ The majority of players are liberals. If they can learn to trust each other, the
 	- [x] Assassinate
 	- [x] Check for assassination victory
 - [ ] Polish
-	- [ ] Instructions
-	- [ ] Animations/transitions
+	- [x] Instructions
+	- [x] Animations/transitions
 	- [ ] Action sound effects
 	- [x] Consequence sound effects
-	- [ ] Music?
+	- [x] Music?
 
 ## Credits and License
 
-The game [Secret Hitler](http://secrethitler.com/) was created by Mike Boxleiter, Tommy Maranges, Max Temkin, and Mac Schubert. Mackenzie Schubert did the illustrations. It was adapted for VR by Steven Vergenz. The original board game and this derivative work are licensed under a [Creative Commons BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/) license.
+The original game [Secret Hitler](http://secrethitler.com/) was created by Mike Boxleiter, Tommy Maranges, Max Temkin, and Mac Schubert. Mackenzie Schubert did the illustrations. It was adapted for VR by Steven Vergenz. The original board game and this derivative work are licensed under a [Creative Commons BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/) license.
 
 The recording of Wagner's *Die Walküre - Ride of the Valkyries* used in this game was recorded by the University of Chicago Orchestra, and is under a [Creative Commons BY-NC-ND 3.0](https://creativecommons.org/licenses/by-nc-nd/3.0/) license.
 
