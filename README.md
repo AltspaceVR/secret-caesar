@@ -51,7 +51,7 @@ The majority of players are liberals. If they can learn to trust each other, the
 
 ## Credits and License
 
-The original game [Secret Hitler](http://secrethitler.com/) was created by Mike Boxleiter, Tommy Maranges, Max Temkin, and Mac Schubert. Mackenzie Schubert did the illustrations. It was adapted for VR by Steven Vergenz. The original board game and this derivative work are licensed under a [Creative Commons BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/) license.
+The original game [Secret Hitler](http://secrethitler.com/) was created by Mike Boxleiter, Tommy Maranges, Max Temkin, and Mac Schubert. Mackenzie Schubert did the illustrations. It was adapted for VR by Steven Vergenz, with new illustrations by Evan Sforza. The original board game and this derivative work are licensed under a [Creative Commons BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/) license.
 
 The recording of Wagner's *Die Walküre - Ride of the Valkyries* used in this game was recorded by the University of Chicago Orchestra, and is under a [Creative Commons BY-NC-ND 3.0](https://creativecommons.org/licenses/by-nc-nd/3.0/) license.
 
