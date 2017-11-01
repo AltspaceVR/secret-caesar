@@ -44,9 +44,6 @@ class SecretHitler extends THREE.Object3D
 				return Promise.resolve(altspace._localUser);
 			};
 		}
-		else {
-			altspace.open('/static/tutorial.html', '_experience', {hidden: true});
-		}
 
 		// get local user
 		this._userPromise = altspace.getUser();
@@ -72,6 +69,9 @@ class SecretHitler extends THREE.Object3D
 
 		// connect to server
 		this.socket = io.connect('/', {query: `gameId=${getGameId()}&theme=${theme}`});
+
+		// spawn self-serve tutorial dialog
+		altspace.open(window.location.origin+'/static/tutorial.html', '_experience', {hidden: true});
 
 		this.audio = new AudioController();
 		this.tutorial = new Tutorial();
