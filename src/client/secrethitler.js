@@ -44,6 +44,9 @@ class SecretHitler extends THREE.Object3D
 				return Promise.resolve(altspace._localUser);
 			};
 		}
+		else {
+			altspace.open('/static/tutorial.html', '_experience', {hidden: true});
+		}
 
 		// get local user
 		this._userPromise = altspace.getUser();

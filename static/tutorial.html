@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Help - Secret Caesar</title>
+		<script>
+			function updateAudioPlayers()
+			{
+				var narrator = document.querySelector('select#narrator').value;
+				var players = document.querySelectorAll('audio');
+				for(var i=0; i<players.length; i++){
+					players[i].src = players[i].dataset.src.replace('{}', narrator);
+				}
+			}
+		</script>
+		<style>
+			body {
+				background-color: darkgray;
+			}
+			label {
+				display: block;
+			}
+			.itemgroup {
+				display: flex;
+				flex-wrap: wrap;
+				justify-content: space-around;
+			}
+			.item {
+
+			}
+		</style>
+	</head>
+	<body>
+		<h1>Help - Secret Caesar</h1>
+		<label>As read by:
+			<select id='narrator' onchange='updateAudioPlayers()'>
+				<option default value='resnauv'>Res</option>
+				<option value='shoseki'>Shoseki</option>
+			</select>
+		</label>
+
+		<h2>Your First Round</h2>
+		<div class='itemgroup'>
+			
+			<div class='item'>
+				<label>Scenario And Setup</label>
+				<audio controls data-src='audio/caesar/{}-tutorial/night.ogg'></audio>
+			</div>
+			<div class='item'>
+				<label>Choosing A Government</label>
+				<audio controls data-src='audio/caesar/{}-tutorial/nomination.ogg'></audio>
+			</div>
+			<div class='item'>
+				<label>Elections</label>
+				<audio controls data-src='audio/caesar/{}-tutorial/voting.ogg'></audio>
+			</div>
+			<div class='item'>
+				<label>On Successful Elections</label>
+				<audio controls data-src='audio/caesar/{}-tutorial/vote-passed.ogg'></audio>
+			</div>
+			<div class='item'>
+				<label>On Failed Elections</label>
+				<audio controls data-src='audio/caesar/{}-tutorial/vote-fails.ogg'></audio>
+			</div>
+			<div class='item'>
+				<label>Consul's Responsibilities</label>
+				<audio controls data-src='audio/caesar/{}-tutorial/policy1.ogg'></audio>
+			</div>
+			<div class='item'>
+				<label>Praetor's Responsibilities</label>
+				<audio controls data-src='audio/caesar/{}-tutorial/policy2.ogg'></audio>
+			</div>
+			<div class='item'>
+				<label>Why A Fascist Policy?</label>
+				<audio controls data-src='audio/caesar/{}-tutorial/policy-fascist.ogg'></audio>
+			</div>
+			<div class='item'>
+				<label>Why A Liberal Policy?</label>
+				<audio controls data-src='audio/caesar/{}-tutorial/policy-liberal.ogg'></audio>
+			</div>
+			<div class='item'>
+				<label>Transition Of Power</label>
+				<audio controls data-src='audio/caesar/{}-tutorial/wrapup.ogg'></audio>
+			</div>
+		</div>
+		
+		<h2>Executive Powers</h2>
+		<div class='itemgroup'>
+
+			<div class='item'>
+				<label>Investigate Player</label>
+				<audio controls data-src='audio/caesar/{}-tutorial/power-investigate.ogg'></audio>
+			</div>
+			<div class='item'>
+				<label>Examine Policies</label>
+				<audio controls data-src='audio/caesar/{}-tutorial/power-peek.ogg'></audio>
+			</div>
+			<div class='item'>
+				<label>Name Successor</label>
+				<audio controls data-src='audio/caesar/{}-tutorial/power-namesuccessor.ogg'></audio>
+			</div>
+			<div class='item'>
+				<label>Execute Player</label>
+				<audio controls data-src='audio/caesar/{}-tutorial/power-execute.ogg'></audio>
+			</div>
+			<div class='item'>
+				<label>Execute Player &amp; Veto</label>
+				<audio controls data-src='audio/caesar/{}-tutorial/power-veto.ogg'></audio>
+			</div>
+
+		</div>
+
+		<script>updateAudioPlayers()</script>
+	</body>
+</html>
