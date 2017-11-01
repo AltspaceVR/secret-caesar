@@ -71,7 +71,8 @@ class SecretHitler extends THREE.Object3D
 		this.socket = io.connect('/', {query: `gameId=${getGameId()}&theme=${theme}`});
 
 		// spawn self-serve tutorial dialog
-		altspace.open(window.location.origin+'/static/tutorial.html', '_experience', {hidden: true});
+		altspace.open(window.location.origin+'/static/tutorial.html', '_experience',
+			{hidden: true, icon: window.location.origin+'/static/img/caesar/icon.png'});
 
 		this.audio = new AudioController();
 		this.tutorial = new Tutorial();
