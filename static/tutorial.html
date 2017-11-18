@@ -2,6 +2,7 @@
 <html>
 	<head>
 		<title>Help - Secret Caesar</title>
+		<link href="https://fonts.googleapis.com/css?family=Cinzel" rel="stylesheet">
 		<script>
 			function updateAudioPlayers()
 			{
@@ -14,9 +15,18 @@
 		</script>
 		<style>
 			body {
-				background-color: darkgray;
+				background-color: #efebc2;
+				font-family: 'Cinzel', serif;
 			}
-			label {
+			header {
+				display: flex;
+				justify-content: space-between;
+				align-items: baseline;
+			}
+			h1, h2 {
+				margin: 5px 0;
+			}
+			label:not(.inline) {
 				display: block;
 			}
 			.itemgroup {
@@ -24,19 +34,27 @@
 				flex-wrap: wrap;
 				justify-content: space-around;
 			}
-			.item {
-
+			.item label {
+				margin: 5px;
+				text-align: center;
+				font-weight: bold;
+				letter-spacing: .1em;
 			}
 		</style>
 	</head>
 	<body>
-		<h1>Help - Secret Caesar</h1>
-		<label>As read by:
-			<select id='narrator' onchange='updateAudioPlayers()'>
-				<option default value='resnauv'>Res</option>
-				<option value='shoseki'>Shoseki</option>
-			</select>
-		</label>
+		<header>
+			<h1>Help - Secret Caesar</h1>
+			<div>
+				<a href='https://github.com/stevenvergenz/secret-caesar/blob/master/docs/tutorial.md'>Text version</a> |
+				<label class='inline'>As read by:
+					<select id='narrator' onchange='updateAudioPlayers()'>
+						<option default value='resnauv'>Res</option>
+						<option value='shoseki'>Shoseki</option>
+					</select>
+				</label>
+			</div>
+		</header>
 
 		<h2>Your First Round</h2>
 		<div class='itemgroup'>
