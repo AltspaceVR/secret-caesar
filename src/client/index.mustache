@@ -26,12 +26,24 @@
 			<script src='{{basePath}}/static/lib/diorama.970a38b.js'></script>
 		{{/localLibs}}
 		<script src="{{basePath}}/static/socket.io/socket.io.min.js"></script>
+		{{#sentry_client}}
+		<script src="https://cdn.ravenjs.com/3.20.1/raven.min.js" crossorigin="anonymous"></script>
+		<script>Raven.config("{{&sentry_client}}").install();</script>
+		{{/sentry_client}}
 		<script src='{{basePath}}/static/js/secrethitler.js'></script>
 	</head>
 	<body>
 		<script>
-			var d = new Diorama({gridOffset: [1.5, -1.5, 1.5]});
+		{{#sentry_client}}
+			Raven.context(function(){
+				window.d = new Diorama({gridOffset: [1.5, -1.5, 1.5]});
+				d.start(SecretHitler);
+			});
+		{{/sentry_client}}
+		{{^sentry_client}}
+			window.d = new Diorama({gridOffset: [1.5, -1.5, 1.5]});
 			d.start(SecretHitler);
+		{{/sentry_client}}
 		</script>
 	</body>
 </html>

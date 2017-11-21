@@ -9,6 +9,7 @@ const express = require('express'),
 	mustache = require('mustache'),
 	fs = require('fs'),
 	path_to_regexp = require('path-to-regexp'),
+	Raven = require('raven'),
 
 	config = require('./config'),
 	DB = require('./db'),
@@ -19,6 +20,12 @@ const express = require('express'),
 
 // configure base path
 const app = express();
+
+if(config.sentry_server){
+	Raven.config(config.sentry_server).install();
+	app.use(Raven.requestHandler());
+	app.use(Raven.errorHandler());
+}
 
 // serve static files
 app.get(config.basePath+'/static/socket.io/:file', (req,res,next) => {

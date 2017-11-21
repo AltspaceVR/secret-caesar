@@ -17,7 +17,9 @@ const defaultConfig = {
 		host: '127.0.0.1',
 		port: 6379
 	},
-	localLibs: false
+	localLibs: false,
+	sentry_client: null,
+	sentry_server: null
 }
 
 module.exports = Object.assign({}, defaultConfig, trueConfig);
