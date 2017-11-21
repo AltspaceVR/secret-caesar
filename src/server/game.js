@@ -6,12 +6,15 @@ const DB = require('./db'),
 
 let winTime = {};
 
-function reset()
+function reset(reloadClient)
 {
 	let socket = this;
 	let game = new DB.GameState(socket.gameId);
 	game.save().then(() => {
-		socket.server.to(socket.gameId).emit('reset');
+		if(reloadClient)
+			socket.server.to(socket.gameId).emit('reset');
+		else
+			socket.server.to(socket.gameId).emit('update', game.serialize(), {}, {});
 	})
 	.catch(err => console.error(err));
 }
@@ -90,7 +93,7 @@ async function handleContinue()
 	else if(state === 'done')
 	{
 		if(Date.now() > winTime[socket.gameId] + 5000)
-			reset.call(socket);
+			reset.call(socket, false);
 	}
 }
 

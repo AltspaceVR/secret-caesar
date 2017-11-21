@@ -24,6 +24,7 @@ let assets = {
 			board_small: `/static/img/${theme}/board-small.jpg`,
 			cards: `/static/img/${theme}/cards.jpg`,
 			reset: '/static/img/bomb.png',
+			refresh: '/static/img/refresh.jpg'
 			//text: '/static/img/text.png'
 		}
 	},

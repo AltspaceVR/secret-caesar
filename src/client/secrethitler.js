@@ -87,9 +87,20 @@ class SecretHitler extends THREE.Object3D
 			new THREE.BoxGeometry(.25,.25,.25),
 			new THREE.MeshBasicMaterial({map: assets.textures.reset})
 		);
-		this.resetButton.position.set(0, -0.18, 0);
+		this.resetButton.position.set(1.13, -.9, .75);
 		this.resetButton.addEventListener('cursorup', this.sendReset.bind(this));
-		this.table.add(this.resetButton);
+		this._userPromise.then(() => {
+			if(this.localUser.isModerator)
+				this.table.add(this.resetButton);
+		});
+
+		this.refreshButton = new THREE.Mesh(
+			new THREE.BoxGeometry(.25,.25,.25),
+			new THREE.MeshBasicMaterial({map: assets.textures.refresh})
+		);
+		this.refreshButton.position.set(1.13, -.3, .75);
+		this.refreshButton.addEventListener('cursorup', () => window.location.reload());
+		this.table.add(this.refreshButton);
 
 		this.presentation = new Presentation();
 
@@ -115,7 +126,7 @@ class SecretHitler extends THREE.Object3D
 		this.socket.on('checked_in', this.checkedIn.bind(this));
 
 		this.socket.on('reset', this.doReset.bind(this));
-		this.socket.on('disconnect', this.doReset.bind(this));
+		//this.socket.on('disconnect', this.doReset.bind(this));
 	}
 
 	updateFromServer(gd, pd, vd)
@@ -175,12 +186,7 @@ class SecretHitler extends THREE.Object3D
 
 	doReset(game, players, votes)
 	{
-		if( /&cacheBust=\d+$/.test(window.location.search) ){
-			window.location.search += '1';
-		}
-		else {
-			window.location.reload();
-		}
+		window.location.reload(true);
 	}
 }
 
