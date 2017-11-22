@@ -39,8 +39,10 @@ export default class TutorialManager
 
 		else if(game.state === 'nominate' && game.fascistPolicies+game.liberalPolicies === 1)
 			return 'wrapup';
-		else if(game.state === 'nominate' && game.fascistPolicies === 3)
+		else if(game.state === 'nominate' && game.fascistPolicies === 3 && !this.played.includes('redzone')){
+			this.played.push('redzone');
 			return 'redzone';
+		}
 
 		else if(['investigate','peek','nameSuccessor','execute'].includes(game.state))
 		{
@@ -105,9 +107,8 @@ export default class TutorialManager
 
 		if(seamless[event])
 		{
-			let subevent = /^first_/.test(event) ? event.slice(6) : event;
 			wait.then(() => {
-				seamless[subevent].forEach(clip => SH.audio.tutorial[clip].play(true));
+				seamless[event].forEach(clip => SH.audio.tutorial[clip].play(true));
 			});
 		}
 		else if(event !== null)

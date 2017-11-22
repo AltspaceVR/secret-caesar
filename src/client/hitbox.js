@@ -16,7 +16,7 @@ export default class Hitbox extends THREE.Mesh
 			side: THREE.BackSide
 		}));
 
-		this.position.set(0, -0.5, 0);
+		this.position.set(0, -0.7, 0);
 		this.visible = false;
 		this.seat = seat;
 		seat.add(this);
@@ -50,7 +50,7 @@ export default class Hitbox extends THREE.Mesh
 
 		let investigateable =
 			game.state === 'investigate' &&
-			players[this.seat.owner].state === 'normal';
+			players[this.seat.owner] && players[this.seat.owner].state === 'normal';
 		
 		let succeedable = game.state === 'nameSuccessor';
 		let executable = game.state === 'execute';

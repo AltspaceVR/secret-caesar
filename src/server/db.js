@@ -89,7 +89,6 @@ class GameObject
 			.expire(self.type+':'+self.get('id'), 60*60*24)
 			.execAsync()
 			.then(result => {
-				console.log('save', result);
 				Object.assign(self.cache, self.delta);
 				resolve(self.delta);
 				self.delta = {};

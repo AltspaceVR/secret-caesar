@@ -32,6 +32,7 @@ export default class Presentation extends THREE.Object3D
 	updateOnState({data: {game, players}})
 	{
 		this.banner.visible = false;
+		this.credits.visible = false;
 		if(this.banner.bob){
 			this.banner.bob.stop();
 			this.banner.bob = null;

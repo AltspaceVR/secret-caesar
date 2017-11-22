@@ -31,12 +31,16 @@ async function handleContinue()
 	{
 		// kick off tutorial vote
 		let vote = new DB.Vote(Utils.generateId());
-		game.set('state', 'tutorial');		
+		game.set('state', 'tutorial');
+
+		// at least half the players need to want the tutorial
+		let cutoff = Math.ceil(game.get('turnOrder').length/2);
 		vote.set('type', 'tutorial');
+		vote.set('toPass', cutoff);
+		vote.set('requires', cutoff);
 		game.set('votesInProgress', [vote.get('id')]);
 		
-		let diff = await game.save();
-		await vote.save();
+		let [diff] = await Promise.all(game.save(), vote.save());
 
 		socket.server.to(socket.gameId).emit('update', diff, null, {[vote.get('id')]: vote.serialize()});
 	}

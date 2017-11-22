@@ -17,53 +17,34 @@ export default class PlayerInfo extends THREE.Object3D
 		seat.add(this);
 
 		SH.addEventListener('update_state', lateUpdate(this.updateState.bind(this)));
-		//SH.addEventListener('update_turnOrder', this.updateTurnOrder.bind(this));
-
 		SH.addEventListener('investigate', this.presentParty.bind(this));
-	}
-
-	updateTurnOrder({data: {game, players}})
-	{
-		SH._userPromise.then(() => {
-			let localPlayer = players[SH.localUser.id];
-			if(localPlayer){
-				let playerPos = this.worldToLocal(SH.seats[localPlayer.seatNum].getWorldPosition());
-				this.lookAt(playerPos);
-			}
-		});
 	}
 
 	updateState({data: {game, players, votes}})
 	{
-		if(this.seat.owner && game.state === 'night' && players[SH.localUser.id] || game.state === 'done'){
-			this.presentRole(game, players, votes);
-		}
-
-		else if(this.seat.owner && game.state === 'lameDuck')
-			this.presentVote(game, players, votes);
-
-		else if(this.card !== null)
+		if(this.card !== null)
 		{
 			this.remove(this.card);
 			this.card = null;
+		}
+
+		if(this.seat.owner)
+		{
+			this.presentRole(game, players, votes);
+			this.presentVote(game, players, votes);
 		}
 	}
 
 	presentRole(game, players)
 	{
-		if(this.card !== null){
-			this.remove(this.card);
-			this.card = null;
-		}
-
 		let localPlayer = players[SH.localUser.id];
 		let seatedPlayer = players[this.seat.owner];
 
 		let seatedRoleShouldBeVisible =
 			game.state === 'done' ||
 			SH.localUser.id === this.seat.owner ||
-			localPlayer.role === 'fascist' && (seatedPlayer.role === 'fascist' || seatedPlayer.role === 'hitler') ||
-			localPlayer.role === 'hitler' && seatedPlayer.role === 'fascist' && game.turnOrder.length < 7;
+			localPlayer && localPlayer.role === 'fascist' && (seatedPlayer.role === 'fascist' || seatedPlayer.role === 'hitler') ||
+			localPlayer && localPlayer.role === 'hitler' && seatedPlayer.role === 'fascist' && game.turnOrder.length < 7;
 
 		if(seatedRoleShouldBeVisible)
 		{
@@ -80,21 +61,16 @@ export default class PlayerInfo extends THREE.Object3D
 
 	presentVote(game, _, votes)
 	{
-		if(this.card !== null){
-			this.remove(this.card);
-			this.card = null;
-		}
-		
 		let vote = votes[game.lastElection];
 
-		if(vote.nonVoters.includes(this.seat.owner))
-			return;
+		if(game.state === 'lameDuck' && !vote.nonVoters.includes(this.seat.owner))
+		{
+			let playerVote = vote.yesVoters.includes(this.seat.owner);
+			this.card = playerVote ? new JaCard() : new NeinCard();
 
-		let playerVote = vote.yesVoters.includes(this.seat.owner);
-		this.card = playerVote ? new JaCard() : new NeinCard();
-
-		this.add(this.card);
-		let bb = new NBillboard(this.card);
+			this.add(this.card);
+			let bb = new NBillboard(this.card);
+		}
 	}
 
 	presentParty({data: userId})
