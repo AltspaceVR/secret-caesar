@@ -8,14 +8,13 @@ class AudioStream
 		this.source.buffer = buffer;
 		this.source.connect(output);
 		this.finishedPlaying = new Promise((resolve, reject) => {
-			this.source.onended = () => {
-				setTimeout(resolve, 400);
-			};
+			this._resolve = resolve;
 		});
 	}
 
 	play(){
 		this.source.start(0, 0);
+		setTimeout(this._resolve, Math.ceil(this.source.buffer.duration*1000 + 400));
 	}
 
 	stop(){

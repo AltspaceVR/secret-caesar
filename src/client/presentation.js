@@ -31,9 +31,16 @@ export default class Presentation extends THREE.Object3D
 
 	updateOnState({data: {game, players}})
 	{
-		this.credits.visible = game.state === 'setup';
+		this.banner.visible = false;
+		if(this.banner.bob){
+			this.banner.bob.stop();
+			this.banner.bob = null;
+		}
 
-		if(game.state === 'done')
+		if(game.state === 'setup'){
+			this.credits.visible = true;
+		}
+		else if(game.state === 'done')
 		{
 			if(/^liberal/.test(game.victory)){
 				this.banner.text.color = '#1919ff';
@@ -71,12 +78,6 @@ export default class Presentation extends THREE.Object3D
 			})
 			.then(() => this.banner.bob = Animate.bob(this.banner));
 		}
-		else if(game.state === 'aftermath') {
-			this.banner.visible = false;
-			if(this.banner.bob){
-				this.banner.bob.stop();
-				this.banner.bob = null;
-			}
-		}
+		
 	}
 }

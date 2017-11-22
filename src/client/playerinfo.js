@@ -35,14 +35,11 @@ export default class PlayerInfo extends THREE.Object3D
 
 	updateState({data: {game, players, votes}})
 	{
-		if(!this.seat.owner)
-			return;
-
-		if(game.state === 'night' && players[SH.localUser.id] || game.state === 'done'){
+		if(this.seat.owner && game.state === 'night' && players[SH.localUser.id] || game.state === 'done'){
 			this.presentRole(game, players, votes);
 		}
 
-		else if(game.state === 'lameDuck')
+		else if(this.seat.owner && game.state === 'lameDuck')
 			this.presentVote(game, players, votes);
 
 		else if(this.card !== null)
