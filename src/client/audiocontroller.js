@@ -8,7 +8,9 @@ class AudioStream
 		this.source.buffer = buffer;
 		this.source.connect(output);
 		this.finishedPlaying = new Promise((resolve, reject) => {
-			this.source.onended = resolve;
+			this.source.onended = () => {
+				setTimeout(resolve, 400);
+			};
 		});
 	}
 
@@ -98,7 +100,7 @@ export default class AudioController
 	{
 		if(!game.tutorial || this.tutorial.loadStarted) return;
 
-		let reader = game.tutorial, context = this.context, volume = 0.3;
+		let reader = game.tutorial, context = this.context, volume = 0.5;
 
 		Object.assign(this.tutorial, {
 			loadStarted: true,

@@ -107,7 +107,7 @@ export default class TutorialManager
 		{
 			let subevent = /^first_/.test(event) ? event.slice(6) : event;
 			wait.then(() => {
-				seamless[event].forEach(clip => SH.audio.tutorial[clip].play(true));
+				seamless[subevent].forEach(clip => SH.audio.tutorial[clip].play(true));
 			});
 		}
 		else if(event !== null)

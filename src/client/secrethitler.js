@@ -62,6 +62,11 @@ class SecretHitler extends THREE.Object3D
 
 	initialize(env, root, assets)
 	{
+		if(!this.localUser){
+			this._userPromise.then(() => this.initialize(env, root, assets));
+			return;
+		}
+
 		// share the diorama info
 		AssetManager.cache = assets;
 		AssetManager.fixMaterials();
