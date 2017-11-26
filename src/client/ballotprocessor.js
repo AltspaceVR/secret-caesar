@@ -10,14 +10,20 @@ function updateVotesInProgress({data: {game, players, votes}})
 	if(!ballot.seat.owner) return;
 
 	let vips = game.votesInProgress;
+
+	// votes the seat owner cannot participate in (already voted or blocked)
 	let blacklistedVotes = vips.filter(id => {
 		let vs = [...votes[id].yesVoters, ...votes[id].noVoters];
 		let nv = votes[id].nonVoters;
 		return nv.includes(ballot.seat.owner) || vs.includes(ballot.seat.owner);
 	});
+
+	// votes added this update that the seated user is eligible for
 	let newVotes = vips.filter(
 		id => (!SH.game.votesInProgress || !SH.game.votesInProgress.includes(id)) && !blacklistedVotes.includes(id)
 	);
+
+	// votes already participated in, plus completed votes
 	let finishedVotes = !SH.game.votesInProgress ? blacklistedVotes
 		: SH.game.votesInProgress.filter(id => !vips.includes(id)).concat(blacklistedVotes);
 

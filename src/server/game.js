@@ -6,17 +6,26 @@ const DB = require('./db'),
 
 let winTime = {};
 
-function reset(reloadClient)
+async function reset(reloadClient)
 {
 	let socket = this;
 	let game = new DB.GameState(socket.gameId);
-	game.save().then(() => {
-		if(reloadClient)
-			socket.server.to(socket.gameId).emit('reset');
-		else
-			socket.server.to(socket.gameId).emit('update', game.serialize(), {}, {});
-	})
-	.catch(err => console.error(err));
+
+	await game.load();
+
+	// void out all the votes in progress
+	let votes = game.get('votesInProgress');
+	let voteKiller = votes.reduce((obj, id) => {obj[id] = null; return obj;}, {});
+
+	// copy over players from last game
+	let newGame = new DB.GameState(socket.gameId);
+	newGame.set('turnOrder', game.get('turnOrder'));
+	await newGame.save();
+	
+	if(reloadClient)
+		socket.server.to(socket.gameId).emit('reset');
+	else
+		socket.server.to(socket.gameId).emit('update', newGame.serialize(), {}, voteKiller);
 }
 
 async function handleContinue()
@@ -39,8 +48,8 @@ async function handleContinue()
 		vote.set('toPass', cutoff);
 		vote.set('requires', cutoff);
 		game.set('votesInProgress', [vote.get('id')]);
-		
-		let [diff] = await Promise.all(game.save(), vote.save());
+
+		let [diff] = await Promise.all([game.save(), vote.save()]);
 
 		socket.server.to(socket.gameId).emit('update', diff, null, {[vote.get('id')]: vote.serialize()});
 	}

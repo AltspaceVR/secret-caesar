@@ -42,7 +42,7 @@ export default class PlayerInfo extends THREE.Object3D
 
 		let seatedRoleShouldBeVisible =
 			game.state === 'done' ||
-			SH.localUser.id === this.seat.owner ||
+			game.state === 'night' && SH.localUser.id === this.seat.owner ||
 			localPlayer && localPlayer.role === 'fascist' && (seatedPlayer.role === 'fascist' || seatedPlayer.role === 'hitler') ||
 			localPlayer && localPlayer.role === 'hitler' && seatedPlayer.role === 'fascist' && game.turnOrder.length < 7;
 
