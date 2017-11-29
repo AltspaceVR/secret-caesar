@@ -18,7 +18,8 @@ game.delta = {
 	"hand": 4,
 	"specialElection": "false",
 	"failedVotes": 0,
-	"victory": ""
+	"victory": "",
+	"tutorial": ""
 };
 
 var players = [

@@ -16,9 +16,10 @@ game.delta = {
 	"deck": 0x43f,
 	"discard": 4,
 	"hand": 2,
-	"specialElection": "false",
+	"specialElection": false,
 	"failedVotes": 0,
-	"victory": ""
+	"victory": "",
+	"tutorial": ""
 };
 
 var players = [
