@@ -61,7 +61,7 @@ export default class GameTable extends THREE.Object3D
 		this.setTexture(this.textures[0], true);
 		
 		// position table
-		this.position.set(0, 0.88, 0);
+		this.position.set(0, 1.0, 0);
 
 		SH.addEventListener('update_turnOrder', this.changeMode.bind(this));
 		SH.addEventListener('update_liberalPolicies', this.updatePolicies.bind(this));

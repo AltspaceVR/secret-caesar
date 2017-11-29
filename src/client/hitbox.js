@@ -16,7 +16,7 @@ export default class Hitbox extends THREE.Mesh
 			side: THREE.BackSide
 		}));
 
-		this.position.set(0, -0.7, -.2);
+		this.position.set(0, -0.5, -.2);
 		this.visible = false;
 		this.seat = seat;
 		seat.add(this);

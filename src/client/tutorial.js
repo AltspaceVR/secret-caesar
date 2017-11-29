@@ -68,8 +68,7 @@ export default class TutorialManager
 
 	stateUpdate(game, votes)
 	{
-		if(!game.tutorial || game.turnOrder.includes('1111111') && SH.localUser.id !== '1111111')
-			return;
+		if(!game.tutorial) return;
 
 		let seamless = {
 			policyFascist: ['policyFascist','policyAftermath'],

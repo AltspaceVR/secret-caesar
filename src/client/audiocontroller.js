@@ -13,7 +13,8 @@ class AudioStream
 	}
 
 	play(){
-		this.source.start(0, 0);
+		if(/AltspaceVR/.test(navigator.userAgent))
+			this.source.start(0, 0);
 		setTimeout(this._resolve, Math.ceil(this.source.buffer.duration*1000 + 400));
 	}
 

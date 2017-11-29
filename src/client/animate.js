@@ -167,4 +167,21 @@ export default class Animate
 			.repeat(Infinity)
 			.start();
 	}
+
+	static winkOut(obj, duration = 400)
+	{
+		let anims = [];
+
+		anims.push(new TWEEN.Tween(obj.scale)
+			.to({x: .001}, duration)
+			.easing(TWEEN.Easing.Cubic.Out)
+		);
+
+		anims.push(new TWEEN.Tween(obj.scale)
+			.to({y: .001}, duration)
+			.easing(TWEEN.Easing.Exponential.Out)
+		);
+
+		return WaitForAnims(anims);
+	}
 }
