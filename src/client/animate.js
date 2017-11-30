@@ -168,20 +168,62 @@ export default class Animate
 			.start();
 	}
 
-	static winkOut(obj, duration = 400)
+	static winkIn(obj, duration = 200)
 	{
+		if(!obj.userData.scaleOrig)
+			obj.userData.scaleOrig = obj.scale.clone();
+
+		let anims = [];
+
+		obj.scale.setScalar(.001);
+		obj.visible = true;
+
+		anims.push(new TWEEN.Tween(obj.scale)
+			.to({y: obj.userData.scaleOrig.y}, duration)
+			.easing(TWEEN.Easing.Cubic.In)
+		);
+
+		anims.push(new TWEEN.Tween(obj.scale)
+			.to({x: obj.userData.scaleOrig.x, z: obj.userData.scaleOrig.z}, .2*duration)
+			.easing(TWEEN.Easing.Cubic.In)
+		);
+
+		return WaitForAnims(anims);
+	}
+
+	static winkOut(obj, duration = 200)
+	{
+		if(!obj.userData.scaleOrig)
+			obj.userData.scaleOrig = obj.scale.clone();
+
 		let anims = [];
 
 		anims.push(new TWEEN.Tween(obj.scale)
-			.to({x: .001}, duration)
+			.to({y: .001}, duration)
 			.easing(TWEEN.Easing.Cubic.Out)
 		);
 
 		anims.push(new TWEEN.Tween(obj.scale)
-			.to({y: .001}, duration)
-			.easing(TWEEN.Easing.Exponential.Out)
+			.to({x: .001, z: .001}, .2*duration)
+			.delay(.8*duration)
+			.easing(TWEEN.Easing.Cubic.Out)
 		);
 
-		return WaitForAnims(anims);
+		return WaitForAnims(anims).then(() => obj.visible = false);
+	}
+
+	static swingOut(obj, rotation, radius, duration = 300)
+	{
+		let start = obj.rotation.x;
+		let anim = new TWEEN.Tween({t:0})
+			.to({t: 1}, duration)
+			.easing(TWEEN.Easing.Quadratic.In)
+			.onUpdate(({t}) => {
+				obj.translateY(-radius);
+				obj.rotation.x = start + t*rotation;
+				obj.translateY(radius);
+			});
+
+		return WaitForAnims([anim]);
 	}
 }

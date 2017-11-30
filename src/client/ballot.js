@@ -6,6 +6,7 @@ import { generateQuestion, lateUpdate } from './utils';
 import * as BP from './ballotprocessor';
 import * as BPBA from './bpba';
 import {NText, PlaceholderMesh} from './nativecomponents';
+import Animate from './animate';
 
 let PLAYERSELECT = 0;
 let CONFIRM = 1;
@@ -142,12 +143,14 @@ class Ballot extends THREE.Object3D
 				if(answer !== 'cancel' && self.seat.owner !== SH.localUser.id) return;
 
 				// clean up
-				self.jaCard.visible = false;
-				self.neinCard.visible = false;
-				self.question.visible = false;
-				self.displayed = null;
-				self.remove(...self.policies);
-				self.policies = [];
+				Animate.swingOut(self, Math.PI/2-.5, .41, 300).then(() => {
+					self.jaCard.visible = false;
+					self.neinCard.visible = false;
+					self.question.visible = false;
+					self.displayed = null;
+					self.remove(...self.policies);
+					self.policies = [];
+				});
 
 				self.jaCard.removeEventListener('cursorup', self._yesClickHandler);
 				self.neinCard.removeEventListener('cursorup', self._noClickHandler);
