@@ -55,7 +55,7 @@ export default class Animate
 	 * @param {THREE.Object3D} target 
 	 * @param {Object} options
 	 */
-	static simple(target, {parent=null, pos=null, quat=null, scale=null, matrix=null, duration=600} = {})
+	static simple(target, {parent=null, pos=null, quat=null, scale=null, hue=null, matrix=null, duration=600} = {})
 	{
 		// extract position/rotation/scale from matrix
 		if(matrix){
@@ -92,6 +92,16 @@ export default class Animate
 			anims.push(new TWEEN.Tween(target.scale)
 				.to({x: scale.x, y: scale.y, z: scale.z}, duration)
 				.easing(TWEEN.Easing.Quadratic.Out)
+			);
+		}
+
+		if(hue !== null){
+			anims.push(new TWEEN.Tween(target.material.color.getHSL())
+				.to({h: hue}, duration)
+				.easing(TWEEN.Easing.Quadratic.Out)
+				.onUpdate(tween => {
+					target.material.color.setHSL(tween.h, tween.s, tween.l);
+				})
 			);
 		}
 

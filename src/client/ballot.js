@@ -201,7 +201,9 @@ class Ballot extends THREE.Object3D
 					let card = self.policies[(answer+3)%3];
 					card.applyMatrix(self.matrix);
 					self.seat.add(card);
-					Animate.winkOut(card, 300);
+					Animate.winkOut(card, 300).then(() => {
+						self.seat.remove(card);
+					});
 
 					resolve(answer);
 				}
