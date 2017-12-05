@@ -187,6 +187,16 @@ class Ballot extends THREE.Object3D
 
 				// make sure the answer still matters
 				if(!isVoteValid() || answer === 'cancel'){
+					if(choices === POLICY)
+					{
+						// random card detaches and winks out
+						let card = self.policies[Math.floor(Math.random()*self.policies.length)];
+						card.applyMatrix(self.matrix);
+						self.seat.add(card);
+						Animate.winkOut(card, 300).then(() => {
+							self.seat.remove(card);
+						});
+					}
 					reject('vote cancelled');
 				}
 				else if(answer === 'yes')

@@ -4,3 +4,6 @@ node_modules/
 *.blend2
 config.js
 src/**/*-tutorial
+prepros.cfg
+README.html
+*.psd

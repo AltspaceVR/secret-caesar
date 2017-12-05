@@ -55,6 +55,7 @@ export default class ContinueBox extends THREE.Object3D
 			this.playerSetup({data: {game}});
 		}
 		else if(game.state === 'done'){
+			this.hide();
 			setTimeout(() => {
 				this.show('New game');
 			}, 8000);
