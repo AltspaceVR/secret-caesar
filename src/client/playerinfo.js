@@ -23,16 +23,16 @@ export default class PlayerInfo extends THREE.Object3D
 
 	updateState({data: {game, players, votes}})
 	{
-		let localPlayer = players[SH.localUser.id];
-		let seatedPlayer = players[this.seat.owner];
+		let localPlayer = players[SH.localUser.id] || {};
+		let seatedPlayer = players[this.seat.owner] || {};
 		let vote = votes[game.lastElection];
 
 		let seatedRoleShouldBeVisible =
 			game.state === 'done' ||
 			game.state === 'night' && (
 				localPlayer === seatedPlayer ||
-				localPlayer && localPlayer.role === 'fascist' && (seatedPlayer.role === 'fascist' || seatedPlayer.role === 'hitler') ||
-				localPlayer && localPlayer.role === 'hitler' && seatedPlayer.role === 'fascist' && game.turnOrder.length < 7
+				localPlayer.role === 'fascist' && (seatedPlayer.role === 'fascist' || seatedPlayer.role === 'hitler') ||
+				localPlayer.role === 'hitler' && seatedPlayer.role === 'fascist' && game.turnOrder.length < 7
 			);
 
 		if(this.seat.owner && seatedRoleShouldBeVisible)
