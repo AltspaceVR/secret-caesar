@@ -4,6 +4,7 @@ import SH from './secrethitler';
 import {FascistRoleCard, HitlerRoleCard, LiberalRoleCard, FascistPartyCard, LiberalPartyCard, JaCard, NeinCard} from './card';
 import {lateUpdate} from './utils';
 import {NBillboard} from './nativecomponents';
+import Animate from './animate';
 
 export default class PlayerInfo extends THREE.Object3D
 {
@@ -24,8 +25,10 @@ export default class PlayerInfo extends THREE.Object3D
 	{
 		if(this.card !== null)
 		{
-			this.remove(this.card);
-			this.card = null;
+			Animate.winkOut(this.card, 300).then(() => {
+				this.remove(this.card);
+				this.card = null;
+			});
 		}
 
 		if(this.seat.owner)

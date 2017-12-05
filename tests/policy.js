@@ -4,11 +4,11 @@ var game = new DB.GameState('test');
 game.delta = {
 	"id": "test",
 	"state": "policy1",
-	"turnOrder": ["3333333","2222222","1111111","5555555","4444444"],
+	"turnOrder": ["3333333","2222222","521818417662001643","5555555","4444444"],
 	"votesInProgress": [],
-	"president": "1111111",
+	"president": "521818417662001643",
 	"chancellor": "2222222",
-	"lastPresident": "1111111",
+	"lastPresident": "521818417662001643",
 	"lastChancellor": "2222222",
 	"lastElection": "",
 	"liberalPolicies": 0,
@@ -23,15 +23,15 @@ game.delta = {
 };
 
 var players = [
-	new DB.Player('1111111'),
+	new DB.Player('521818417662001643'),
 	new DB.Player('2222222'),
 	new DB.Player('3333333'),
 	new DB.Player('4444444'),
 	new DB.Player('5555555')
 ];
 players[0].delta = {
-	"id": "1111111",
-	"displayName": "1111111",
+	"id": "521818417662001643",
+	"displayName": "Steven",
 	"isModerator": "true",
 	"seatNum": "2",
 	"role": "liberal",

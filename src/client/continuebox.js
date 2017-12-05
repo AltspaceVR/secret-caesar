@@ -33,6 +33,7 @@ export default class ContinueBox extends THREE.Object3D
 		SH.addEventListener('update_state', this.onstatechange.bind(this));
 		SH.addEventListener('update_turnOrder', this.playerSetup.bind(this));
 		this.addEventListener('cursorup', this.onclick.bind(this));
+		this.addBehavior( new altspace.utilities.behaviors.HoverScale() );
 
 		let show = () => this.show();
 		SH.addEventListener('investigate', show);

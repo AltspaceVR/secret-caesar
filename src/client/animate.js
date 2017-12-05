@@ -26,7 +26,7 @@ class QuaternionTween extends TWEEN.Tween
 
 function WaitForAnims(tweens)
 {
-	return new Promise((resolve, reject) =>
+	let p = new Promise((resolve, reject) =>
 	{
 		let activeCount = tweens.length;
 		function checkDone(){
@@ -34,8 +34,11 @@ function WaitForAnims(tweens)
 		}
 
 		tweens.forEach(t => t.onComplete(checkDone));
+		tweens.forEach(t => t.onStop(reject));
 		tweens.forEach(t => t.start());
 	});
+	p.tweens = tweens;
+	return p;
 }
 
 const spinPoints = [
@@ -197,7 +200,8 @@ export default class Animate
 			obj.userData.scaleOrig = obj.scale.clone();
 
 		let anims = [];
-
+		obj.visible = true;
+		
 		anims.push(new TWEEN.Tween(obj.scale)
 			.to({y: .001}, duration)
 			.easing(TWEEN.Easing.Cubic.Out)
@@ -207,21 +211,64 @@ export default class Animate
 			.to({x: .001, z: .001}, .2*duration)
 			.delay(.8*duration)
 			.easing(TWEEN.Easing.Cubic.Out)
+			.onComplete(() => { obj.visible = false; })
 		);
 
-		return WaitForAnims(anims).then(() => obj.visible = false);
+		return WaitForAnims(anims);
 	}
 
-	static swingOut(obj, rotation, radius, duration = 300)
+	static swingIn(obj, rotation=Math.PI/2, radius=0.5, duration=300)
 	{
-		let start = obj.rotation.x;
+		if(!obj.userData.transform)
+			obj.userData.transform = {
+				rotation: obj.rotation.x,
+				position: obj.position.clone()
+			};
+
+		// put at start position
+		obj.translateY(-radius);
+		obj.rotation.x = obj.userData.transform.rotation + rotation;
+		obj.translateY(radius);
+
+		let anim = new TWEEN.Tween({t:1})
+			.to({t: 0}, duration)
+			.easing(TWEEN.Easing.Bounce.Out)
+			.onUpdate(({t}) => {
+				obj.translateY(-radius);
+				obj.rotation.x = obj.userData.transform.rotation + t*rotation;
+				obj.translateY(radius);
+			})
+			.onStop(() => {
+				obj.translateY(-radius);
+				obj.rotation.x = obj.userData.transform.rotation + rotation;
+				obj.translateY(radius);
+			});
+
+		return WaitForAnims([anim]);
+	}
+
+	static swingOut(obj, rotation=Math.PI/2, radius=0.5, duration=300)
+	{
+		if(!obj.userData.transform)
+			obj.userData.transform = {
+				rotation: obj.rotation.x,
+				position: obj.position.clone()
+			};
+
+		obj.rotation.x = obj.userData.transform.rotation;
+		obj.position.copy(obj.userData.transform.position);
+
 		let anim = new TWEEN.Tween({t:0})
 			.to({t: 1}, duration)
 			.easing(TWEEN.Easing.Quadratic.In)
 			.onUpdate(({t}) => {
 				obj.translateY(-radius);
-				obj.rotation.x = start + t*rotation;
+				obj.rotation.x = obj.userData.transform.rotation + t*rotation;
 				obj.translateY(radius);
+			})
+			.onStop(() => {
+				obj.rotation.x = obj.userData.transform.rotation;
+				obj.position.copy(obj.userData.transform.position);
 			});
 
 		return WaitForAnims([anim]);

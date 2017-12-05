@@ -91,15 +91,25 @@ class Ballot extends THREE.Object3D
 			// hook up q/a cards
 			if(choices === CONFIRM || choices === BINARY){
 				self.jaCard.visible = true;
-				if(!fake)
+				if(!fake){
 					self.jaCard.addEventListener('cursorup', respond('yes', resolve, reject));
+					if(self.seat.owner === SH.localUser.id)
+						self.jaCard.addBehavior( new altspace.utilities.behaviors.HoverScale() );
+				}
 			}
+			else self.jaCard.visible = false;
+
 			if(choices === BINARY){
 				self.neinCard.visible = true;
-				if(!fake)
+				if(!fake){
 					self.neinCard.addEventListener('cursorup', respond('no', resolve, reject));
+					if(self.seat.owner === SH.localUser.id)
+						self.neinCard.addBehavior( new altspace.utilities.behaviors.HoverScale() );
+				}
 			}
-			else if(choices === PLAYERSELECT && !fake){
+			else self.neinCard.visible = false;
+
+			if(choices === PLAYERSELECT && !fake){
 				SH.addEventListener('playerSelect', respond('player', resolve, reject));
 			}
 			else if(choices === POLICY){
@@ -125,12 +135,23 @@ class Ballot extends THREE.Object3D
 					self.add(card);
 					self.policies.push(card);
 
-					if(!fake)
+					if(!fake){
 						card.addEventListener('cursorup', respond(val === -1 ? -1 : i, resolve, reject));
+						
+						if(self.seat.owner === SH.localUser.id)
+							card.addBehavior( new altspace.utilities.behaviors.HoverScale() );
+					}
 				});
 			}
 
 			self.addEventListener('cancelVote', respond('cancel', resolve, reject));
+
+			if(self._outtroAnim){
+				clearTimeout(self._outtroAnim);
+			}
+
+			if(!self.displayed)
+				Animate.swingIn(self, Math.PI/2-.5, .41, 800);
 
 			self.displayed = id;
 		}
@@ -143,16 +164,23 @@ class Ballot extends THREE.Object3D
 				if(answer !== 'cancel' && self.seat.owner !== SH.localUser.id) return;
 
 				// clean up
-				Animate.swingOut(self, Math.PI/2-.5, .41, 300).then(() => {
-					self.jaCard.visible = false;
-					self.neinCard.visible = false;
-					self.question.visible = false;
-					self.displayed = null;
-					self.remove(...self.policies);
-					self.policies = [];
-				});
+				self._outtroAnim = setTimeout(() => {
+					Animate.swingOut(self, Math.PI/2-.5, .41, 300)
+					.then(() => {
+						self.jaCard.visible = false;
+						self.neinCard.visible = false;
+						self.question.visible = false;
+						self.displayed = null;
+						self.remove(...self.policies);
+						self.policies = [];
+					});
+					
+					self._outtroAnim = null;
+				}, 100);
 
+				self.jaCard.removeAllBehaviors();
 				self.jaCard.removeEventListener('cursorup', self._yesClickHandler);
+				self.neinCard.removeAllBehaviors();
 				self.neinCard.removeEventListener('cursorup', self._noClickHandler);
 				SH.removeEventListener('playerSelect', self._nominateHandler);
 				self.removeEventListener('cancelVote', self._cancelHandler);
@@ -168,7 +196,15 @@ class Ballot extends THREE.Object3D
 				else if(answer === 'player')
 					resolve(evt.data);
 				else if(choices === POLICY)
+				{
+					// clicked card detaches and winks out
+					let card = self.policies[(answer+3)%3];
+					card.applyMatrix(self.matrix);
+					self.seat.add(card);
+					Animate.winkOut(card, 300);
+
 					resolve(answer);
+				}
 			}
 
 			if(answer === 'yes')

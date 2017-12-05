@@ -9,7 +9,8 @@ export default class Presentation extends THREE.Object3D
 	constructor()
 	{
 		super();
-		SH.add(this);
+		SH.table.add(this);
+		this.position.set(0, -.9, 0);
 
 		// create idle display
 		this.credits = new CreditsCard();
