@@ -134,6 +134,7 @@ class FascistPolicyCard extends Card {
 class VetoCard extends Card {
 	constructor(){
 		super(Types.VETO);
+		this.material = this.material.clone();
 	}
 }
 class LiberalRoleCard extends Card {
