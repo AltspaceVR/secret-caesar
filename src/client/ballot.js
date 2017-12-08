@@ -45,13 +45,21 @@ class Ballot extends THREE.Object3D
 		//let geo = new THREE.PlaneBufferGeometry(0.4, 0.2);
 		//let mat = new THREE.MeshBasicMaterial({transparent: true, side: THREE.DoubleSide});
 		this.question = PlaceholderMesh.clone();
-		this.question.position.set(0, 0.05, 0);
+		this.question.position.set(0, 0.1, 0);
 		this.question.scale.setScalar(.5);
 		this.question.visible = false;
 		this.add(this.question);
 
+		this.backplate = new THREE.Mesh(
+			new THREE.PlaneBufferGeometry(1.1, .4),
+			new THREE.MeshBasicMaterial({transparent: true, opacity: 0.25, side: THREE.DoubleSide})
+		);
+		this.backplate.position.set(0,0,-.01);
+		this.backplate.visible = false;
+		this.question.add(this.backplate);
+
 		this.textComponent = new NText(this.question);
-		this.textComponent.update({width: 1.1, height: .4, fontSize: 1, verticalAlign: 'top'});
+		this.textComponent.update({width: 1.1, height: .4, fontSize: 1});
 
 		SH.addEventListener('update_votesInProgress', BP.updateVotesInProgress.bind(this));
 		SH.addEventListener('update_state', lateUpdate(BP.updateState.bind(this)));
@@ -85,8 +93,9 @@ class Ballot extends THREE.Object3D
 
 			// show the ballot
 			//self.question.material.map = generateQuestion(qText, self.question.material.map);
-			self.textComponent.update({text: `${qText}`});
+			self.textComponent.update({text: qText});
 			self.question.visible = true;
+			self.backplate.visible = true;
 
 			// hook up q/a cards
 			if(choices === CONFIRM || choices === BINARY){
@@ -170,6 +179,7 @@ class Ballot extends THREE.Object3D
 						self.jaCard.visible = false;
 						self.neinCard.visible = false;
 						self.question.visible = false;
+						self.backplate.visible = false;
 						self.displayed = null;
 						self.remove(...self.policies);
 						self.policies = [];

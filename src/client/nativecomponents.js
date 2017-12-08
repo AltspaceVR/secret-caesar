@@ -44,7 +44,10 @@ class NText extends NativeComponent {
 	}
 	update(fields = {}){
 		if(fields.text)
-			fields.text = `<color=${this.color}>${fields.text}</color>`;
+			if(this.color)
+				fields.text = `<color=${this.color}>${fields.text}</color>`;
+			else
+				fields.text = fields.text;
 		NativeComponent.prototype.update.call(this, fields);
 	}
 }
