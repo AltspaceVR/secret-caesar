@@ -125,9 +125,10 @@ async function start(socket, game)
 	for(let i=0; i<fasCount; i++) roles.push('fascist');
 	Utils.shuffleInPlace(roles);
 
-	// assign roles
+	// assign roles, initialize state
 	game.get('turnOrder').forEach((id,i) => {
 		game.players[id].set('role', roles[i]);
+		game.players[id].set('state', 'normal');
 	});
 
 	// generate deck
