@@ -239,13 +239,18 @@ async function evaluateElectionVote(game, vote, passed)
 			game.set('deck', deck);
 			if(card === BPBA.LIBERAL){
 				game.set('liberalPolicies', game.get('liberalPolicies')+1);
+				game.set('hand', 3);
 			}
 			else {
 				game.set('fascistPolicies', game.get('fascistPolicies')+1);
+				game.set('hand', 2);
 			}
 
 			// guarantee deck has enough cards to draw
 			Game.guaranteeDeckSizeMinimum(game);
+		}
+		else {
+			game.set('hand', 1);
 		}
 
 		await game.loadPlayers();
