@@ -16,6 +16,8 @@ import ElectionTracker from './electiontracker';
 import Presentation from './presentation';
 import AudioController from './audiocontroller';
 import Tutorial from './tutorial';
+import ButtonGroup from './buttongroup';
+import {PlaceholderMesh, NText} from './nativecomponents';
 
 class SecretHitler extends THREE.Object3D
 {
@@ -81,6 +83,21 @@ class SecretHitler extends THREE.Object3D
 				{hidden: true, icon: window.location.origin+'/static/img/caesar/icon.png'});
 		}
 
+		if(env.templateSid === 'conference-room-955')
+		{
+			this.message = PlaceholderMesh.clone();
+			this.message.position.set(6, 2, 0);
+			this.message.rotation.set(0, -Math.PI/2, 0);
+			let ntext = new NText(this.message);
+			ntext.color = 'white';
+			ntext.update({
+				text: 'If things get stuck, have the broken user hit the "refresh" button under the table. -Mgmt',
+				fontSize: 2,
+				width: 3
+			});
+			this.add(this.message);
+		}
+
 		this.audio = new AudioController();
 		this.tutorial = new Tutorial();
 
@@ -88,24 +105,17 @@ class SecretHitler extends THREE.Object3D
 		this.table = new GameTable();
 		this.add(this.table);
 
-		this.resetButton = new THREE.Mesh(
-			new THREE.BoxGeometry(.25,.25,.25),
-			new THREE.MeshBasicMaterial({map: assets.textures.reset})
-		);
-		this.resetButton.position.set(1.13, -.9, .75);
-		this.resetButton.addEventListener('cursorup', this.sendReset.bind(this));
-		this._userPromise.then(() => {
-			if(this.localUser.isModerator)
-				this.table.add(this.resetButton);
-		});
-
-		this.refreshButton = new THREE.Mesh(
-			new THREE.BoxGeometry(.25,.25,.25),
-			new THREE.MeshBasicMaterial({map: assets.textures.refresh})
-		);
-		this.refreshButton.position.set(1.13, -.3, .75);
-		this.refreshButton.addEventListener('cursorup', () => window.location.reload());
-		this.table.add(this.refreshButton);
+		let bg1 = new ButtonGroup(this.table);
+		bg1.position.set(0, -.18, -.74);
+		let bg2 = new ButtonGroup(this.table);
+		bg2.position.set(-1.12, -.18, 0);
+		bg2.rotation.set(0, Math.PI/2, 0);
+		let bg3 = new ButtonGroup(this.table);
+		bg3.position.set(0, -.18, .74);
+		bg3.rotation.set(0, Math.PI, 0);
+		let bg4 = new ButtonGroup(this.table);
+		bg4.position.set(1.12, -.18, 0);
+		bg4.rotation.set(0, Math.PI*1.5, 0);
 
 		this.presentation = new Presentation();
 
@@ -180,13 +190,6 @@ class SecretHitler extends THREE.Object3D
 			bubbles: false,
 			data: p.id
 		});
-	}
-
-	sendReset(e){
-		if(this.localUser.isModerator){
-			console.log('requesting reset');
-			this.socket.emit('reset');
-		}
 	}
 
 	doReset(game, players, votes)
