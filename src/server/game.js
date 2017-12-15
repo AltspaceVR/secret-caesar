@@ -34,9 +34,25 @@ async function handleContinue()
 	let game = new DB.GameState(socket.gameId);
 
 	await game.load();
+	await game.loadPlayers();
 
 	let state = game.get('state');
-	if(state === 'setup')
+	let voteId = game.get('lastElection');
+	let voteDiff = {};
+	if(voteId){
+		let vote = new DB.Vote(voteId);
+		vote.destroy();
+		game.set('lastElection', '');
+		voteDiff[voteId] = null;
+	}
+
+	let victory = await evaluateVictory(socket, game);
+	if(game.get('victory') && victory)
+	{
+		winTime[socket.gameId] = Date.now();
+		game.set('state', 'done');
+	}
+	else if(state === 'setup')
 	{
 		// kick off tutorial vote
 		let vote = new DB.Vote(Utils.generateId());
@@ -47,11 +63,11 @@ async function handleContinue()
 		vote.set('type', 'tutorial');
 		vote.set('toPass', cutoff);
 		vote.set('requires', cutoff);
+		voteDiff[vote.get('id')] = await vote.save();
+
 		game.set('votesInProgress', [vote.get('id')]);
 
 		let [diff] = await Promise.all([game.save(), vote.save()]);
-
-		socket.server.to(socket.gameId).emit('update', diff, null, {[vote.get('id')]: vote.serialize()});
 	}
 	else if(state === 'lameDuck')
 	{
@@ -62,52 +78,30 @@ async function handleContinue()
 
 		if(game.get('failedVotes') === 0)
 		{
-			await game.loadPlayers();
-			let victory = await evaluateVictory(socket, game);
-			if(!victory)
-				drawPolicies(socket, game);
-			else {
-				let vote = new DB.Vote(game.get('lastElection'));
-				game.set('lastElection', '');
-
-				winTime[socket.gameId] = Date.now();
-				game.set('state', 'done');
-				let [diff] = await Promise.all([game.save(), vote.destroy()]);
-				socket.server.to(socket.gameId).emit('update', diff, null, {[vote.get('id')]: null});
-			}
+			game.set('state', 'policy1');
+			
+			let [deck, hand] = BPBA.drawThree(game.get('deck'));
+			game.set('deck', deck);
+			game.set('hand', hand);
 		}
 		else {
-			let vote = new DB.Vote(game.get('lastElection'));
-			game.set('lastElection', '');
-
 			game.set('state', 'nominate');
-			let [diff] = await Promise.all([game.save(), vote.destroy()]);
-			socket.server.to(socket.gameId).emit('update', diff, null, {[vote.get('id')]: null});
 		}
 	}
-	else if(state === 'aftermath')
-	{
-		await game.loadPlayers();
-		let victory = await evaluateVictory(socket, game);
-		if(!victory)
-			execPowers(socket, game);
-		else {
-			winTime[socket.gameId] = Date.now();
-			game.set('state', 'done');
-			let diff = await game.save();
-			socket.server.to(socket.gameId).emit('update', diff);
-		}
+	else if(state === 'aftermath'){
+		execPowers(socket, game);
 	}
-	else if(state === 'investigate' || state === 'peek')
-	{
-		await game.loadPlayers();
+	else if(state === 'investigate' || state === 'peek'){
 		advanceRound(socket, game);
 	}
-	else if(state === 'done')
-	{
+	else if(state === 'done'){
 		if(Date.now() > winTime[socket.gameId] + 5000)
-			reset.call(socket, false);
+			return reset.call(socket, false);
+
 	}
+
+	let diff = await game.save();
+	socket.server.to(socket.gameId).emit('update', diff, null, voteDiff);
 }
 
 async function start(socket, game)
@@ -204,24 +198,6 @@ function nominate(chancellor)
 	}, err => Utils.log(game, err));
 }
 
-async function drawPolicies(socket, game)
-{
-	Utils.log(game, 'Drawing policies');
-	let vote = new DB.Vote(game.get('lastElection'));
-	
-	game.set('lastElection', '');
-	game.set('state', 'policy1');
-
-	let [deck, hand] = BPBA.drawThree(game.get('deck'));
-	game.set('deck', deck);
-	game.set('hand', hand);
-
-	let [gdiff, vdiff] = await Promise.all([game.save(), vote.destroy()]);
-	socket.server.to(socket.gameId).emit('update', 
-		gdiff, null, {[vote.get('id')]: null}
-	);
-}
-
 async function discardPolicy1(val)
 {
 	let socket = this;
@@ -275,7 +251,7 @@ async function discardPolicy2(val)
 	socket.server.to(socket.gameId).emit('update', diff);
 }
 
-async function execPowers(socket, game)
+function execPowers(socket, game)
 {
 	let fascistPolicies = game.get('fascistPolicies'),
 		lastCardIsFascist = (game.get('hand') & 1) === BPBA.FASCIST,
@@ -309,22 +285,20 @@ async function execPowers(socket, game)
 		}
 	}
 
-	if(specialPhase){
-		let diff = await game.save();
-		socket.server.to(socket.gameId).emit('update', diff);
-	}
-	else {
-		await game.loadPlayers();
+	if(!specialPhase){
 		advanceRound(socket, game);
 	}
 }
 
-async function evaluateVictory(socket, game)
+function evaluateVictory(socket, game)
 {
 	let hitlerId = Object.keys(game.players).find(pid => game.players[pid].get('role') === 'hitler');
 	let turnOrder = game.get('turnOrder');
 
-	if(game.get('liberalPolicies') === 5){
+	if(game.get('victory') !== ''){
+		return '';
+	}
+	else if(game.get('liberalPolicies') === 5){
 		Utils.log(game, 'liberal policy victory');
 		game.set('victory', 'liberal-policy');
 	}
@@ -344,7 +318,7 @@ async function evaluateVictory(socket, game)
 	return game.get('victory');
 }
 
-async function advanceRound(socket, game, player)
+function advanceRound(socket, game)
 {
 	// no executive powers gained, continue
 	let living = game.get('turnOrder').filter(id => game.players[id].get('state') !== 'dead');
@@ -354,12 +328,6 @@ async function advanceRound(socket, game, player)
 	game.set('chancellor', '');
 	game.set('specialElection', false);
 	game.set('state', 'nominate');
-
-	let diff = await game.save();
-	let pdiff = {};
-	if(player)
-		pdiff[player.get('id')] = await player.save();
-	socket.server.to(socket.gameId).emit('update', diff, pdiff);
 }
 
 async function nameSuccessor(userId)
@@ -389,13 +357,14 @@ async function execute(userId)
 
 	let victory = await evaluateVictory(socket, game);
 	if(!victory)
-		advanceRound(socket, game, player);
+		advanceRound(socket, game);
 	else {
 		game.set('state', 'done');
-		let diff = await game.save();
-		let pdiff = await player.save();
-		socket.server.to(socket.gameId).emit('update', diff, {[player.get('id')]: pdiff});
 	}
+
+	let diff = await game.save();
+	let pdiff = await player.save();
+	socket.server.to(socket.gameId).emit('update', diff, {[userId]: pdiff});
 }
 
 function guaranteeDeckSizeMinimum(game)
@@ -423,10 +392,9 @@ async function confirmVeto(confirmed)
 		// discard both policies
 		let hand = game.get('hand'), discard = game.get('discard');
 		discard = BPBA.concat(discard, hand);
-		game.set('hand', 1);
 		game.set('discard', discard);
 
-		game.set('failedVotes', game.get('failedVotes')+1);
+		incrementFailedVote(game);
 		game.set('state', 'aftermath');
 	}
 	else
@@ -438,13 +406,34 @@ async function confirmVeto(confirmed)
 	socket.server.to(socket.gameId).emit('update', diff);
 }
 
-exports.reset = reset;
-exports.start = start;
-exports.handleContinue = handleContinue;
-exports.nominate = nominate;
-exports.discardPolicy1 = discardPolicy1;
-exports.discardPolicy2 = discardPolicy2;
-exports.nameSuccessor = nameSuccessor;
-exports.execute = execute;
-exports.guaranteeDeckSizeMinimum = guaranteeDeckSizeMinimum;
-exports.confirmVeto = confirmVeto;
+function incrementFailedVote(game)
+{
+	// continue to reaction, but increment fail count
+	let failedVotes = game.get('failedVotes') + 1;
+	game.set('failedVotes', failedVotes);
+
+	// every third failed vote, enact a policy
+	if(failedVotes >= 3 && failedVotes%3 === 0)
+	{
+		let [deck, card] = BPBA.discardOne(game.get('deck'), 0);
+		game.set('deck', deck);
+		game.set('hand', 2&card);
+		if(card === BPBA.LIBERAL){
+			game.set('liberalPolicies', game.get('liberalPolicies')+1);
+		}
+		else {
+			game.set('fascistPolicies', game.get('fascistPolicies')+1);
+		}
+
+		// guarantee deck has enough cards to draw
+		guaranteeDeckSizeMinimum(game);
+	}
+	else {
+		game.set('hand', 1);
+	}
+}
+
+Object.assign(exports, {
+	reset, start, handleContinue, nominate, discardPolicy1, discardPolicy2, nameSuccessor,
+	execute, guaranteeDeckSizeMinimum, confirmVeto, incrementFailedVote
+});
