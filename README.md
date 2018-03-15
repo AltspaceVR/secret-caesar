@@ -10,6 +10,10 @@ Secret Caesar is a social deduction game for 5–10 people about finding and sto
 
 The majority of players are liberals. If they can learn to trust each other, they have enough votes to control the table and win the game. But some players are fascists. They will say whatever it takes to get elected, enact their agenda, and blame others for the fallout. The liberals must work together to discover the truth before the fascists install their cold-blooded leader and win the game.
 
+## Options
+
+* `userWhitelist=<id1>,<id2>,...` - Only allow users with these IDs to play the game
+
 ## Progress
 
 - [x] Setup

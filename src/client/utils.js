@@ -18,6 +18,23 @@ function getGameId()
 	}
 }
 
+let whitelist;
+function isInUserWhitelist(userId)
+{
+	if(whitelist === undefined){
+		let re = /[?&]userWhitelist=([^&]+)/.exec(window.location.search);
+		if(re)
+			whitelist = parseCSV(re[1]);
+		else
+			whitelist = null;
+	}
+
+	if(!whitelist)
+		return true;
+	else
+		return whitelist.includes(userId);
+}
+
 function parseCSV(str){
 	if(!str) return [];
 	else return str.split(',');
@@ -88,4 +105,4 @@ function lateUpdate(fn)
 	};
 }
 
-export { getGameId, parseCSV, generateQuestion, mergeObjects, lateUpdate };
+export { getGameId, isInUserWhitelist, parseCSV, generateQuestion, mergeObjects, lateUpdate };
