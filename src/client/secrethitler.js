@@ -31,7 +31,7 @@ class SecretHitler extends THREE.Object3D
 		// polyfill getUser function
 		if(!altspace.inClient){
 			altspace.getUser = () => {
-				let id, re = /[?&]userId=(\d+)/.exec(window.location.search);
+				let id, re = /[?&]userId=([^&]+)/.exec(window.location.search);
 				if(re)
 					id = re[1];
 				else
