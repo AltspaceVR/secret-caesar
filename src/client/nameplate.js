@@ -2,6 +2,7 @@
 
 import SH from './secrethitler';
 import AM from './assetmanager';
+import {isInUserWhitelist} from './utils';
 
 export default class Nameplate extends THREE.Object3D
 {
@@ -62,6 +63,7 @@ export default class Nameplate extends THREE.Object3D
 	click(e)
 	{
 		if(SH.game.state !== 'setup') return;
+		if(!isInUserWhitelist(SH.localUser.id)) return;
 
 		if(!this.seat.owner)
 			this.requestJoin();
