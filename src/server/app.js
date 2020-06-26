@@ -43,7 +43,7 @@ app.get(config.basePath+'/', (req,res,next) => {
 });
 
 let indexCache = {};
-app.get(config.basePath+'/:theme(caesar)/', (req,res,next) => {
+app.get(config.basePath+'/:theme(caesar|hitler)/', (req,res,next) => {
 	if(!indexCache[req.params.theme])
 	{
 		let theme = {

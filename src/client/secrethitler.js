@@ -35,12 +35,12 @@ class SecretHitler extends THREE.Object3D
 				let displayName;
 				if (id) {
 					id = id[1];
-					displayName = /displayName=([^;]+)/.exec(document.cookie)[1];
+					displayName = decodeURIComponent(/displayName=([^;]+)/.exec(document.cookie)[1]);
 				} else {
-					id = Math.floor(Math.random * 0xffffffff).toString(16);
+					id = Math.floor(Math.random() * 0xffffffff).toString(16);
 					displayName = prompt("What is your name?");
 					document.cookie = "userId=" + id;
-					document.cookie = "displayName=" + displayName;
+					document.cookie = "displayName=" + encodeURIComponent(displayName);
 				}
 
 				altspace._localUser = {

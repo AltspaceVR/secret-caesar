@@ -9,7 +9,7 @@ services:
       context: .
       dockerfile: Dockerfile
     environment:
-      REDIS_HOST: db
+      REDIS_URL: redis://db
     networks:
       internal:
     ports:

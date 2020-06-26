@@ -9,13 +9,15 @@ catch(e){
 	console.warn('config.js not found, loading defaults');
 }
 
+let redisUrl = process.env.REDIS_URL;
 const defaultConfig = {
 	port: process.env.PORT || 3000,
 	basePath: '',
 	objectSyncInterval: 100,
 	redis: {
-		host: process.env.REDIS_HOST || '127.0.0.1',
-		port: process.env.REDIS_PORT || 6379
+		url: redisUrl,
+		host: process.env.REDIS_HOST || (redisUrl ? undefined : '127.0.0.1'),
+		port: process.env.REDIS_PORT || (redisUrl ? undefined : 6379)
 	},
 	localLibs: true,
 	sentry_client: null,
