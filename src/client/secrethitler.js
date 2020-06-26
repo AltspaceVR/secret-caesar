@@ -31,15 +31,21 @@ class SecretHitler extends THREE.Object3D
 		// polyfill getUser function
 		if(!altspace.inClient){
 			altspace.getUser = () => {
-				let id, re = /[?&]userId=([^&]+)/.exec(window.location.search);
-				if(re)
-					id = re[1];
-				else
-					id = Math.floor(Math.random() * 10000000).toString();
+				let id = /userId=([^;]+)/.exec(document.cookie);
+				let displayName;
+				if (id) {
+					id = id[1];
+					displayName = /displayName=([^;]+)/.exec(document.cookie)[1];
+				} else {
+					id = Math.floor(Math.random * 0xffffffff).toString(16);
+					displayName = prompt("What is your name?");
+					document.cookie = "userId=" + id;
+					document.cookie = "displayName=" + displayName;
+				}
 
 				altspace._localUser = {
 					userId: id,
-					displayName: id,
+					displayName: displayName,
 					isModerator: /isModerator/.test(window.location.search)
 				};
 				console.log('Masquerading as', altspace._localUser);

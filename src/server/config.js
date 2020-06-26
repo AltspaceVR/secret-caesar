@@ -10,14 +10,14 @@ catch(e){
 }
 
 const defaultConfig = {
-	port: 3000,
+	port: process.env.PORT || 3000,
 	basePath: '',
 	objectSyncInterval: 100,
 	redis: {
-		host: '127.0.0.1',
-		port: 6379
+		host: process.env.REDIS_HOST || '127.0.0.1',
+		port: process.env.REDIS_PORT || 6379
 	},
-	localLibs: false,
+	localLibs: true,
 	sentry_client: null,
 	sentry_server: null
 }

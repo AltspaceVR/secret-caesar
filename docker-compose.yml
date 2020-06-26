@@ -1,0 +1,20 @@
+version: "3.7"
+services:
+  db:
+    image: redis:alpine
+    networks:
+      internal:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      REDIS_HOST: db
+    networks:
+      internal:
+    ports:
+      - 3000:3000
+networks:
+  internal:
+volumes:
+  dbdata:
